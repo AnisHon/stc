@@ -1,0 +1,85 @@
+# 构建目录（CMake 通常在这里构建）
+build/
+cmake-build-*/
+out/
+
+# CMake 生成的文件
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+*.cmake
+!CMakeLists.txt
+!*.cmake.in
+
+# 编译产物
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.out
+*.app
+
+# 可执行文件
+stc
+c99cc
+cc1
+
+# 测试生成的文件
+*.test
+*.log
+*.trs
+test-suite.log
+
+# 依赖/子模块中的构建产物
+third_party/
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.user
+*.userprefs
+*.suo
+.vs/
+
+# 编译器生成的中间文件（你的项目可能产生的）
+*.s      # 如果你让编译器输出汇编文件作为中间结果
+*.i      # 预处理后的文件
+*.bc     # LLVM bitcode（如果你用了 LLVM）
+*.ll
+
+# 文档生成
+docs/html/
+docs/latex/
+docs/_build/
+
+# macOS
+.DS_Store
+
+# Linux
+*.d
+
+# Windows
+Thumbs.db
+# Clangd / LSP 缓存
+.cache/
+compile_commands.json
+compile_flags.txt
+
+# 代码覆盖率
+*.gcda
+*.gcno
+*.gcov
+coverage/
+
+# 打包目录
+*.tar
+*.tar.gz
+*.zip
