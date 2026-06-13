@@ -25,7 +25,6 @@ CTestTestfile.cmake
 *.app
 
 # 可执行文件
-stc
 c99cc
 cc1
 

@@ -1,0 +1,12 @@
+Checks: >
+  bugprone-*,
+  performance-*,
+
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-using,
+  modernize-loop-convert,
+
+  readability-braces-around-statements,
+
+  -bugprone-easily-swappable-parameters
