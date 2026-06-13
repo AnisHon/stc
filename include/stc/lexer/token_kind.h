@@ -1,6 +1,9 @@
-//
-// Created by anishan on 2026/6/11.
-//
+/**
+ * @file token_kind.h
+ * @author anishan
+ * @date 2026/6/11
+ * token 的具体枚举定义，由于太大了，所以单独写一个文件
+ */
 
 #ifndef STC_TYPES_H
 #define STC_TYPES_H

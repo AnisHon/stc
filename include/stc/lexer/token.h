@@ -1,6 +1,9 @@
-//
-// Created by anishan on 2026/6/11.
-//
+/**
+ * @file token.h
+ * @author anishan
+ * @date 2026/6/11
+ * token 及其相关工具函数定义
+ */
 
 #ifndef STC_TOKEN_H
 #define STC_TOKEN_H

@@ -1,6 +1,9 @@
-//
-// Created by anishan on 2026/6/13.
-//
+/**
+ * @file todo.c
+ * @author anishan
+ * @date 2026/6/13
+ * 简单的 TODO 工具
+ */
 
 #ifndef STC_TODO_H
 #define STC_TODO_H

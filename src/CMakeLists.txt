@@ -13,20 +13,25 @@ set(STC_LEXER_INC
         ${STC_LEXER_INC_DIR}/token.h
         ${STC_LEXER_INC_DIR}/token_kind.h
         ${STC_LEXER_INC_DIR}/lexer.h
+        ${STC_LEXER_INC_DIR}/token_stream.h
         #${STC_LEXER_INCLUDE_DIR}/
 )
 
 set(STC_LEXER_SRC
+        lexer/token_stream.cpp
+        lexer/lexer.cpp
         #${CMAKE_CURRENT_SOURCE_DIR}/lexer
 )
 
 
 # preprocessor module
 set(STC_PREPROCESSOR_INC
-        #${STC_PREPROCESSOR_INCLUDE_DIR}/
+        ${STC_PREPROCESSOR_INC_DIR}/directive.h
+        #${STC_PREPROCESSOR_INC_DIR}/
 )
 
 set(STC_PREPROCESSOR_SRC
+        ${CMAKE_CURRENT_SOURCE_DIR}/preprocessor/directive.cpp
         #${CMAKE_CURRENT_SOURCE_DIR}/preprocessor
 )
 
@@ -35,7 +40,7 @@ set(STC_PREPROCESSOR_SRC
 set(STC_SOURCE_INC
         ${STC_SOURCE_INC_DIR}/location.h
         ${STC_SOURCE_INC_DIR}/manager.h
-        #${STC_SOURCE_INCLUDE_DIR}/
+        #${STC_SOURCE_INC_DIR}/
 )
 
 set(STC_SOURCE_SRC
