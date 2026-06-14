@@ -1,6 +1,9 @@
-//
-// Created by anishan on 2026/6/12.
-//
+/**
+ * @file manager.h
+ * @author anishan
+ * @date 2026/6/12
+ * 源码管理，所有的宏都会在这里真实展开，同时复杂维护段定位真实文件位置
+ */
 
 #ifndef STC_SOURCE_MANAGER_H
 #define STC_SOURCE_MANAGER_H

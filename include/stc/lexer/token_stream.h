@@ -1,5 +1,5 @@
 /**
- * @file token_stream.c
+ * @file token_stream.h
  * @author anishan
  * @date 2026/6/13
  * token stream 用于协调宏解析和 lexer 进行，将 lexer 与预处理阶段揉在一起，负责维护宏状态

@@ -50,17 +50,23 @@ set(STC_SOURCE_SRC
 
 set(STC_UTILS_INC
         ${STC_UTILS_INC_DIR}/todo.h
-        #        ${STC_UTILS_INC_DIR}/
+        ${STC_UTILS_INC_DIR}/version.h
+        #${STC_UTILS_INC_DIR}/
 )
 
-add_executable(stc_exec
-        main.cpp
-        ${STC_LEXER_SRC}
-        ${STC_PREPROCESSOR_SRC}
-        ${STC_SOURCE_SRC}
+set(STC_UTILS_SRC
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils/version.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/utils/
 )
 
-target_sources(stc_exec PRIVATE
+add_library(stc_exec_lib
+    ${STC_LEXER_SRC}
+    ${STC_PREPROCESSOR_SRC}
+    ${STC_SOURCE_SRC}
+    ${STC_UTILS_SRC}
+)
+
+target_sources(stc_exec_lib PRIVATE
         FILE_SET HEADERS
         BASE_DIRS
         ${STC_INC_DIR}
@@ -71,11 +77,13 @@ target_sources(stc_exec PRIVATE
         ${STC_UTILS_INC}
 )
 
-
-target_include_directories(stc_exec PRIVATE ${STC_INC_DIR})
-
-target_link_libraries(stc_exec PRIVATE
+target_link_libraries(stc_exec_lib PUBLIC
         fmt::fmt
         utf8cpp::utf8cpp
         spdlog::spdlog
 )
+
+target_include_directories(stc_exec_lib PUBLIC ${STC_INC_DIR})
+
+add_executable(stc_exec main.cpp)
+target_link_libraries(stc_exec PRIVATE stc_exec_lib)
