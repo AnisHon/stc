@@ -8,24 +8,24 @@ include(FetchContent)
 function(fetch_and_declare)
     set(options)
     set(oneValueArgs
-        NAME
-        GIT_REPOSITORY
-        GIT_TAG
+            NAME
+            GIT_REPOSITORY
+            GIT_TAG
     )
 
     cmake_parse_arguments(
-        ARG
-        "${options}"
-        "${oneValueArgs}"
-        ""
-        ${ARGV}
+            ARG
+            "${options}"
+            "${oneValueArgs}"
+            ""
+            ${ARGV}
     )
 
     FetchContent_Declare(
-        ${ARG_NAME}
-        GIT_REPOSITORY ${ARG_GIT_REPOSITORY}
-        GIT_TAG ${ARG_GIT_TAG}
-        GIT_SHALLOW TRUE
+            ${ARG_NAME}
+            GIT_REPOSITORY ${ARG_GIT_REPOSITORY}
+            GIT_TAG ${ARG_GIT_TAG}
+            GIT_SHALLOW TRUE
     )
 
     FetchContent_MakeAvailable(${ARG_NAME})
@@ -41,47 +41,47 @@ endfunction()
 function(find_or_fetch)
     set(options)
     set(oneValueArgs
-        NAME
-        PACKAGE_NAME
-        PACKAGE_VERSION
-        GIT_REPOSITORY
-        GIT_TAG
-        TARGET_NAME
+            NAME
+            PACKAGE_NAME
+            PACKAGE_VERSION
+            GIT_REPOSITORY
+            GIT_TAG
+            TARGET_NAME
     )
 
     cmake_parse_arguments(
-        ARG
-        "${options}"
-        "${oneValueArgs}"
-        ""
-        ${ARGV}
+            ARG
+            "${options}"
+            "${oneValueArgs}"
+            ""
+            ${ARGV}
     )
 
-    if("${ARG_NAME}" STREQUAL "")
+    if ("${ARG_NAME}" STREQUAL "")
         message(FATAL_ERROR "NAME is empty")
-    endif()
+    endif ()
 
-    if("${ARG_PACKAGE_NAME}" STREQUAL "")
+    if ("${ARG_PACKAGE_NAME}" STREQUAL "")
         message(FATAL_ERROR "PACKAGE_NAME is empty")
-    endif()
+    endif ()
 
-    if("${ARG_TARGET_NAME}" STREQUAL "")
+    if ("${ARG_TARGET_NAME}" STREQUAL "")
         set(ARG_TARGET_NAME "${ARG_NAME}")
-    endif()
+    endif ()
 
-    find_package(${ARG_PACKAGE_NAME} ${PACKAGE_VERSION} CONFIG QUIET)
+    find_package(${ARG_PACKAGE_NAME} ${ARG_PACKAGE_VERSION} CONFIG QUIET)
 
-    if(NOT ${ARG_PACKAGE_NAME}_FOUND)
+    if (NOT ${ARG_PACKAGE_NAME}_FOUND)
         message(STATUS "Not found ${ARG_PACKAGE_NAME}, fetching ${ARG_NAME}:${ARG_GIT_TAG} from source...")
 
         fetch_and_declare(
-            NAME ${ARG_NAME}
-            GIT_REPOSITORY ${ARG_GIT_REPOSITORY}
-            GIT_TAG ${ARG_GIT_TAG}
+                NAME ${ARG_NAME}
+                GIT_REPOSITORY ${ARG_GIT_REPOSITORY}
+                GIT_TAG ${ARG_GIT_TAG}
         )
-    else()
+    else ()
         message(STATUS "Found system ${ARG_PACKAGE_NAME}")
-    endif()
+    endif ()
 
 endfunction()
 
@@ -92,34 +92,34 @@ endfunction()
 function(fetch_utf8cpp GIT_TAG)
     set(options)
     set(oneValueArgs
-        PACKAGE_VERSION
-        GIT_TAG
+            PACKAGE_VERSION
+            GIT_TAG
     )
     cmake_parse_arguments(
-        ARG
-        "${options}"
-        "${oneValueArgs}"
-        ""
-        ${ARGV}
+            ARG
+            "${options}"
+            "${oneValueArgs}"
+            ""
+            ${ARGV}
     )
 
     set(ARG_PACKAGE_NAME utf8cpp)
     set(ARG_NAME utf8cpp)
     set(ARG_GIT_REPOSITORY https://github.com/nemtrif/utfcpp.git)
 
-    find_package(${ARG_PACKAGE_NAME} ${PACKAGE_VERSION} CONFIG QUIET)
-    if(NOT ${ARG_PACKAGE_NAME}_FOUND)
+    find_package(${ARG_PACKAGE_NAME} ${ARG_PACKAGE_VERSION} CONFIG QUIET)
+    if (NOT ${ARG_PACKAGE_NAME}_FOUND)
         message(STATUS "Not found ${ARG_PACKAGE_NAME}, fetching ${ARG_NAME}:${ARG_GIT_TAG} from source...")
 
         fetch_and_declare(
-            NAME ${ARG_NAME}
-            GIT_REPOSITORY ${ARG_GIT_REPOSITORY}
-            GIT_TAG ${ARG_GIT_TAG}
+                NAME ${ARG_NAME}
+                GIT_REPOSITORY ${ARG_GIT_REPOSITORY}
+                GIT_TAG ${ARG_GIT_TAG}
         )
         add_library(utf8cpp::utf8cpp INTERFACE IMPORTED)
         target_include_directories(utf8cpp::utf8cpp INTERFACE "${utf8cpp_SOURCE_DIR}/source")
-    else()
+    else ()
         message(STATUS "Found system ${ARG_PACKAGE_NAME}")
-    endif()
+    endif ()
 
 endfunction()

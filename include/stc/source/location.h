@@ -2,6 +2,9 @@
  * @file location.h
  * @author anishan
  * @date 2026/6/11
+ * 一般对于 include 将会直接当作文件，处理时通过 FileEntry 而不是 MacroEntry
+ * 对于使用 define 定义的宏，将会实例化成一个 MacroEntry，类似模版引擎生成一段"渲染的字符串"
+ *
  * source 的管理打算应用的结构是
  * - 真的将文件展开，记录其展开后的偏移量
  * - 为了更好的位置提示，资源统一管理，实现将逻辑偏移量映射到物理偏移量，目标复杂度 O(log n)
@@ -11,22 +14,112 @@
 #ifndef STC_SOURCE_LOCATION_H
 #define STC_SOURCE_LOCATION_H
 #include <cstdint>
+#include <filesystem>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace stc::source {
 
+/// FileID 和 MacroID 的 0 视作无效 ID
 using FileID = std::uint32_t;
+using MacroID = std::uint32_t;
 
-struct File {
+constexpr FileID InvalidFileID = 0;
+constexpr MacroID InvalidMacroID = 0;
+
+/**
+ * 文件信息，
+ */
+struct FileInfo {
+    /// 文件ID，冗余存储
     FileID id;
-    std::string path;
-    std::string content;
+
+    /// 文件路径
+    std::filesystem::path path;
+
+    /// 文件内容
+    std::u8string content;
+
+    /// 行号 映射 行开始偏移量 的快速索引
     std::vector<size_t> line_starts;
 };
 
+/**
+ * 宏定义的代码信息，这里是 define
+ */
+struct MacroInfo {
+    /// 当前的ID，冗余存储
+    MacroID macro_id;
+
+    /// 定义宏的文件
+    FileID file_id;
+
+    /// 宏定义的文件起始位置
+    std::uint32_t file_begin;
+
+    /// 宏定义的文件结束位置
+    std::uint32_t file_end;
+};
+
+/**
+ * 文件的额外信息
+ */
+struct FileEntry {
+    /// 来自的文件
+    FileID id;
+
+};
+
+
+/**
+ * 宏展开的额外信息，不是 include
+ */
+struct MacroEntry {
+    /// 使用的宏
+    MacroID id;
+
+    /// 具体宏展开后的内容，由宏生成
+    std::u8string content;
+};
+
+/**
+ * 代码开始结束，代码内容
+ */
+struct SourceEntry {
+
+    /// 逻辑起始位置
+    uint32_t begin;
+
+    /// 逻辑结束位置
+    uint32_t end;
+
+    /// 代码内容
+    std::u8string_view buffer;
+
+    /// 在文件中的起始位置
+    std::uint32_t file_begin;
+
+    /// 在文件中的结束位置
+    std::uint32_t file_end;
+
+    /// 具体变体
+    std::variant<FileEntry, MacroEntry> variant;
+};
+
+/**
+ * 位置
+ */
 struct Location {
     uint32_t offset;
+};
+
+/**
+ * 位置区间
+ */
+struct LocationRange {
+    Location begin;
+    Location end;
 };
 
 

@@ -51,19 +51,20 @@ set(STC_SOURCE_SRC
 set(STC_UTILS_INC
         ${STC_UTILS_INC_DIR}/todo.h
         ${STC_UTILS_INC_DIR}/version.h
+        ${STC_UTILS_INC_DIR}/io_utils.h
         #${STC_UTILS_INC_DIR}/
 )
 
 set(STC_UTILS_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/utils/version.cpp
-#        ${CMAKE_CURRENT_SOURCE_DIR}/utils/
+        #        ${CMAKE_CURRENT_SOURCE_DIR}/utils/
 )
 
 add_library(stc_exec_lib
-    ${STC_LEXER_SRC}
-    ${STC_PREPROCESSOR_SRC}
-    ${STC_SOURCE_SRC}
-    ${STC_UTILS_SRC}
+        ${STC_LEXER_SRC}
+        ${STC_PREPROCESSOR_SRC}
+        ${STC_SOURCE_SRC}
+        ${STC_UTILS_SRC}
 )
 
 target_sources(stc_exec_lib PRIVATE

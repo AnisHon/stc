@@ -6,21 +6,29 @@
 
 namespace stc::source {
 
-
-FileID Manager::get_file_id() {
-    TODO();
+Manager::Manager() {
+    // 初始化，占用无效 0 号索引
+    this->_files.emplace_back(InvalidFileID, "", u8"");
+    this->_macros.emplace_back(InvalidMacroID, InvalidFileID, 0, 0);
 }
 
-Location Manager::get_spelling_loc() {
-    TODO();
+const FileInfo& Manager::create_file(const std::filesystem::path& path) {
+    auto [it,insert] = this->_file_id.try_emplace(path, InvalidFileID);
+
+    if (!insert) {
+        return this->_files[it->second];
+    }
+
+    FileID id = _files.size();
+
+    FileInfo{}
+
 }
 
-Location Manager::get_expansion_loc() {
-    TODO();
+const MacroInfo& Manager::create_macro(CreateMacroInfo info) {
 }
 
-std::uint32_t Manager::get_line_column() {
-    TODO();
+void Manager::push_entry(SourceEntry entry) {
 }
 
 }
