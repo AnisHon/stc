@@ -7,7 +7,7 @@
 #include "stc/lexer/token_stream.h"
 
 namespace stc::lexer {
-TokenStream::TokenStream(const std::shared_ptr<source::Manager>& source_manager) : source_manager{
+TokenStream::TokenStream(const std::shared_ptr<source::Manager>& source_manager) : _source_manager{
     source_manager} {
 }
 }

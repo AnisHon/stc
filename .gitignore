@@ -1,4 +1,4 @@
-# 构建目录（CMake 通常在这里构建）
+# 构建目录
 build/
 cmake-build-*/
 out/
@@ -34,9 +34,6 @@ cc1
 *.trs
 test-suite.log
 
-# 依赖/子模块中的构建产物
-third_party/
-
 # IDE 文件
 .vscode/
 .idea/
@@ -49,9 +46,9 @@ third_party/
 .vs/
 
 # 编译器生成的中间文件（你的项目可能产生的）
-*.s      # 如果你让编译器输出汇编文件作为中间结果
-*.i      # 预处理后的文件
-*.bc     # LLVM bitcode（如果你用了 LLVM）
+*.s
+*.i
+*.bc
 *.ll
 
 # 文档生成

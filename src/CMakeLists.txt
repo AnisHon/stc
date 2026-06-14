@@ -74,5 +74,8 @@ target_sources(stc_exec PRIVATE
 
 target_include_directories(stc_exec PRIVATE ${STC_INC_DIR})
 
-target_link_libraries(stc_exec PRIVATE fmt::fmt)
-target_link_libraries(stc_exec PRIVATE utf8cpp::utf8cpp)
+target_link_libraries(stc_exec PRIVATE
+        fmt::fmt
+        utf8cpp::utf8cpp
+        spdlog::spdlog
+)
