@@ -1,6 +1,5 @@
 #include "stc/utils/strutils.h"
 
-#include <fmt/ranges.h>
 #include <catch2/catch_test_macros.hpp>
 #include <string_view>
 #include <vector>

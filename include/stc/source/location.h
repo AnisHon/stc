@@ -14,7 +14,6 @@
 
 #ifndef STC_SOURCE_LOCATION_H
 #define STC_SOURCE_LOCATION_H
-#include <cstdint>
 #include <filesystem>
 #include <string>
 #include <variant>
@@ -34,16 +33,16 @@ constexpr MacroID InvalidMacroID = 0;
  */
 struct FileInfo {
     /// 文件ID，冗余存储
-    FileID id;
+    const FileID id;
 
     /// 文件路径
-    std::filesystem::path path;
+    const std::filesystem::path path;
 
     /// 文件内容
-    std::u8string content;
+    const std::u8string content;
 
     /// 行号 映射 行开始偏移量 的快速索引
-    std::vector<std::uint32_t> line_starts;
+    const std::vector<std::uint32_t> line_starts;
 };
 
 /**
@@ -51,16 +50,16 @@ struct FileInfo {
  */
 struct MacroInfo {
     /// 当前的ID，冗余存储
-    MacroID macro_id;
+    const MacroID macro_id;
 
     /// 定义宏的文件
-    FileID file_id;
+    const FileID file_id;
 
     /// 宏定义的文件起始位置
-    std::uint32_t file_begin;
+    const std::uint32_t file_begin;
 
     /// 宏定义的文件结束位置
-    std::uint32_t file_end;
+    const std::uint32_t file_end;
 };
 
 /**
@@ -68,7 +67,7 @@ struct MacroInfo {
  */
 struct FileEntry {
     /// 来自的文件
-    FileID id;
+    const FileID id;
 
 };
 
@@ -78,10 +77,10 @@ struct FileEntry {
  */
 struct MacroEntry {
     /// 使用的宏
-    MacroID id;
+    const MacroID id;
 
     /// 具体宏展开后的内容，由宏生成
-    std::u8string content;
+    const std::u8string content;
 };
 
 /**
@@ -90,39 +89,38 @@ struct MacroEntry {
 struct SourceEntry {
 
     /// 逻辑起始位置
-    uint32_t begin;
+    const uint32_t begin;
 
     /// 逻辑结束位置
-    uint32_t end;
+    const uint32_t end;
 
     /// 代码内容
-    std::u8string_view buffer;
+    const std::u8string_view buffer;
 
     /// 在文件中的起始位置
-    std::uint32_t file_begin;
+    const std::uint32_t file_begin;
 
     /// 在文件中的结束位置
-    std::uint32_t file_end;
+    const std::uint32_t file_end;
 
     /// 具体变体
-    std::variant<FileEntry, MacroEntry> variant;
+    const std::variant<FileEntry, MacroEntry> variant;
 };
 
 /**
  * 位置
  */
 struct Location {
-    uint32_t offset;
+    const uint32_t offset;
 };
 
 /**
  * 位置区间
  */
 struct LocationRange {
-    Location begin;
-    Location end;
+    const Location begin;
+    const Location end;
 };
-
 
 }
 

@@ -8,18 +8,20 @@
 #ifndef STC_TOKEN_H
 #define STC_TOKEN_H
 
-#include <string_view>
-
 #include "stc/source/location.h"
 #include "token_kind.h"
+#include "string_interner.h"
 
 namespace stc::lexer {
 
+/**
+ * Token 数据结构，设计为不可变数据类型
+ */
 struct Token {
-    TokenKind kind;
-    std::string_view lexeme;
-    source::Location begin;
-    source::Location end;
+    const TokenKind kind;
+    const Lexeme lexeme;
+    const source::Location begin;
+    const source::Location end;
 
     [[nodiscard]] constexpr bool is_keyword() const {
         return lexer::is_keyword(this->kind);

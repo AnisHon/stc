@@ -9,13 +9,17 @@
 #define STC_LEXER_H
 #include "token.h"
 
-#include <memory>
-
 namespace stc::lexer {
 
 class Lexer {
+
+    enum State {
+
+    };
+
 public:
     Lexer(uint32_t start_offset, std::u8string_view::const_iterator _source_iter);
+
     Token next_token();
 
 private:

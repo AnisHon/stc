@@ -7,11 +7,11 @@
 
 #ifndef STC_SOURCE_MANAGER_H
 #define STC_SOURCE_MANAGER_H
-#include "location.h"
 
 #include <filesystem>
 #include <unordered_map>
 
+#include "location.h"
 #include "stc/utils/io_utils.h"
 
 

@@ -14,12 +14,14 @@ set(STC_LEXER_INC
         ${STC_LEXER_INC_DIR}/token_kind.h
         ${STC_LEXER_INC_DIR}/lexer.h
         ${STC_LEXER_INC_DIR}/token_stream.h
+        ${STC_LEXER_INC_DIR}/string_interner.h
         #${STC_LEXER_INCLUDE_DIR}/
 )
 
 set(STC_LEXER_SRC
-        lexer/token_stream.cpp
-        lexer/lexer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/token_stream.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/lexer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/string_interner.cpp
         #${CMAKE_CURRENT_SOURCE_DIR}/lexer
 )
 
@@ -44,7 +46,7 @@ set(STC_SOURCE_INC
 )
 
 set(STC_SOURCE_SRC
-        source/manager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/manager.cpp
         #${CMAKE_CURRENT_SOURCE_DIR}/source
 )
 
