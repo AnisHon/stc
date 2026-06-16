@@ -4,6 +4,7 @@
  * @date 2026/6/11
  * 一般对于 include 将会直接当作文件，处理时通过 FileEntry 而不是 MacroEntry
  * 对于使用 define 定义的宏，将会实例化成一个 MacroEntry，类似模版引擎生成一段"渲染的字符串"
+ * 所有的索引都是字节索引，不是 u8 字符索引
  *
  * source 的管理打算应用的结构是
  * - 真的将文件展开，记录其展开后的偏移量
@@ -42,7 +43,7 @@ struct FileInfo {
     std::u8string content;
 
     /// 行号 映射 行开始偏移量 的快速索引
-    std::vector<size_t> line_starts;
+    std::vector<std::uint32_t> line_starts;
 };
 
 /**

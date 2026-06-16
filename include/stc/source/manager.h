@@ -8,10 +8,11 @@
 #ifndef STC_SOURCE_MANAGER_H
 #define STC_SOURCE_MANAGER_H
 #include "location.h"
-#include "cstdint"
 
 #include <filesystem>
 #include <unordered_map>
+
+#include "stc/utils/io_utils.h"
 
 
 namespace stc::source {
@@ -42,14 +43,14 @@ public:
      * @param path 文件路径
      * @return 创建 FileInfo
      */
-    const FileInfo& create_file(const std::filesystem::path& path);
+    auto create_file(const std::filesystem::path& path) -> std::expected<FileID, utils::IOError>;
 
     /**
      * 创建宏信息
      * @param info 宏信息
      * @return 创建的 MacroInfo
      */
-    const MacroInfo& create_macro(CreateMacroInfo info);
+    MacroID create_macro(CreateMacroInfo info);
 
     /**
      * 推入代码片段

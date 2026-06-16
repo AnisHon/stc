@@ -49,9 +49,10 @@ set(STC_SOURCE_SRC
 )
 
 set(STC_UTILS_INC
-        ${STC_UTILS_INC_DIR}/todo.h
+        ${STC_UTILS_INC_DIR}/macros.h
         ${STC_UTILS_INC_DIR}/version.h
         ${STC_UTILS_INC_DIR}/io_utils.h
+        ${STC_UTILS_INC_DIR}/strutils.h
         #${STC_UTILS_INC_DIR}/
 )
 

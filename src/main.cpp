@@ -9,7 +9,6 @@ int main() {
     std::cout << "Hello World, version: " << stc::get_version() << '\n';
 
     stc::source::Manager manager;
-    manager.get_spelling_loc();
     return 0;
 }
 
