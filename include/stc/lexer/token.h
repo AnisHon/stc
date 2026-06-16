@@ -18,10 +18,14 @@ namespace stc::lexer {
  * Token 数据结构，设计为不可变数据类型
  */
 struct Token {
+    /// Token 的种类
     const TokenKind kind;
+
+    /// 词素
     const Lexeme lexeme;
-    const source::Location begin;
-    const source::Location end;
+
+    /// 位置
+    const source::LocationRange range;
 
     [[nodiscard]] constexpr bool is_keyword() const {
         return lexer::is_keyword(this->kind);

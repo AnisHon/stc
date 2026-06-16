@@ -48,8 +48,8 @@ public:
     const char8_t* intern(std::u8string_view str);
 
 private:
-    std::unordered_set<std::u8string_view> _intern_table;
-    std::pmr::monotonic_buffer_resource _arena;
+    std::unordered_set<std::u8string_view> intern_table_;
+    std::pmr::monotonic_buffer_resource arena_;
 };
 
 }

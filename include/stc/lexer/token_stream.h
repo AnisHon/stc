@@ -8,11 +8,11 @@
 #ifndef STC_TOKEN_STREAM_H
 #define STC_TOKEN_STREAM_H
 
-#include "stc/preprocessor/directive.h"
-
 #include <memory>
 #include <stack>
+
 #include "stc/source/manager.h"
+#include "stc/preprocessor/directive.h"
 
 
 namespace stc::lexer {
@@ -22,8 +22,8 @@ public:
     explicit TokenStream(const std::shared_ptr<source::Manager>& source_manager);
 
 private:
-    std::shared_ptr<source::Manager> _source_manager;
-    std::stack<preprocessor::Directive> _pp_stack;
+    std::shared_ptr<source::Manager> source_manager_;
+    std::stack<preprocessor::Directive> pp_stack_;
 };
 
 

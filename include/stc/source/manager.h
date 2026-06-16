@@ -60,16 +60,16 @@ public:
 
 private:
     /// path 到 FileID 的映射，防重
-    std::unordered_map<std::string, FileID> _file_id;
+    std::unordered_map<std::string, FileID> file_id_;
 
     /// FileID 到 FileInfo 的映射，0无效
-    std::vector<FileInfo> _files;
+    std::vector<FileInfo> files_;
 
     /// MacroID 到 MacroInfo 的映射，0无效
-    std::vector<MacroInfo> _macros;
+    std::vector<MacroInfo> macros_;
 
     /// 源码 entries 数组，所有展开都会在这里展平
-    std::vector<SourceEntry> _entries;
+    std::vector<SourceEntry> entries_;
 };
 
 

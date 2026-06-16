@@ -13,9 +13,18 @@ namespace stc::lexer {
 
 class Lexer {
 
-    enum State {
-
+    /**
+     * Lexer是一个状态机，这是状态
+     */
+    enum class State {
+        /// 初始状态
+        Init,
+        /// 错误状态，指针不会推进，只会返回 Invalid Token
+        Error,
     };
+
+private:
+
 
 public:
     Lexer(uint32_t start_offset, std::u8string_view::const_iterator _source_iter);
@@ -23,8 +32,9 @@ public:
     Token next_token();
 
 private:
-    const uint32_t _start_offset;
-    std::u8string_view::const_iterator _source_iter;
+    State current_state_;
+    const uint32_t start_offset_;
+    std::u8string_view::const_iterator source_iter_;
 };
 
 }

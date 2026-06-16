@@ -9,8 +9,8 @@
 
 namespace stc::lexer {
 Lexer::Lexer(const uint32_t start_offset,
-             const std::u8string_view::const_iterator _source_iter) : _start_offset{start_offset},
-    _source_iter{_source_iter} {
+             const std::u8string_view::const_iterator _source_iter) : start_offset_{start_offset},
+    source_iter_{_source_iter} {
 
 }
 
