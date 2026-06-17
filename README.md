@@ -7,5 +7,5 @@ uv run script/unicode_gen.py resources/DerivedCoreProperties.txt \
   --template_source resources/templates/unicode_props.cpp.jinja \
   --template_header resources/templates/unicode_props.h.jinja \
   --include_path stc/utils/generated/unicode_props.h \
-  --namespace stc::utils
+  --namespace stc::utils::gen
 ```

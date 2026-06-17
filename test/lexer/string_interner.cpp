@@ -6,9 +6,9 @@
 
 #include <string_view>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include "stc/lexer/string_interner.h"
-#include <catch2/generators/catch_generators.hpp> // 提供 GENERATE 宏
 
 using namespace std::string_view_literals;
 

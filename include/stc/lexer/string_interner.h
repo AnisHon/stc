@@ -7,9 +7,9 @@
 
 #ifndef STC_IDENT_TABLE_H
 #define STC_IDENT_TABLE_H
+#include <string_view>
 #include <memory_resource>
 #include <unordered_set>
-#include <vector>
 
 namespace stc::lexer {
 

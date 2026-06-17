@@ -4,7 +4,14 @@
  */
 #pragma once
 
+#include <cstdint>
+
 namespace {{ namespace_name }} {
+
+enum class UnicodeClass: std::uint32_t { {% for entry in tag_entries %}
+    {{ entry[0] }} = {{ entry[1] }},
+{%- endfor %}
+};
 
 struct UnicodeRange {
     const char32_t beg;

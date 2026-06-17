@@ -4,8 +4,8 @@
  * @date 2026/6/16
  */
 
+#include <cstring>
 #include "stc/lexer/string_interner.h"
-
 
 namespace stc::lexer {
 

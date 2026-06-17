@@ -55,6 +55,7 @@ set(STC_UTILS_INC
         ${STC_UTILS_INC_DIR}/version.h
         ${STC_UTILS_INC_DIR}/io_utils.h
         ${STC_UTILS_INC_DIR}/strutils.h
+        ${STC_UTILS_INC_DIR}/unicode_utils.h
         ${STC_UTILS_INC_DIR}/generated/unicode_props.h
         #${STC_UTILS_INC_DIR}/
 )

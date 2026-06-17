@@ -6,23 +6,24 @@ from datetime import datetime
 from jinja2 import Template
 
 
+def translate_tags(tags: list[str], str2num: dict[str, list[int]]):
+    """
+    tags转换成bit field数字
+    """
+    tag_nums = map(lambda x: str2num[x], tags)  # list[list[int]]
+    tag_num: list[int] = [sum(nums) for nums in zip(*tag_nums)]
+    bit_num = 0
+    for i, item in enumerate(reversed(tag_num)):
+        bit_num += item << i
+
+    return bit_num
+
+
 class Property:
     def __init__(self, beg: int, end: int, tags: list[str]):
         self.beg = beg
         self.end = end
         self.tags = tags
-
-    def translate_tags(self, str2num: dict[str, list[int]]):
-        """
-        tags转换成bit field数字
-        """
-        tag_nums = map(lambda x: str2num[x], self.tags)  # list[list[int]]
-        tag_num: list[int] = [sum(nums) for nums in zip(*tag_nums)]
-        bit_num = 0
-        for i, item in enumerate(reversed(tag_num)):
-            bit_num += item << i
-
-        return bit_num
 
     def __repr__(self):
         return self.__str__()
@@ -164,7 +165,7 @@ def combine_interval(props: list[Property]) -> list[Property]:
 
 
 def generate_codes(template_source_path: str, template_header_path: str, include_path: str, namespace: str,
-                   ranges: list[ICURange]) -> tuple[str, str]:
+                   ranges: list[ICURange], tag_entries: list[tuple[str, str]]) -> tuple[str, str]:
     with open(template_source_path, "r", encoding="utf-8") as f:
         template_source = Template(f.read())
 
@@ -181,7 +182,8 @@ def generate_codes(template_source_path: str, template_header_path: str, include
     context_header = {
         'namespace_name': namespace,
         'generated_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'ranges_len': len(ranges)
+        'ranges_len': len(ranges),
+        'tag_entries': tag_entries,
     }
 
     source = template_source.render(**context_source)
@@ -217,10 +219,11 @@ def main():
     props = combine_interval(props)  # 合并
     tags: list[str] = collect_tags(props)  # 收集标签
     str2num: dict[str, list[int]] = assign_bit_field(tags)  # 映射标签
-    entries = map(lambda x: (x, x.translate_tags(str2num)), props)  # 准备entry
-    ranges: list[ICURange] = list(map(lambda x: ICURange(x[0].beg, x[0].beg, x[1], x[0].tags), entries))  # 生成最终区间
+    entries = map(lambda x: (x, translate_tags(x.tags, str2num)), props)  # 准备entry
+    ranges: list[ICURange] = list(map(lambda x: ICURange(x[0].beg, x[0].end, x[1], x[0].tags), entries))  # 生成最终区间
+    tags_entries = list(map(lambda x: (x, hex(translate_tags([x], str2num))), tags))
     source, header = generate_codes(args.template_source, args.template_header, args.include_path, args.namespace,
-                                    ranges)  # 生成代码
+                                    ranges, tags_entries)  # 生成代码
 
     write_codes(output_source, source)
     write_codes(output_header, header)
