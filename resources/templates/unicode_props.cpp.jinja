@@ -1,0 +1,18 @@
+/**
+ * @date {{ generated_time }}
+ * Generated, DO NOT EDIT!!!
+ */
+
+#include "{{ include_path }}"
+
+namespace {{ namespace_name }} {
+
+/**
+ * @brief ICU字符范围数据表
+ */
+const UnicodeRange UNICODE_RANGES[] = { {% for range in ranges %}
+    { {{ range.beg }}, {{ range.end }}, {{ range.tag }} },  // 范围 #{{ range.tag_str }}
+{%- endfor %}
+};
+
+} // namespace {{ namespace_name }}

@@ -111,16 +111,34 @@ struct SourceEntry {
  * 位置
  */
 struct Location {
-    const uint32_t offset;
+    uint32_t offset;
 };
 
 /**
- * 位置区间
+ * 实现偏移量和location的加法，都是32位数不使用指针和引用，拷贝更快
+ * @return new_location: location.offset + rhs
+ */
+constexpr Location operator+(Location lhs, const uint32_t rhs) {
+    lhs.offset += rhs;
+    return lhs;
+}
+
+/**
+ * 位置区间，左闭右开 [L, R)
  */
 struct LocationRange {
     const Location begin;
     const Location end;
 };
+
+
+constexpr Location zero_loc() {
+    return {};
+}
+
+constexpr LocationRange zero_range() {
+    return {zero_loc(), zero_loc()};
+}
 
 }
 

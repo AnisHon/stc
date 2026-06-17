@@ -1,0 +1,20 @@
+/**
+ * @date {{ generated_time }}
+ * Generated, DO NOT EDIT!!!
+ */
+#pragma once
+
+namespace {{ namespace_name }} {
+
+struct UnicodeRange {
+    const char32_t beg;
+    const char32_t end;
+    const char32_t tag;
+};
+
+/**
+ * @brief ICU字符范围数据表
+ */
+extern const UnicodeRange UNICODE_RANGES[{{ ranges_len }}];
+
+} // namespace {{ namespace_name }}

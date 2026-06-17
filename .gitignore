@@ -78,3 +78,6 @@ coverage/
 *.tar
 *.tar.gz
 *.zip
+
+# 虚拟目录
+.venv/

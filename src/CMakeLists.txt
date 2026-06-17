@@ -55,12 +55,14 @@ set(STC_UTILS_INC
         ${STC_UTILS_INC_DIR}/version.h
         ${STC_UTILS_INC_DIR}/io_utils.h
         ${STC_UTILS_INC_DIR}/strutils.h
+        ${STC_UTILS_INC_DIR}/generated/unicode_props.h
         #${STC_UTILS_INC_DIR}/
 )
 
 set(STC_UTILS_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/utils/version.cpp
-        #        ${CMAKE_CURRENT_SOURCE_DIR}/utils/
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils/generated/unicode_props.cpp
+        #${CMAKE_CURRENT_SOURCE_DIR}/utils/
 )
 
 add_library(stc_exec_lib

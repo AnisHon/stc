@@ -27,6 +27,7 @@ struct Token {
     /// 位置
     const source::LocationRange range;
 
+
     [[nodiscard]] constexpr bool is_keyword() const {
         return lexer::is_keyword(this->kind);
     }
@@ -39,6 +40,15 @@ struct Token {
         return lexer::is_assignment_op(this->kind);
     }
 };
+
+/**
+ * 返回一个无效token
+ * @return 无效Token
+ */
+constexpr Token invalid_token() {
+    return {TokenKind::Invalid, null_lexeme(), source::zero_range()};
+}
+
 
 }
 

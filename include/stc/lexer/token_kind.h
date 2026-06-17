@@ -13,7 +13,7 @@ namespace stc::lexer {
 
 enum class TokenKind: std::uint8_t {
     // Special
-    Invalid,
+    Invalid = 0,
     Eof,
 
     // Identifiers

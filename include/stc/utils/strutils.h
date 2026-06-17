@@ -13,6 +13,11 @@
 
 namespace stc::utils {
 
+/**
+ * 计算行开始索引映射表
+ * @param content 进行分段字符串的片段
+ * @return 行开始索引表
+ */
 inline std::vector<std::uint32_t> get_line_start_indices(const std::u8string_view content) {
     enum class State {
         LineStart,
@@ -51,6 +56,10 @@ inline std::vector<std::uint32_t> get_line_start_indices(const std::u8string_vie
         }
     }
     return line_starts;
+}
+
+inline bool is_start_char(const char32_t chr) {
+    
 }
 }
 

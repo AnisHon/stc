@@ -29,6 +29,14 @@ constexpr bool operator==(const Lexeme& a, const Lexeme& b) {
 }
 
 /**
+ * 返回一个空的词素
+ * @return 空词素
+ */
+constexpr Lexeme null_lexeme() {
+    return Lexeme(nullptr, 0);
+}
+
+/**
  * 字符串驻留池，保证字符串视图和当前驻留池同生命周期，驻留池失效后会所有字符串视图都会悬挂，
  * 所以一定要保证驻留池生命周期远大于所有其他使用者？或者可以放到 thread_local
  */
