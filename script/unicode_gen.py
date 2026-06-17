@@ -225,8 +225,10 @@ def main():
     write_codes(output_source, source)
     write_codes(output_header, header)
 
+    return 0
+
 
 if __name__ == '__main__':
-    main()
+    SystemExit(main())
 else:
     raise RuntimeError("it's a script, not a module")
