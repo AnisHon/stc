@@ -1,0 +1,53 @@
+/**
+ * @date {{ generated_time }}
+ * Generated, DO NOT EDIT!!!
+ */
+#pragma once
+
+#include <cstdint>
+namespace {{ namespace_name }} {
+
+enum class TokenKind: std::uint8_t {
+    // Special
+    {% for s in specials -%}
+    {{ s.name }}
+    {% endfor %}
+
+    // Identifiers
+    {% for ident in identifiers -%}
+    {{ ident.name }}
+    {% endfor %}
+
+    // Literals
+    {% for l in literals -%}
+    {{ l.name }}
+    {% endfor %}
+
+    // C Keywords
+    {% for k in keywords -%}
+    {{ k.alias }} // {{ k.keyword }} {{ k.since }}
+    {% endfor %}
+
+    // Delimiters
+    {% for d in delimiters -%}
+    {{ d.name }} // {{ d.symbol }}
+    {% endfor %}
+
+    // Operators
+    {% for d in delimiters -%}
+    {{ d.name }} // {{ d.symbol }}
+    {% endfor %}
+
+    // Preprocessor
+    {% for d in delimiters -%}
+    {{ d.name }} // {{ d.symbol }}
+    {% endfor %}
+
+    // Digraphs (optional)
+    {% for d in delimiters -%}
+    {{ d.name }} // {{ d.symbol }}
+    {% endfor %}
+
+};
+
+} // namespace {{ namespace_name }}
