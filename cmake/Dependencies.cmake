@@ -9,6 +9,12 @@ find_or_fetch(
 )
 
 find_or_fetch(
+        PACKAGE_NAME cpptrace
+        GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+        GIT_TAG v1.0.4
+)
+
+find_or_fetch(
         PACKAGE_NAME spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
         GIT_TAG v1.17.0

@@ -1,3 +1,5 @@
+#include <stc/utils/macros.h>
+
 #include <iostream>
 #include <fmt/format.h>
 
@@ -8,7 +10,7 @@ int main() {
 
     std::cout << "Hello World, version: " << stc::get_version() << '\n';
 
-    stc::source::Manager manager;
+    ASSERT(1 == 2, "shoule be");
     return 0;
 }
 

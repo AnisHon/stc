@@ -62,6 +62,7 @@ set(STC_UTILS_INC
 
 set(STC_UTILS_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/utils/version.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils/macros.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/utils/generated/unicode_props.cpp
         #${CMAKE_CURRENT_SOURCE_DIR}/utils/
 )
@@ -88,6 +89,7 @@ target_link_libraries(stc_exec_lib PUBLIC
         fmt::fmt
         utf8cpp::utf8cpp
         spdlog::spdlog
+        cpptrace::cpptrace
 )
 
 target_include_directories(stc_exec_lib PUBLIC ${STC_INC_DIR})

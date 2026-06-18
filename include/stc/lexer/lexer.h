@@ -19,11 +19,14 @@ class Lexer {
     /**
      * Lexer是一个状态机，这是状态
      */
-    enum class State {
+    enum class State: std::uint8_t {
         /// 初始状态
         Init,
+        /// 可能是字符串或标识符
+        MaybeKeywordOrIdent,
         /// 错误状态，指针不会推进，只会返回 Invalid Token
         Error,
+        /// 结束状态
         Eof,
     };
 

@@ -1,14 +1,25 @@
 /**
- * @file lexer.c
+ * @file lexer.cpp
  * @author anishan
  * @date 2026/6/13
  */
 
+
+#include <utf8/core.h>
+
 #include "stc/lexer/lexer.h"
 #include "stc/utils/macros.h"
+#include "stc/utils/unicode_utils.h"
 
-#include <assert.h>
-#include <utf8/cpp17.h>
+#include <utf8/checked.h>
+
+/**
+ * 是否是 identifier start
+ */
+static bool is_ident_start(const char32_t code_point) {
+    const bool xid_start = stc::utils::is_xid_start(code_point);
+    return xid_start || code_point == U'_';
+}
 
 namespace stc::lexer {
 Lexer::Lexer(
@@ -20,7 +31,7 @@ Lexer::Lexer(
         , source_beg_(source.cbegin())
         , source_iter_{source.cbegin()}
         , source_end_{source.cend()} {
-    assert(utf8::is_valid(source.begin(), source.end()));
+    ASSERT(utf8::is_valid(source.begin(), source.end()), "无效UTF8字符串");
 }
 
 
@@ -56,12 +67,12 @@ source::LocationRange Lexer::make_range_() {
  * 下一个码点，移动迭代器
  */
 inline char32_t Lexer::next_() {
-    assert(this->source_iter_ != this->source_end_);
+    ASSERT(this->source_iter_ != this->source_end_);
     return utf8::next(this->source_iter_, source_end_);
 }
 
 inline char32_t Lexer::peek_() const {
-    assert(this->source_iter_ != this->source_end_);
+    ASSERT(this->source_iter_ != this->source_end_);
     return utf8::peek_next(this->source_iter_, source_end_);
 }
 
@@ -74,9 +85,7 @@ Lexer::State Lexer::handle_init_state_() {
     if (this->source_iter_ == this->source_end_) {
         return State::Eof;
     }
-
-
-
+    TODO("todo"); // todo
 }
 
 Token Lexer::next_token() {
