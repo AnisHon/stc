@@ -9,7 +9,7 @@
 #define STC_TOKEN_H
 
 #include "stc/source/location.h"
-#include "token_kind.h"
+#include "generated/token_kinds.h"
 #include "string_interner.h"
 
 namespace stc::lexer {

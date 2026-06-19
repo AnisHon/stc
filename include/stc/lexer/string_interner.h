@@ -53,13 +53,15 @@ public:
      * @param str 加入字符串
      * @return
      */
-    const char8_t* intern(std::u8string_view str);
+    Lexeme intern(std::u8string_view str);
 
 private:
-    std::unordered_set<std::u8string_view> intern_table_;
-    std::pmr::monotonic_buffer_resource arena_;
+    std::unordered_set<std::u8string_view> intern_table_{};
+    std::pmr::monotonic_buffer_resource arena_{};
 };
 
-}
+inline thread_local StringInterner interner;
+
+} // namespace stc::lexer
 
 #endif //STC_IDENT_TABLE_H

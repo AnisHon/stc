@@ -72,7 +72,6 @@ private:
     std::vector<SourceEntry> entries_;
 };
 
-
 }
 
 #endif //STC_SOURCE_MANAGER_H

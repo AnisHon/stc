@@ -9,10 +9,10 @@
 
 namespace stc::lexer {
 
-const char8_t* StringInterner::intern(const std::u8string_view str) {
+Lexeme StringInterner::intern(const std::u8string_view str) {
     // 如果找到，返回池内的字符串，不能信任用户传进来的 string_view 所以这里进行两次哈希
     if (const auto it = this->intern_table_.find(str); it != intern_table_.end()) {
-        return it->data();
+        return Lexeme{it->data(), str.size()};
     }
     // 没找到，创建，多申请一个字节放 NULL 字符
     const auto block = static_cast<char8_t*>(
@@ -26,7 +26,7 @@ const char8_t* StringInterner::intern(const std::u8string_view str) {
 
     this->intern_table_.insert(view);
 
-    return block;
+    return Lexeme{block, str.size()};
 }
 
 }

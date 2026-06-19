@@ -24,17 +24,30 @@ class Lexer {
         Init,
         /// 可能是字符串或标识符
         MaybeKeywordOrIdent,
+        MaybeComment,
+        /// 可能是宏
+        MaybeMacro,
         /// 错误状态，指针不会推进，只会返回 Invalid Token
-        Error,
+        Invalid,
         /// 结束状态
         Eof,
     };
+
+    bool is_comment_() const;
+
+    std::u8string_view get_current_view_() const;
+
 
     /**
      * 初始状态转移
      * @return 取决于读到的第一个字符
      */
-    State handle_init_state_();
+    State handle_init_state_() const;
+
+    /**
+     * 如果 is_ident_start 成立就是则可以调用这个函数，否则出错
+     */
+    Token handle_keyword_or_ident_();
 
     /**
      * 移动迭代器，计算一个utf8码点，维护一个索引位置，不允许对已经结束的迭代器操作
@@ -44,16 +57,22 @@ class Lexer {
 
     char32_t peek_() const;
 
+    void skip_white_space();
+
     /**
      * @return 当前位置的loc
      */
-    source::Location make_current_location_();
+    source::Location make_current_location_() const;
 
     /**
-     * 计算当前的位置，并自动更新 prev_location_
-     * @return 返回一个当前到目前为止的一个 LocationRange
+     * 计算当前的位置
      */
-    source::LocationRange make_range_();
+    source::LocationRange make_range_() const;
+
+    /**
+      * 利用当前信息构建一个 Token，会移动 prev 指针
+      */
+    Token make_token_(TokenKind kind);
 
 public:
     Lexer(source::Location start_offset, std::u8string_view source);
@@ -65,8 +84,10 @@ public:
      */
     Token next_token();
 
-private
-:
+private:
+    /// 是否是行开始状态
+    bool is_start_of_line;
+
     /// 状态机当前状态
     State current_state_;
 
@@ -74,13 +95,13 @@ private
     const source::Location start_offset_;
 
     /// 每次 Token 结束的下一个位置
-    source::Location prev_location_;
+    std::u8string_view::const_iterator prev_iter_;
 
     /// 起始位置迭代器
     const std::u8string_view::const_iterator source_beg_;
 
     /// 当前位置迭代器
-    std::u8string_view::const_iterator source_iter_;
+    std::u8string_view::const_iterator current_iter_;
 
     /// 尾后迭代器
     const std::u8string_view::const_iterator source_end_;
