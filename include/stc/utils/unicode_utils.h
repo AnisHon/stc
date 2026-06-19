@@ -74,6 +74,11 @@ inline bool is_xid_continue(const char32_t chr) {
         );
 }
 
+inline bool is_ascii_whitespace(const char32_t chr) {
+    return chr == U' ' || chr == U'\t' || chr == U'\n' ||
+           chr == U'\r' || chr == U'\f' || chr == U'\v';
+}
+
 }
 
 #endif //STC_UNICODE_UTILS_H

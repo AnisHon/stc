@@ -14,6 +14,10 @@ uv run script/unicode_gen.py resources/DerivedCoreProperties.txt \
 
 ```shell
 uv run script/token_gen.py resources/token_def.txt \
-  --token_kind_template resources/templates/token_kinds.h.jinja \
-  --namespace stc::token
+  --token_kind_header_template resources/templates/token_kinds.h.jinja \
+  --token_kind_source_template resources/templates/token_kinds.cpp.jinja \
+  --token_kind_header include/stc/lexer/generated/token_kinds.h \
+  --token_kind_source src/lexer/generated/token_kinds.cpp \
+  --include_path stc/lexer/generated/token_kinds.h \
+  --namespace stc::lexer
 ```

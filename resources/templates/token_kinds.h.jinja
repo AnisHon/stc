@@ -5,49 +5,63 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
+
 namespace {{ namespace_name }} {
 
 enum class TokenKind: std::uint8_t {
     // Special
     {% for s in specials -%}
-    {{ s.name }}
+    {{ s.name }},
     {% endfor %}
 
     // Identifiers
     {% for ident in identifiers -%}
-    {{ ident.name }}
+    {{ ident.name }},
     {% endfor %}
 
     // Literals
     {% for l in literals -%}
-    {{ l.name }}
+    {{ l.name }},
     {% endfor %}
 
     // C Keywords
     {% for k in keywords -%}
-    {{ k.alias }} // {{ k.keyword }} {{ k.since }}
+    {{ k.alias }}, // {{ k.keyword }} {{ k.since }}
     {% endfor %}
 
     // Delimiters
     {% for d in delimiters -%}
-    {{ d.name }} // {{ d.symbol }}
+    {{ d.name }}, // {{ d.symbol }}
     {% endfor %}
 
     // Operators
-    {% for d in delimiters -%}
-    {{ d.name }} // {{ d.symbol }}
+    {% for d in operators -%}
+    {{ d.name }}, // {{ d.symbol }}
     {% endfor %}
 
     // Preprocessor
-    {% for d in delimiters -%}
-    {{ d.name }} // {{ d.symbol }}
+    {% for p in preprocessors -%}
+    {{ p.name }}, // {{ p.symbol }}
     {% endfor %}
 
     // Digraphs (optional)
-    {% for d in delimiters -%}
-    {{ d.name }} // {{ d.symbol }}
+    {% for d in digraphs -%}
+    {{ d.name }}, // {{ d.symbol }}
     {% endfor %}
 
 };
+
+TokenKind lookup_keyword(std::u8string_view view);
+
+bool is_keyword(TokenKind k);
+
+bool is_literal(TokenKind k);
+
+bool is_assignment_op(TokenKind k);
+
+bool is_preprocessor(TokenKind k);
+
+std::string_view to_string(TokenKind k);
 
 } // namespace {{ namespace_name }}

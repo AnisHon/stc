@@ -1,6 +1,6 @@
 include(Utils)
 
-# Dependencies: utf8cpp fmt catch2 spdlog sparsepp
+# Dependencies:  fmt cpptrace spdlog utf8cpp catch2
 
 find_or_fetch(
         PACKAGE_NAME fmt

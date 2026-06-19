@@ -5,6 +5,8 @@ from datetime import datetime
 
 from jinja2 import Template
 
+from utils import write_codes
+
 
 def translate_tags(tags: list[str], str2num: dict[str, list[int]]):
     """
@@ -190,13 +192,6 @@ def generate_codes(template_source_path: str, template_header_path: str, include
     header = template_header.render(**context_header)
 
     return source, header
-
-
-def write_codes(path: str, code: str):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w+", encoding="utf-8") as f:
-        f.write(code)
-        print(f"已经写入: {path}")
 
 
 def main():
