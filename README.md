@@ -9,3 +9,11 @@ uv run script/unicode_gen.py resources/DerivedCoreProperties.txt \
   --include_path stc/utils/generated/unicode_props.h \
   --namespace stc::utils::gen
 ```
+
+### 生成 token 相关定义
+
+```shell
+uv run script/token_gen.py resources/token_def.txt \
+  --token_kind_template resources/templates/token_kinds.h.jinja \
+  --namespace stc::token
+```

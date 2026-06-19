@@ -1,0 +1,154 @@
+# 自定义的 DSL 记录关键字
+# 输出顺序 spacial identifier literal keyword delimiter operator preprocessor digraph
+
+
+# 特殊部分
+special invalid
+special eof
+
+# 标识符
+identifier ident
+
+# 字面量
+literal integer_literal
+literal float_literal
+literal char_literal
+literal string_literal
+
+# 关键字 c89
+keyword auto c89
+keyword break c89
+keyword case c89
+keyword char c89
+keyword const c89
+keyword continue c89
+keyword default c89
+keyword do c89
+keyword double c89
+keyword else c89
+keyword enum c89
+keyword extern c89
+keyword float c89
+keyword for c89
+keyword goto c89
+keyword if c89
+keyword inline c89
+keyword int c89
+keyword long c89
+keyword register c89
+keyword restrict c99
+keyword return c89
+keyword short c89
+keyword signed c89
+keyword sizeof c89
+keyword static c89
+keyword struct c89
+keyword switch c89
+keyword typedef c89
+keyword union c89
+keyword unsigned c89
+keyword void c89
+keyword volatile c89
+keyword while c89
+
+# 关键字 c99
+keyword _Bool c99 kw_bool
+keyword _Complex c99 kw_complex
+keyword _Imaginary c99 kw_imaginary
+
+# 关键字 c11
+keyword _Alignas c11 kw_alignas
+keyword _Alignof c11 kw_alignof
+keyword _Atomic c11 kw_atomic
+keyword _Generic c11 kw_generic
+keyword _Noreturn c11 kw_noreturn
+keyword _Static_assert c11 kw_static_assert
+keyword _Thread_local c11 kw_thread_local
+
+# 关键字拓展 其他
+keyword asm extension
+keyword __attribute__ extension kw_attribute
+
+# 分隔符
+delimiter "(" l_paren
+delimiter ")" r_paren
+
+delimiter "[" l_bracket
+delimiter "]" r_bracket
+
+delimiter "{" l_brace
+delimiter "}" r_brace
+
+delimiter "," comma
+delimiter ";" semicolon
+delimiter ":" colon
+delimiter "?" question
+
+delimiter "." dot
+delimiter "->" arrow
+
+delimiter "..." ellipsis
+
+# 运算符
+operator "+" plus
+operator "-" minus
+operator "*" star
+operator "/" slash
+operator "%" percent
+
+operator "++" plus_plus
+operator "--" minus_minus
+
+
+operator "=" equal
+
+operator "+=" plus_equal
+operator "-=" minus_equal
+operator "*=" star_equal
+operator "/=" slash_equal
+operator "%=" percent_equal
+
+
+operator "==" equal_equal
+operator "!=" not_equal
+
+operator "<" less
+operator ">" greater
+
+operator "<=" less_equal
+operator ">=" greater_equal
+
+
+operator "&&" amp_amp
+operator "||" pipe_pipe
+operator "!" bang
+
+
+operator "&" amp
+operator "|" pipe
+operator "^" caret
+operator "~" tilde
+
+operator "<<" shift_left
+operator ">>" shift_right
+
+operator "&=" amp_equal
+operator "|=" pipe_equal
+operator "^=" caret_equal
+
+operator "<<=" shift_left_equal
+operator ">>=" shift_right_equal
+
+# 预处理
+preprocessor "#" hash
+preprocessor "##" hash_hash
+
+# 合成符，可选内容
+digraph "<:" l_bracket_alt
+digraph ":>" r_bracket_alt
+
+digraph "<%" l_brace_alt
+digraph "%>" r_brace_alt
+
+digraph "%:" hash_alt
+digraph "%:%:" hash_hash_alt
