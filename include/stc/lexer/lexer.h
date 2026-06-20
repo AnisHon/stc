@@ -33,8 +33,10 @@ class Lexer {
         Eof,
     };
 
+    [[nodiscard]]
     bool is_comment_() const;
 
+    [[nodiscard]]
     std::u8string_view get_current_view_() const;
 
 
@@ -42,6 +44,7 @@ class Lexer {
      * 初始状态转移
      * @return 取决于读到的第一个字符
      */
+    [[nodiscard]]
     State handle_init_state_() const;
 
     /**
@@ -55,6 +58,7 @@ class Lexer {
      */
     char32_t next_();
 
+    [[nodiscard]]
     char32_t peek_() const;
 
     void skip_white_space();
@@ -62,11 +66,13 @@ class Lexer {
     /**
      * @return 当前位置的loc
      */
+    [[nodiscard]]
     source::Location make_current_location_() const;
 
     /**
      * 计算当前的位置
      */
+    [[nodiscard]]
     source::LocationRange make_range_() const;
 
     /**

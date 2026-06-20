@@ -10,7 +10,7 @@ int main() {
 
     std::cout << "Hello World, version: " << stc::get_version() << '\n';
 
-    ASSERT(1 == 2, "shoule be");
+    //ASSERT(1 == 2, "shoule be");
     return 0;
 }
 
