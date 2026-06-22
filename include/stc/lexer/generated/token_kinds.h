@@ -1,5 +1,5 @@
 /**
- * @date 2026-06-19 15:44:54
+ * @date 2026-06-22 15:26:54
  * Generated, DO NOT EDIT!!!
  */
 #pragma once
@@ -143,16 +143,44 @@ enum class TokenKind: std::uint8_t {
 
 };
 
+/**
+ * 获取 punctuator 的长度
+ */
+size_t get_punctuator_len(TokenKind kind);
+
+/**
+ * 是否是特殊字符（ + - * / ; () [] {} += == 之类 ）的开始字符
+ */
+bool is_punctuators_start(char32_t chr);
+
+/**
+ * 查询 keyword
+ */
 TokenKind lookup_keyword(std::u8string_view view);
 
+/**
+ * 是否是 keyword
+ */
 bool is_keyword(TokenKind k);
 
+/**
+ * 是否是常量
+ */
 bool is_literal(TokenKind k);
 
+/**
+ * 是否是赋值运算符
+ */
 bool is_assignment_op(TokenKind k);
 
+/**
+ * 是否是预处理
+ */
 bool is_preprocessor(TokenKind k);
 
+/**
+ * 枚举转字符串
+ */
 std::string_view to_string(TokenKind k);
 
 } // namespace stc::lexer

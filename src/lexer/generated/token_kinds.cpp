@@ -1,11 +1,186 @@
 /**
- * @date 2026-06-19 15:44:54
+ * @date 2026-06-22 15:26:54
  * Generated, DO NOT EDIT!!!
  */
 #include "stc/lexer/generated/token_kinds.h"
 #include "stc/utils/macros.h"
 
 namespace stc::lexer {
+
+size_t get_punctuator_len(TokenKind kind) {
+    switch(kind) {
+    // Delimiters
+    case TokenKind::LParen:
+        return  1;
+    case TokenKind::RParen:
+        return  1;
+    case TokenKind::LBracket:
+        return  1;
+    case TokenKind::RBracket:
+        return  1;
+    case TokenKind::LBrace:
+        return  1;
+    case TokenKind::RBrace:
+        return  1;
+    case TokenKind::Comma:
+        return  1;
+    case TokenKind::Semicolon:
+        return  1;
+    case TokenKind::Colon:
+        return  1;
+    case TokenKind::Question:
+        return  1;
+    case TokenKind::Dot:
+        return  1;
+    case TokenKind::Arrow:
+        return  2;
+    case TokenKind::Ellipsis:
+        return  3;
+    
+
+    // Operators
+    case TokenKind::Plus:
+        return  1;
+    case TokenKind::Minus:
+        return  1;
+    case TokenKind::Star:
+        return  1;
+    case TokenKind::Slash:
+        return  1;
+    case TokenKind::Percent:
+        return  1;
+    case TokenKind::PlusPlus:
+        return  2;
+    case TokenKind::MinusMinus:
+        return  2;
+    case TokenKind::Equal:
+        return  1;
+    case TokenKind::PlusEqual:
+        return  2;
+    case TokenKind::MinusEqual:
+        return  2;
+    case TokenKind::StarEqual:
+        return  2;
+    case TokenKind::SlashEqual:
+        return  2;
+    case TokenKind::PercentEqual:
+        return  2;
+    case TokenKind::EqualEqual:
+        return  2;
+    case TokenKind::NotEqual:
+        return  2;
+    case TokenKind::Less:
+        return  1;
+    case TokenKind::Greater:
+        return  1;
+    case TokenKind::LessEqual:
+        return  2;
+    case TokenKind::GreaterEqual:
+        return  2;
+    case TokenKind::AmpAmp:
+        return  2;
+    case TokenKind::PipePipe:
+        return  2;
+    case TokenKind::Bang:
+        return  1;
+    case TokenKind::Amp:
+        return  1;
+    case TokenKind::Pipe:
+        return  1;
+    case TokenKind::Caret:
+        return  1;
+    case TokenKind::Tilde:
+        return  1;
+    case TokenKind::ShiftLeft:
+        return  2;
+    case TokenKind::ShiftRight:
+        return  2;
+    case TokenKind::AmpEqual:
+        return  2;
+    case TokenKind::PipeEqual:
+        return  2;
+    case TokenKind::CaretEqual:
+        return  2;
+    case TokenKind::ShiftLeftEqual:
+        return  3;
+    case TokenKind::ShiftRightEqual:
+        return  3;
+    
+
+    // Digraphs (optional)
+    case TokenKind::LBracketAlt:
+        return 2;
+    case TokenKind::RBracketAlt:
+        return 2;
+    case TokenKind::LBraceAlt:
+        return 2;
+    case TokenKind::RBraceAlt:
+        return 2;
+    case TokenKind::HashAlt:
+        return 2;
+    case TokenKind::HashHashAlt:
+        return 4;
+    
+    default:
+        UNREACHABLE("Unknown {}", static_cast<std::uint8_t>(kind));
+    }
+}
+
+bool is_punctuators_start(const char32_t chr) {
+    switch(chr) {
+    case U'!':
+        return true;
+    case U'%':
+        return true;
+    case U'&':
+        return true;
+    case U'(':
+        return true;
+    case U')':
+        return true;
+    case U'*':
+        return true;
+    case U'+':
+        return true;
+    case U',':
+        return true;
+    case U'-':
+        return true;
+    case U'.':
+        return true;
+    case U'/':
+        return true;
+    case U':':
+        return true;
+    case U';':
+        return true;
+    case U'<':
+        return true;
+    case U'=':
+        return true;
+    case U'>':
+        return true;
+    case U'?':
+        return true;
+    case U'[':
+        return true;
+    case U']':
+        return true;
+    case U'^':
+        return true;
+    case U'{':
+        return true;
+    case U'|':
+        return true;
+    case U'}':
+        return true;
+    case U'~':
+        return true;
+    
+    default:
+        return false;
+    }
+}
 
 TokenKind lookup_keyword(const std::u8string_view view) {
     switch (view.size()) {

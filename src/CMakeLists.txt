@@ -23,6 +23,7 @@ set(STC_LEXER_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/lexer/lexer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/lexer/string_interner.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/lexer/generated/token_kinds.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/lex_punctuator.h    # 私有头
         #${CMAKE_CURRENT_SOURCE_DIR}/lexer
 )
 

@@ -7,6 +7,41 @@
 
 namespace {{ namespace_name }} {
 
+size_t get_punctuator_len(TokenKind kind) {
+    switch(kind) {
+    // Delimiters
+    {% for d in delimiters -%}
+    case TokenKind::{{ d.name }}:
+        return  {{ d.symbol | length }};
+    {% endfor %}
+
+    // Operators
+    {% for d in operators -%}
+    case TokenKind::{{ d.name }}:
+        return  {{ d.symbol | length }};
+    {% endfor %}
+
+    // Digraphs (optional)
+    {% for d in digraphs -%}
+    case TokenKind::{{ d.name }}:
+        return {{ d.symbol | length }};
+    {% endfor %}
+    default:
+        UNREACHABLE("Unknown {}", static_cast<std::uint8_t>(kind));
+    }
+}
+
+bool is_punctuators_start(const char32_t chr) {
+    switch(chr) {
+    {% for c in special_characters_start -%}
+    case U'{{ c }}':
+        return true;
+    {% endfor %}
+    default:
+        return false;
+    }
+}
+
 TokenKind lookup_keyword(const std::u8string_view view) {
     switch (view.size()) {
     {% for sz in keyword_sizes -%}

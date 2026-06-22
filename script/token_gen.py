@@ -141,6 +141,9 @@ def generator_source_code(namespace: str, token_kind_source: str, include_path: 
     keyword_sizes = list(set(map(lambda x: len(x.keyword), keywords)))
     keyword_sizes.sort()
 
+    # 对所有符号的symbol首字母去重排序
+    special_characters_start = sorted(list(set(map(lambda x: x.symbol[0], delimiters + operators + digraphs))))
+
     token_kind_ctx = {
         'generated_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'include_path': include_path,
@@ -155,6 +158,7 @@ def generator_source_code(namespace: str, token_kind_source: str, include_path: 
         'digraphs': digraphs,
         'assign_operators': assign_operators,
         'keyword_sizes': keyword_sizes,
+        'special_characters_start': special_characters_start,
     }
     return source_template.render(**token_kind_ctx)
 

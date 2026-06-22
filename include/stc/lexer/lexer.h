@@ -9,6 +9,8 @@
 #define STC_LEXER_H
 #include "token.h"
 
+#include <expected>
+
 namespace stc::lexer {
 
 /**
@@ -22,6 +24,8 @@ class Lexer {
     enum class State: std::uint8_t {
         /// 可能是字符串或标识符
         MaybeKeywordOrIdent,
+        /// 可能是宏或运算符
+        MaybePunctuator,
         /// 可能是宏
         MaybeMacro,
         /// 错误状态，指针不会推进，只会返回 Invalid Token
@@ -30,24 +34,30 @@ class Lexer {
         Eof,
     };
 
-    enum class CommentKind: std::uint8_t {
+    enum class CommentType: std::uint8_t {
         NotComment,
         SingleLineComment,
         MultiLineComment,
     };
 
+    enum class NewLineType : std::uint8_t {
+        LF, // \n
+        CR, // \r
+        CRLF, // \r\n
+        NotNewLine
+    };
 
     /**
-     * 判断是否是新行
+     * 判断换行类型
      */
     [[nodiscard]]
-    bool is_new_line() const;
+    NewLineType is_new_line() const;
 
     [[nodiscard]]
-    CommentKind get_comment_type_() const;
+    CommentType get_comment_type_() const;
 
     [[nodiscard]]
-    bool is_comment_end_(CommentKind kind) const;
+    bool is_comment_end_(CommentType kind) const;
 
     [[nodiscard]]
     std::u8string_view get_current_view_() const;
@@ -63,18 +73,34 @@ class Lexer {
     /**
      * 如果 is_ident_start 成立就是则可以调用这个函数，否则出错
      */
-    Token handle_keyword_or_ident_();
+    Token lex_keyword_or_ident_();
 
     /**
      * 宏处理函数
      */
-    Token handle_macro_();
+    Token lex_macro_();
+
+    /**
+     * 符号处理函数
+     */
+    Token lex_punctuator_();
+
+    /**
+     * 是否到达文件尾
+     */
+    bool is_eof() const;
 
     /**
      * 移动迭代器，计算一个utf8码点，维护一个索引位置，不允许对已经结束的迭代器操作
      * @return 返回码点
      */
-    char32_t next_();
+    void consume_();
+
+    /**
+     * 如果匹配则消耗
+     * @return 是否匹配
+     */
+    bool match_(char32_t c);
 
     /**
      * peek 当前字符，当迭代器结束返回 zero 字符
@@ -83,10 +109,20 @@ class Lexer {
     char32_t peek_() const;
 
     /**
-     * peek 两个字符，当迭代器结束返回 zero 字符
+     * peek n 个字符，如果提前结束，所有其他值为 0 字符
+     * @tparam N peek 的字符数量
+     * @return 返回 peek 序列
      */
+    template <std::size_t N>
     [[nodiscard]]
-    std::array<char32_t, 2> peek2_() const;
+    std::array<char32_t, N> peekn_() const {
+        std::array<char32_t, N> res{};
+        auto it = this->current_iter_;
+        for (std::size_t i = 0; i < N && it != this->source_end_; ++i) {
+            res[i] = utf8::next(it, source_end_);
+        }
+        return res;
+    }
 
     /**
      * 跳过空白字符
@@ -95,8 +131,9 @@ class Lexer {
 
     /**
      * 跳过注释处理函数
+     * @return 是否未出错
      */
-    void skip_comment_();
+    bool skip_comment_();
 
 
     /**
