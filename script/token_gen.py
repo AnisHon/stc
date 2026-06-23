@@ -142,7 +142,9 @@ def generator_source_code(namespace: str, token_kind_source: str, include_path: 
     keyword_sizes.sort()
 
     # 对所有符号的symbol首字母去重排序
-    special_characters_start = sorted(list(set(map(lambda x: x.symbol[0], delimiters + operators + digraphs))))
+    punctuators = delimiters + operators + digraphs
+    letters = set(map(lambda x: x.symbol[0], punctuators))
+    special_characters_start = sorted(list(letters))
 
     token_kind_ctx = {
         'generated_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
