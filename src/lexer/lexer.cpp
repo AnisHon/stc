@@ -114,11 +114,6 @@ Lexer::State Lexer::peek_state() const {
         return State::MaybePunctuator;
     }
 
-    // 宏
-    if (chr == U'#' && this->is_start_of_line) {
-        return State::MaybeMacro;
-    }
-
     // 结束
     if (chr == U'\0') {
         return State::Eof;
@@ -144,10 +139,6 @@ Token Lexer::lex_keyword_or_ident_() {
     const TokenKind kind{lookup_keyword(view)};
 
     return this->make_token_(kind);
-}
-
-Token Lexer::lex_macro_() {
-    TODO("宏处理未实现");
 }
 
 /**
@@ -179,10 +170,11 @@ inline void Lexer::consume_() {
     switch (type) {
     case NewLineType::CR:
     case NewLineType::LF:
-        this->current_iter_++; // 一个字符跳过一个
+        consume_(); // 一个字符跳过一个
         break;
     case NewLineType::CRLF:
-        this->current_iter_ += 2; // CRLF两个字符跳过两个
+        consume_();
+        consume_(); // CRLF两个字符跳过两个
         break;
     case NewLineType::NotNewLine:
     default:
@@ -206,10 +198,7 @@ bool Lexer::match_(const char32_t c) {
 
 [[nodiscard]]
 inline char32_t Lexer::peek_() const {
-    if (this->current_iter_ == this->source_end_) {
-        return U'\0';
-    }
-    return utf8::peek_next(this->current_iter_, source_end_);
+    return peekn_<1>()[0];
 }
 
 /**
@@ -311,12 +300,10 @@ Token Lexer::next_token() {
     switch (current_state) {
     case State::MaybeKeywordOrIdent: // 解析
         return this->lex_keyword_or_ident_();
-    case State::MaybeMacro:
-        return this->lex_macro_();
     case State::MaybePunctuator:
         return this->lex_punctuator_();
-    case State::Invalid: // 不推进，没有状态转移
-        return invalid_token();
+    //case State::Invalid: // 不推进，没有状态转移
+    //    return invalid_token();
     case State::Eof: // lexer 已经结束，返回 EOF
         return Token{TokenKind::Eof, null_lexeme(), make_range_()};
     default:

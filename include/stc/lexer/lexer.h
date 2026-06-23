@@ -26,8 +26,6 @@ class Lexer {
         MaybeKeywordOrIdent,
         /// 可能是宏或运算符
         MaybePunctuator,
-        /// 可能是宏
-        MaybeMacro,
         /// 错误状态，指针不会推进，只会返回 Invalid Token
         Invalid,
         /// 结束状态
@@ -76,11 +74,6 @@ class Lexer {
     Token lex_keyword_or_ident_();
 
     /**
-     * 宏处理函数
-     */
-    Token lex_macro_();
-
-    /**
      * 符号处理函数
      */
     Token lex_punctuator_();
@@ -88,6 +81,7 @@ class Lexer {
     /**
      * 是否到达文件尾
      */
+    [[nodiscard]]
     bool is_eof() const;
 
     /**

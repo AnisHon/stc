@@ -8,6 +8,7 @@
 #define STC_LEX_PUNCTUATOR_H
 
 #include "stc/lexer/token.h"
+#include "stc/utils/macros.h"
 
 namespace stc::lexer {
 
@@ -127,9 +128,9 @@ inline TokenKind lex_punctuator(const std::array<char32_t, 4> arr) {
             return TokenKind::GreaterEqual;
         case U'<':
             switch (arr[2]) {
-            case U'=': // >>=
+            case U'=': // <<=
                 return TokenKind::ShiftRightEqual;
-            default: // >>
+            default: // <<
                 return TokenKind::ShiftRight;
             }
         default: // >
@@ -163,7 +164,13 @@ inline TokenKind lex_punctuator(const std::array<char32_t, 4> arr) {
         return TokenKind::RBrace;
     case U'~': // ~
         return TokenKind::Tilde;
-
+    case U'#':
+        switch (arr[1]) {
+        case U'#': // ##
+            return TokenKind::HashHash;
+        default: // #
+            return TokenKind::Hash;
+        }
     default:
         UNREACHABLE();
     }
