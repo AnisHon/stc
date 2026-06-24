@@ -24,6 +24,16 @@ static bool is_ident_start(const char32_t code_point) {
     return xid_start || code_point == U'_' || code_point == U'\\';
 }
 
+
+/**
+ * 是否是数字常量
+ */
+static bool is_number_constant_start(const char32_t code_point) {
+    const bool is_digit = std::isdigit(code_point);
+    const bool is_float = code_point == U'.' || code_point == U'E';
+    return is_digit || is_float;
+}
+
 namespace stc::lexer {
 Lexer::Lexer(
     const std::u8string_view source
@@ -106,7 +116,19 @@ Lexer::State Lexer::peek_state() const {
 
     // 关键字或标识符
     if (is_ident_start(chr)) {
-        return State::MaybeKeywordOrIdent;
+        return State::MaybeIdent;
+    }
+
+    if (chr == U'"') {
+        return State::MaybeString;
+    }
+
+    if (chr == is_number_constant_start(chr)) {
+        return State::MaybeNumberConstant;
+    }
+    TODO("char很复杂");
+    if (0) {
+        return State::MaybeChar;
     }
 
     // 是否是特殊符号
@@ -249,7 +271,6 @@ bool Lexer::skip_comment_() {
     return comment_end;
 }
 
-
 /**
  * 返回当前位置location
  */
@@ -298,7 +319,7 @@ Token Lexer::next_token() {
 
     const auto current_state{peek_state()};
     switch (current_state) {
-    case State::MaybeKeywordOrIdent: // 解析
+    case State::MaybeIdent: // 解析
         return this->lex_keyword_or_ident_();
     case State::MaybePunctuator:
         return this->lex_punctuator_();

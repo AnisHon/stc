@@ -23,9 +23,15 @@ class Lexer {
      */
     enum class State: std::uint8_t {
         /// 可能是字符串或标识符
-        MaybeKeywordOrIdent,
+        MaybeIdent,
         /// 可能是宏或运算符
         MaybePunctuator,
+        /// 可能是数字常量
+        MaybeNumberConstant,
+        /// 可能是字符串
+        MaybeString,
+        /// 可能是字符
+        MaybeChar,
         /// 错误状态，指针不会推进，只会返回 Invalid Token
         Invalid,
         /// 结束状态
@@ -59,7 +65,6 @@ class Lexer {
 
     [[nodiscard]]
     std::u8string_view get_current_view_() const;
-
 
     /**
      * 初始状态转移
@@ -128,7 +133,6 @@ class Lexer {
      * @return 是否未出错
      */
     bool skip_comment_();
-
 
     /**
      * @return 当前位置的loc
