@@ -5,10 +5,7 @@ from jinja2 import Template
 
 from utils import write_codes
 
-assign_op = ['=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '&=', '|=', '^=']
-preprocessor = ['#', '##']
-
-kinds = ['spacial', 'identifier', 'literal', 'keyword', 'delimiter', 'operator', 'preprocessor', 'digraph']
+PREFIX = "STC_TOKEN_KIND_"
 sinces = ['c89', 'c99', 'c11', 'extension']
 
 specials = []
@@ -22,60 +19,45 @@ digraphs = []
 
 
 @dataclass(frozen=True)
-class NamedProperty:
-    """
-    对应 special identifier literal
-    """
+class TokenKindEntry:
     kind: str
-    name: str
-
-
-@dataclass(frozen=True)
-class KeywordProperty:
-    """
-    对应 keyword
-    """
-    keyword: str
-    since: str
-    alias: str
-
-
-@dataclass(frozen=True)
-class SymbolProperty:
-    """
-    对应 delimiter operator preprocessor digraph
-    """
-    kind: str
-    symbol: str
-    name: str
+    symbol: str  # 原始符号
+    name: str  # 别名
+    since: str  # 来源，版本或拓展
 
 
 def snake_to_pascal(s: str) -> str:
     return ''.join(word.title() for word in s.split('_'))
 
 
-def resolve_named(line: list[str]) -> NamedProperty:
+def resolve_named(line: list[str]) -> TokenKindEntry:
     assert len(line) == 2
-    assert line[0] in ['special', 'identifier', 'literal']
-    name = snake_to_pascal(line[1])
-    return NamedProperty(line[0], name)
+    kind = line[0]
+    assert kind in ['special', 'identifier', 'literal']
+    symbol = line[1]
+    name = snake_to_pascal(symbol)
+    return TokenKindEntry(kind=kind, symbol=symbol, name=name, since="c89")
 
 
-def resolve_keyword(line: list[str]) -> KeywordProperty:
+def resolve_keyword(line: list[str]) -> TokenKindEntry:
     assert 3 <= len(line) <= 4
-    assert line[0] == 'keyword'
-    assert line[2] in sinces
-    alias = line[3] if len(line) == 4 else f"kw_{line[1]}"
-    alias = snake_to_pascal(alias)
-    return KeywordProperty(line[1], line[2], alias)
+    kind = line[0]
+    assert kind == 'keyword'
+    since = line[2]
+    assert since in sinces
+    symbol = line[1]
+    name = line[3] if len(line) == 4 else f"kw_{symbol}"
+    name = snake_to_pascal(name)
+    return TokenKindEntry(kind=kind, symbol=symbol, name=name, since=since)
 
 
-def resolve_symbol(line: list[str]) -> SymbolProperty:
+def resolve_symbol(line: list[str]) -> TokenKindEntry:
     assert len(line) == 3
-    assert line[0] in ['delimiter', 'operator', 'preprocessor', 'digraph']
+    kind = line[0]
+    assert kind in ['delimiter', 'operator', 'preprocessor', 'digraph']
     symbol = line[1][1:-1]
     name = snake_to_pascal(line[2])
-    return SymbolProperty(line[0], symbol, name)
+    return TokenKindEntry(kind=kind, symbol=symbol, name=name, since="c89")
 
 
 def resolve_property(path: str):
@@ -115,75 +97,43 @@ def resolve_property(path: str):
         container[line[0]].append(prop)
 
 
-def generator_header_code(namespace: str, token_kind_header: str) -> str:
-    with open(token_kind_header, "r", encoding="utf-8") as f:
-        header_template = Template(f.read())
+def generate_def_code(def_template_path: str) -> str:
+    with open(def_template_path, "r", encoding="utf-8") as f:
+        def_template = Template(f.read())
 
-    token_kind_ctx = {
-        'generated_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'namespace_name': namespace,
-        'specials': specials,
-        'identifiers': identifiers,
-        'literals': literals,
-        'keywords': keywords,
-        'delimiters': delimiters,
-        'operators': operators,
-        'preprocessors': preprocessors,
-        'digraphs': digraphs,
+    # 宏的名称 <-> 对应的列表
+    macro_lists = {
+        "SPECIAL_LIST": specials,
+        "IDENT_LIST": identifiers,
+        "LITERAL_LIST": literals,
+        "KEYWORD_LIST": keywords,
+        "DELIMITER_LIST": delimiters,
+        "OPERATOR_LIST": operators,
+        "PREPROCESSOR_LIST": preprocessors,
+        "DIGRAPH_LIST": digraphs,
     }
-    return header_template.render(**token_kind_ctx)
 
-
-def generator_source_code(namespace: str, token_kind_source: str, include_path: str):
-    with open(token_kind_source, "r", encoding="utf-8") as f:
-        source_template = Template(f.read())
-    assign_operators = filter(lambda x: x.symbol in assign_op, operators)
-    keyword_sizes = list(set(map(lambda x: len(x.keyword), keywords)))
-    keyword_sizes.sort()
-
-    # 对所有符号的symbol首字母去重排序
-    punctuators = delimiters + operators + digraphs
-    letters = set(map(lambda x: x.symbol[0], punctuators))
-    special_characters_start = sorted(list(letters))
-
-    token_kind_ctx = {
-        'generated_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'include_path': include_path,
-        'namespace_name': namespace,
-        'specials': specials,
-        'identifiers': identifiers,
-        'literals': literals,
-        'keywords': keywords,
-        'delimiters': delimiters,
-        'operators': operators,
-        'preprocessors': preprocessors,
-        'digraphs': digraphs,
-        'assign_operators': assign_operators,
-        'keyword_sizes': keyword_sizes,
-        'special_characters_start': special_characters_start,
+    template_ctx = {
+        'generated_time': datetime.now().strftime("%Y-%m-%d"),
+        "prefix": PREFIX,
+        "macro_lists": macro_lists,
     }
-    return source_template.render(**token_kind_ctx)
+
+    return def_template.render(template_ctx)
 
 
 def main():
     parser = argparse.ArgumentParser(description='生成unicode header代码')
     parser.add_argument('input', help='定义路径')
-    parser.add_argument('--namespace', type=str, required=True, help='输出源码')
-    parser.add_argument('--token_kind_header_template', type=str, required=True, help='输出源码')
-    parser.add_argument('--token_kind_source_template', type=str, required=True, help='输出源码')
-    parser.add_argument('--token_kind_header', type=str, required=True, help='输出源码')
-    parser.add_argument('--token_kind_source', type=str, required=True, help='输出源码')
-    parser.add_argument('--include_path', type=str, required=True, help='导包路径')
+    parser.add_argument('--template', help='template')
+    parser.add_argument('-o', type=str, required=True, help='输出定义')
 
     args = parser.parse_args()
-
     resolve_property(args.input)
 
-    header_code = generator_header_code(args.namespace, args.token_kind_header_template)
-    source_code = generator_source_code(args.namespace, args.token_kind_source_template, args.include_path)
+    code = generate_def_code(args.template)
 
-    write_codes(args.token_kind_header, header_code)
-    write_codes(args.token_kind_source, source_code)
+    write_codes(args.o, code)
 
     return 0
 
