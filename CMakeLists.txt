@@ -27,8 +27,16 @@ include(Dependencies)
 # init python
 include(PyCodegen)
 
+# set global vars
+set(STC_INC_DIR "${CMAKE_SOURCE_DIR}/include" CACHE INTERNAL "STC include directory")
+set(STC_PUB_INC_DIR "${STC_INC_DIR}/stc" CACHE INTERNAL "STC public include directory")
+
 # project source code
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
+add_subdirectory(src/utils)
+add_subdirectory(src/source)
+add_subdirectory(src/preprocessor)
+add_subdirectory(src/lexer)
+add_subdirectory(src)
 
 # enable test
 if (ENABLE_TESTS)

@@ -35,6 +35,12 @@ if (ENABLE_TESTS)
             GIT_REPOSITORY https://github.com/catchorg/Catch2.git
             GIT_TAG v3.15.0
     )
-
 endif ()
 
+add_library(stc_dependencies INTERFACE)
+target_link_libraries(stc_dependencies INTERFACE
+        fmt::fmt
+        utf8cpp::utf8cpp
+        spdlog::spdlog
+        cpptrace::cpptrace
+)
