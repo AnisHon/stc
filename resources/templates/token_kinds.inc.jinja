@@ -1,0 +1,21 @@
+/**
+ * @date {{ generated_time }}
+ * Generated, DO NOT EDIT!!!
+ */
+#ifndef STC_TOKEN_KINDS_DEF
+#define STC_TOKEN_KINDS_DEF
+
+{% for macro_name, entries in macro_lists.items() %}
+#ifndef {{ prefix }}{{ macro_name }}
+#define {{ prefix }}{{ macro_name }} \
+    {% for entry in entries -%}
+    X({{ entry.kind }}, "{{ entry.symbol }}", {{ entry.name }}, {{ entry.since }}){% if not loop.last %} \{% endif %}
+    {% endfor %}
+#endif
+
+#ifndef {{ prefix }}{{ macro_name }}_COUNT
+#define {{ prefix }}{{ macro_name }}_COUNT {{ entries|length }}
+#endif
+
+{% endfor %}
+#endif

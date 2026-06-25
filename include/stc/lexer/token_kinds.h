@@ -6,21 +6,23 @@
 
 #include <cstdint>
 #include <string_view>
-#include "generated/token_kinds.def"
-#include "stc/utils/macros.h"
+#include "generated/token_kinds.inc"
+
+#define STC_TOKEN_KIND_ALL_LIST \
+    STC_TOKEN_KIND_SPECIAL_LIST \
+    STC_TOKEN_KIND_IDENT_LIST \
+    STC_TOKEN_KIND_LITERAL_LIST \
+    STC_TOKEN_KIND_KEYWORD_LIST \
+    STC_TOKEN_KIND_DELIMITER_LIST \
+    STC_TOKEN_KIND_OPERATOR_LIST \
+    STC_TOKEN_KIND_PREPROCESSOR_LIST \
+    STC_TOKEN_KIND_DIGRAPH_LIST
 
 namespace stc::lexer {
 
 enum class TokenKind : uint8_t {
 #define X(kind, symbol, name, since) name,
-    STC_TOKEN_KIND_SPECIAL_LIST
-    STC_TOKEN_KIND_IDENT_LIST
-    STC_TOKEN_KIND_LITERAL_LIST
-    STC_TOKEN_KIND_KEYWORD_LIST
-    STC_TOKEN_KIND_DELIMITER_LIST
-    STC_TOKEN_KIND_OPERATOR_LIST
-    STC_TOKEN_KIND_PREPROCESSOR_LIST
-    STC_TOKEN_KIND_DIGRAPH_LIST
+    STC_TOKEN_KIND_ALL_LIST
 #undef X
 };
 

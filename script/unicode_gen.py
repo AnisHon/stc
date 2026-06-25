@@ -1,10 +1,7 @@
 import argparse
-import os
 from collections import defaultdict
 from datetime import datetime
-
 from jinja2 import Template
-
 from utils import write_codes
 
 

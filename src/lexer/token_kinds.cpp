@@ -5,18 +5,19 @@
 #include "stc/utils/macros.h"
 #include "stc/lexer/token_kinds.h"
 
+#define STC_TOKEN_KIND_PUNCTUATORS_LIST \
+    STC_TOKEN_KIND_DELIMITER_LIST \
+    STC_TOKEN_KIND_OPERATOR_LIST \
+    STC_TOKEN_KIND_PREPROCESSOR_LIST \
+    STC_TOKEN_KIND_DIGRAPH_LIST
+
 namespace stc::lexer {
 
 size_t get_punctuator_len(const TokenKind kind) {
     switch (kind) {
 #define X(kind, symbol, name, since) \
-    case TokenKind::name: \
-         return std::u8string_view(u8##symbol).size();
-
-    STC_TOKEN_KIND_DELIMITER_LIST
-    STC_TOKEN_KIND_OPERATOR_LIST
-    STC_TOKEN_KIND_PREPROCESSOR_LIST
-    STC_TOKEN_KIND_DIGRAPH_LIST
+    case TokenKind::name: return std::u8string_view(u8##symbol).size();
+    STC_TOKEN_KIND_PUNCTUATORS_LIST
 #undef X
     default:
         UNREACHABLE("not a punctuator token kind: {}", to_string(kind));
@@ -123,17 +124,8 @@ bool is_preprocessor(const TokenKind k) {
 std::string_view to_string(const TokenKind k) {
     switch (k) {
 #define X(kind, symbol, name, since) \
-    case TokenKind::name: \
-        return #name;
-
-    STC_TOKEN_KIND_SPECIAL_LIST
-    STC_TOKEN_KIND_IDENT_LIST
-    STC_TOKEN_KIND_LITERAL_LIST
-    STC_TOKEN_KIND_KEYWORD_LIST
-    STC_TOKEN_KIND_DELIMITER_LIST
-    STC_TOKEN_KIND_OPERATOR_LIST
-    STC_TOKEN_KIND_PREPROCESSOR_LIST
-    STC_TOKEN_KIND_DIGRAPH_LIST
+    case TokenKind::name: return #name;
+    STC_TOKEN_KIND_ALL_LIST
 #undef X
     default:
         UNREACHABLE("uncovered enumerate: {}", "???");
@@ -146,17 +138,8 @@ std::string_view to_string(const TokenKind k) {
 std::string_view to_symbol(const TokenKind k) {
     switch (k) {
 #define X(kind, symbol, name, since) \
-    case TokenKind::name: \
-        return symbol;
-
-    STC_TOKEN_KIND_SPECIAL_LIST
-    STC_TOKEN_KIND_IDENT_LIST
-    STC_TOKEN_KIND_LITERAL_LIST
-    STC_TOKEN_KIND_KEYWORD_LIST
-    STC_TOKEN_KIND_DELIMITER_LIST
-    STC_TOKEN_KIND_OPERATOR_LIST
-    STC_TOKEN_KIND_PREPROCESSOR_LIST
-    STC_TOKEN_KIND_DIGRAPH_LIST
+    case TokenKind::name: return symbol;
+    STC_TOKEN_KIND_ALL_LIST
 #undef X
     default:
         UNREACHABLE("uncovered enumerate: {}", "???");

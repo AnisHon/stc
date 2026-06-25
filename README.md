@@ -14,6 +14,6 @@ uv run script/unicode_gen.py resources/DerivedCoreProperties.txt \
 
 ```shell
 uv run script/token_gen.py resources/token_def.txt \
-  --template resources/templates/token_kinds.def.jinja \
-  -o include/stc/lexer/generated/token_kinds.def
+  --template resources/templates/token_kinds.inc.jinja \
+  -o include/stc/lexer/generated/token_kinds.inc
 ```
