@@ -8,8 +8,7 @@
 #ifndef STC_LEXER_H
 #define STC_LEXER_H
 #include "token.h"
-
-#include <expected>
+#include "utf8cpp/utf8.h"
 
 namespace stc::lexer {
 
@@ -38,17 +37,48 @@ class Lexer {
         Eof,
     };
 
+    /**
+     * 注释类型
+     */
     enum class CommentType: std::uint8_t {
         NotComment,
         SingleLineComment,
         MultiLineComment,
     };
 
+    /**
+     * 换行类型
+     */
     enum class NewLineType : std::uint8_t {
         LF, // \n
         CR, // \r
         CRLF, // \r\n
         NotNewLine
+    };
+
+    /**
+     * 字符类型
+     */
+    enum class CharType : std::uint8_t {
+        NotChar,
+        Char,
+        /// 平台相关 char 32 或 16
+        LongChar,
+        Char16,
+        Char32,
+    };
+
+    /**
+     * 字符串类型
+     */
+    enum class StringType : std::uint8_t {
+        NotString,
+        String,
+        /// 平台相关 string
+        LongString,
+        U8String,
+        U16String,
+        U32String,
     };
 
     /**
@@ -62,6 +92,12 @@ class Lexer {
 
     [[nodiscard]]
     bool is_comment_end_(CommentType kind) const;
+
+    [[nodiscard]]
+    CharType is_char_constant_start_() const;
+
+    [[nodiscard]]
+    StringType is_string_start_() const;
 
     [[nodiscard]]
     std::u8string_view get_current_view_() const;
@@ -79,6 +115,11 @@ class Lexer {
     Token lex_keyword_or_ident_();
 
     /**
+     * 识别 punctuator kind，消耗字符
+     */
+    TokenKind lex_punctuator_kind_();
+
+    /**
      * 符号处理函数
      */
     Token lex_punctuator_();
@@ -94,6 +135,13 @@ class Lexer {
      * @return 返回码点
      */
     void consume_();
+
+    template <size_t N>
+    void consume_n_() {
+        for (size_t i = 0; i < N; ++i) {
+            this->consume_();
+        }
+    }
 
     /**
      * 如果匹配则消耗

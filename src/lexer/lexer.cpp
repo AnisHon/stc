@@ -10,11 +10,10 @@
 
 #include "stc/lexer/lexer.h"
 #include "stc/lexer/string_interner.h"
-#include "stc/lexer/generated/token_kinds.h"
+#include "stc/lexer/token_kinds.h"
 #include "stc/source/manager.h"
 #include "stc/utils/macros.h"
 #include "stc/utils/unicode_utils.h"
-#include "lex_punctuator.h"
 
 /**
  * 是否是 identifier start  _ \ xid_start
@@ -24,15 +23,6 @@ static bool is_ident_start(const char32_t code_point) {
     return xid_start || code_point == U'_' || code_point == U'\\';
 }
 
-
-/**
- * 是否是数字常量
- */
-static bool is_number_constant_start(const char32_t code_point) {
-    const bool is_digit = std::isdigit(code_point);
-    const bool is_float = code_point == U'.' || code_point == U'E';
-    return is_digit || is_float;
-}
 
 namespace stc::lexer {
 Lexer::Lexer(
@@ -72,15 +62,20 @@ Lexer::CommentType Lexer::get_comment_type_() const {
     // 当前迭代器已经结束了一定不是 comment
     const std::array arr{this->peekn_<2>()};
 
-    if (arr[0] == u8'/' && arr[1] == u8'/') {
+    if (arr[0] == U'/' && arr[1] == U'/') {
         return CommentType::SingleLineComment;
     }
-    if (arr[0] == u8'/' || arr[1] == u8'/') {
+    if (arr[0] == U'/' || arr[1] == U'*') {
         return CommentType::MultiLineComment;
     }
     return CommentType::NotComment;
 }
 
+/**
+ * 注释结束判断，kind不能传进一个NotComment
+ * - 对于 LineComment 换行（LF CR CRLF 三种） NULL字符 都是结束
+ * - 对于 MultiLineComment '*' '/' 是结束
+ */
 bool Lexer::is_comment_end_(const CommentType kind) const {
     ASSERT(kind != CommentType::NotComment);
 
@@ -92,11 +87,73 @@ bool Lexer::is_comment_end_(const CommentType kind) const {
         return arr[0] == U'\0' || new_line; // 换行或者结束
     }
     case CommentType::MultiLineComment:
-        return arr[0] == u8'*' && arr[1] == u8'/'; // 不用多说，很正常
+        return arr[0] == U'*' && arr[1] == U'/'; // 不用多说，很正常
     default:
         UNREACHABLE("到达不可能注释分支");
     }
 }
+
+
+/**
+ * char 的开头
+ * - ': 标准char
+ * - u: 16位 char
+ * - U: 32位 char
+ * - L: 平台相关，可能等价于 u 或 U，表示 Wide char（Long char）
+ */
+Lexer::CharType Lexer::is_char_constant_start_() const {
+    const std::array arr{this->peekn_<2>()};
+    if (arr[0] == U'\'') {
+        return CharType::Char;
+    }
+    if (arr[0] == U'L' && arr[1] == U'\'') {
+        return CharType::LongChar;
+    }
+    if (arr[0] == U'u' && arr[1] == U'\'') {
+        return CharType::Char16;
+    }
+    if (arr[0] == U'U' && arr[1] == U'\'') {
+        return CharType::Char32;
+    }
+    return CharType::NotChar;
+}
+
+/**
+ * string的开头
+ * - ": 标准字符串
+ * - u: utf16
+ * - U: utf32
+ * - L: 平台相关，可能等价于 u 或 U，表示 Wide String（Long String）
+ */
+Lexer::StringType Lexer::is_string_start_() const {
+    const std::array arr{this->peekn_<3>()};
+    if (arr[0] == U'"') {
+        return StringType::String;
+    }
+    if (arr[0] == U'u' && arr[1] == U'8' && arr[2] == U'"') {
+        return StringType::U8String;
+    }
+    if (arr[0] == U'u' && arr[1] == U'"') {
+        return StringType::U16String;
+    }
+    if (arr[0] == U'U' && arr[1] == U'"') {
+        return StringType::U32String;
+    }
+    if (arr[0] == U'L' && arr[1] == U'"') {
+        return StringType::LongString;
+    }
+    return StringType::NotString;
+}
+
+/**
+ * 是否是数字常量，
+ */
+static bool is_number_constant_start(const char32_t code_point) {
+    const bool is_digit = std::isdigit(code_point);
+    const bool is_float = code_point == U'.';
+    return is_digit || is_float;
+}
+
 
 /**
  * 获取当前区间的 string_view_()
@@ -114,21 +171,34 @@ Lexer::State Lexer::peek_state() const {
 
     const char32_t chr{this->peek_()};
 
-    // 关键字或标识符
+    /* 注意顺序，
+     * char string 前缀可区分，顺序无关
+     * char string 与 ident 必须 ident 放在后面，L U u 有冲突
+     * 数字开头 . 0-9，可能与符号冲突，
+     */
+    //
+    //
+    //
+    //
+
+    // 是否是string
+    if (this->is_string_start_() != StringType::NotString) {
+        return State::MaybeString;
+    }
+
+    // 是否是char
+    if (this->is_char_constant_start_() != CharType::NotChar) {
+        return State::MaybeChar;
+    }
+
+    // 标识符，不判断关键字，由于预处理器的原因所有标识符都要后期重确认
     if (is_ident_start(chr)) {
         return State::MaybeIdent;
     }
 
-    if (chr == U'"') {
-        return State::MaybeString;
-    }
-
+    /// 是否是 数字
     if (chr == is_number_constant_start(chr)) {
         return State::MaybeNumberConstant;
-    }
-    TODO("char很复杂");
-    if (0) {
-        return State::MaybeChar;
     }
 
     // 是否是特殊符号
@@ -141,8 +211,8 @@ Lexer::State Lexer::peek_state() const {
         return State::Eof;
     }
 
-    //return State::Invalid;
-    TODO("todo", "需要实现 运算符 常量 等"); // todo
+    // 什么都没匹配，无效
+    return State::Invalid;
 }
 
 /**
@@ -167,12 +237,8 @@ Token Lexer::lex_keyword_or_ident_() {
  * 符号处理函数，采用朴素的 switch 写法
  */
 Token Lexer::lex_punctuator_() {
-    ASSERT(is_punctuators_start(this->peek_()), "未知的punctuator开始字符");
-
-    const std::array arr{peekn_<4>()}; // 开一个窗口
-    const TokenKind kind = lex_punctuator(arr); // 进行识别
-    const size_t len = get_punctuator_len(kind); // 获取长度
-    this->current_iter_ += len; // 移动指针
+    ASSERT(is_punctuators_start(this->peek_()), "未知 punctuator_start 字符");
+    const TokenKind kind = this->lex_punctuator_kind_(); // 进行识别
     return this->make_token_(kind); // make 一个 token
 }
 
@@ -186,7 +252,7 @@ bool Lexer::is_eof() const {
 /**
  * 下一个码点，移动迭代器
  */
-inline void Lexer::consume_() {
+void Lexer::consume_() {
     const NewLineType type{is_new_line()};
     this->is_start_of_line = type != NewLineType::NotNewLine;
     switch (type) {
@@ -323,15 +389,19 @@ Token Lexer::next_token() {
         return this->lex_keyword_or_ident_();
     case State::MaybePunctuator:
         return this->lex_punctuator_();
-    //case State::Invalid: // 不推进，没有状态转移
-    //    return invalid_token();
+    case State::MaybeNumberConstant:
+        TODO();
+    case State::MaybeChar:
+        TODO();
+    case State::MaybeString:
+        TODO();
+    case State::Invalid: // 不推进，没有状态转移
+        return invalid_token();
     case State::Eof: // lexer 已经结束，返回 EOF
         return Token{TokenKind::Eof, null_lexeme(), make_range_()};
     default:
-        TODO();
+        UNREACHABLE("Uncovered branch: ");
     }
-
-    UNREACHABLE("代码错误，跳出死循环");
 }
 
 }

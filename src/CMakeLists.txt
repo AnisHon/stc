@@ -14,7 +14,7 @@ set(STC_LEXER_INC
         ${STC_LEXER_INC_DIR}/lexer.h
         ${STC_LEXER_INC_DIR}/token_stream.h
         ${STC_LEXER_INC_DIR}/string_interner.h
-        ${STC_LEXER_INC_DIR}/generated/token_kinds.h
+        ${STC_LEXER_INC_DIR}/token_kinds.h
         #${STC_LEXER_INCLUDE_DIR}/
 )
 
@@ -22,8 +22,8 @@ set(STC_LEXER_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/lexer/token_stream.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/lexer/lexer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/lexer/string_interner.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/generated/token_kinds.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/lex_punctuator.h    # 私有头
+        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/token_kinds.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/lex_punctuator.cpp    # 私有头
         #${CMAKE_CURRENT_SOURCE_DIR}/lexer
 )
 
