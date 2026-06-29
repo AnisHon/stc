@@ -8,28 +8,28 @@
 #include <string_view>
 #include "generated/token_kinds.inc"
 
-#define STC_TOKEN_KIND_ALL_LIST \
-    STC_TOKEN_KIND_SPECIAL_LIST \
-    STC_TOKEN_KIND_IDENT_LIST \
-    STC_TOKEN_KIND_LITERAL_LIST \
-    STC_TOKEN_KIND_KEYWORD_LIST \
+#define STC_TOKEN_KIND_PUNCTUATOR_LIST \
     STC_TOKEN_KIND_DELIMITER_LIST \
     STC_TOKEN_KIND_OPERATOR_LIST \
     STC_TOKEN_KIND_PREPROCESSOR_LIST \
     STC_TOKEN_KIND_DIGRAPH_LIST
 
+#define STC_PP_TOKEN_KIND_ALL_LIST \
+    STC_TOKEN_KIND_SPECIAL_LIST \
+    STC_TOKEN_KIND_IDENTIFIER_LIST \
+    STC_TOKEN_KIND_PP_LIST \
+    STC_TOKEN_KIND_PUNCTUATOR_LIST
+
 namespace stc::lexer {
 
-enum class TokenKind : uint8_t {
+/**
+ * 没有 Token
+ */
+enum class PPTokenKind : uint8_t {
 #define X(kind, symbol, name, since) name,
-    STC_TOKEN_KIND_ALL_LIST
+    STC_PP_TOKEN_KIND_ALL_LIST
 #undef X
 };
-
-/**
- * 获取 punctuator 的长度
- */
-size_t get_punctuator_len(TokenKind kind);
 
 /**
  * 是否是特殊字符（ + - * / ; () [] {} += == 之类 ）的开始字符
@@ -37,38 +37,18 @@ size_t get_punctuator_len(TokenKind kind);
 bool is_punctuators_start(char32_t chr);
 
 /**
- * 查询 keyword
- */
-bool lookup_keyword(std::u8string_view view);
-
-/**
- * 是否是 keyword
- */
-bool is_keyword(TokenKind k);
-
-/**
- * 是否是常量
- */
-bool is_literal(TokenKind k);
-
-/**
- * 是否是赋值运算符
- */
-bool is_assignment_op(TokenKind k);
-
-/**
  * 是否是预处理
  */
-bool is_preprocessor(TokenKind k);
+bool is_preprocessor(PPTokenKind k);
 
 /**
  * 枚举转字符串，得到枚举名字符串
  */
-std::string_view to_string(TokenKind k);
+std::string_view to_string(PPTokenKind k);
 
 /**
  * 枚举转字符串，得到原始符号的内容
  */
-std::string_view to_symbol(TokenKind k);
+std::string_view to_symbol(PPTokenKind k);
 
 } // namespace stc::lexer

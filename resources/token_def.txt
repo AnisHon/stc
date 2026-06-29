@@ -8,11 +8,17 @@ special eof
 
 # 标识符
 identifier ident
+identifier ucn
+
+# 预处理 token 类型
+pp string_literal
+pp pp_number
+pp char_constant
+pp header_name
+pp other
 
 # 字面量
-literal integer_literal
-literal float_literal
-literal char_literal
+literal number_constant
 literal string_literal
 
 # 关键字 c89

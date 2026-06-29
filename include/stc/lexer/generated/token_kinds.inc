@@ -1,5 +1,5 @@
 /**
- * @date 2026-06-25
+ * @date 2026-06-29
  * Generated, DO NOT EDIT!!!
  */
 #ifndef STC_TOKEN_KINDS_DEF
@@ -18,28 +18,42 @@
 #endif
 
 
-#ifndef STC_TOKEN_KIND_IDENT_LIST
-#define STC_TOKEN_KIND_IDENT_LIST \
-    X(identifier, "ident", Ident, c89)
+#ifndef STC_TOKEN_KIND_IDENTIFIER_LIST
+#define STC_TOKEN_KIND_IDENTIFIER_LIST \
+    X(identifier, "ident", Ident, c89) \
+    X(identifier, "ucn", Ucn, c89)
     
 #endif
 
-#ifndef STC_TOKEN_KIND_IDENT_LIST_COUNT
-#define STC_TOKEN_KIND_IDENT_LIST_COUNT 1
+#ifndef STC_TOKEN_KIND_IDENTIFIER_LIST_COUNT
+#define STC_TOKEN_KIND_IDENTIFIER_LIST_COUNT 2
 #endif
 
 
 #ifndef STC_TOKEN_KIND_LITERAL_LIST
 #define STC_TOKEN_KIND_LITERAL_LIST \
-    X(literal, "integer_literal", IntegerLiteral, c89) \
-    X(literal, "float_literal", FloatLiteral, c89) \
-    X(literal, "char_literal", CharLiteral, c89) \
+    X(literal, "number_constant", NumberConstant, c89) \
     X(literal, "string_literal", StringLiteral, c89)
     
 #endif
 
 #ifndef STC_TOKEN_KIND_LITERAL_LIST_COUNT
-#define STC_TOKEN_KIND_LITERAL_LIST_COUNT 4
+#define STC_TOKEN_KIND_LITERAL_LIST_COUNT 2
+#endif
+
+
+#ifndef STC_TOKEN_KIND_PP_LIST
+#define STC_TOKEN_KIND_PP_LIST \
+    X(pp, "string_literal", StringLiteral, c89) \
+    X(pp, "pp_number", PPNumber, c89) \
+    X(pp, "char_constant", CharConstant, c89) \
+    X(pp, "header_name", HeaderName, c89) \
+    X(pp, "other", Other, c89)
+    
+#endif
+
+#ifndef STC_TOKEN_KIND_PP_LIST_COUNT
+#define STC_TOKEN_KIND_PP_LIST_COUNT 5
 #endif
 
 

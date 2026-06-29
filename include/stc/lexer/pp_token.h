@@ -19,26 +19,13 @@ namespace stc::lexer {
  */
 struct PPToken {
     /// PPToken 的种类
-    const TokenKind kind;
+    const PPTokenKind kind;
 
     /// 词素
     const Lexeme lexeme;
 
     /// 位置
     const source::LocationRange range;
-
-
-    [[nodiscard]] constexpr bool is_keyword() const {
-        return lexer::is_keyword(this->kind);
-    }
-
-    [[nodiscard]] constexpr bool is_literal() const {
-        return lexer::is_literal(this->kind);
-    }
-
-    [[nodiscard]] constexpr bool is_assignment_op() const {
-        return lexer::is_assignment_op(this->kind);
-    }
 };
 
 /**
@@ -46,9 +33,8 @@ struct PPToken {
  * @return 无效Token
  */
 constexpr PPToken invalid_token() {
-    return {TokenKind::Invalid, null_lexeme(), source::zero_range()};
+    return {PPTokenKind::Invalid, null_lexeme(), source::zero_range()};
 }
-
 
 }
 

@@ -8,14 +8,21 @@ from utils import write_codes
 PREFIX = "STC_TOKEN_KIND_"
 sinces = ['c89', 'c99', 'c11', 'extension']
 
-specials = []
-identifiers = []
-literals = []
-keywords = []
-delimiters = []
-operators = []
-preprocessors = []
-digraphs = []
+name_mapping = {
+    'pp_number': 'PPNumber'
+}
+
+container = {
+    'special': [],
+    'identifier': [],
+    'literal': [],
+    'pp': [],
+    'keyword': [],
+    'delimiter': [],
+    'operator': [],
+    'preprocessor': [],
+    'digraph': []
+}
 
 
 @dataclass(frozen=True)
@@ -33,9 +40,13 @@ def snake_to_pascal(s: str) -> str:
 def resolve_named(line: list[str]) -> TokenKindEntry:
     assert len(line) == 2
     kind = line[0]
-    assert kind in ['special', 'identifier', 'literal']
+    assert kind in ['special', 'identifier', 'literal', 'pp']
     symbol = line[1]
-    name = snake_to_pascal(symbol)
+    name = symbol
+    if name in name_mapping:
+        name = name_mapping[name]
+    else:
+        name = snake_to_pascal(symbol)
     return TokenKindEntry(kind=kind, symbol=symbol, name=name, since="c89")
 
 
@@ -68,22 +79,12 @@ def resolve_property(path: str):
         'special': resolve_named,
         'identifier': resolve_named,
         'literal': resolve_named,
+        'pp': resolve_named,
         'keyword': resolve_keyword,
         'delimiter': resolve_symbol,
         'operator': resolve_symbol,
         'preprocessor': resolve_symbol,
         'digraph': resolve_symbol
-    }
-
-    container = {
-        'special': specials,
-        'identifier': identifiers,
-        'literal': literals,
-        'keyword': keywords,
-        'delimiter': delimiters,
-        'operator': operators,
-        'preprocessor': preprocessors,
-        'digraph': digraphs
     }
 
     with (open(path, "r", encoding="utf-8") as f):
@@ -102,16 +103,7 @@ def generate_def_code(def_template_path: str) -> str:
         def_template = Template(f.read())
 
     # 宏的名称 <-> 对应的列表
-    macro_lists = {
-        "SPECIAL_LIST": specials,
-        "IDENT_LIST": identifiers,
-        "LITERAL_LIST": literals,
-        "KEYWORD_LIST": keywords,
-        "DELIMITER_LIST": delimiters,
-        "OPERATOR_LIST": operators,
-        "PREPROCESSOR_LIST": preprocessors,
-        "DIGRAPH_LIST": digraphs,
-    }
+    macro_lists = {f"{k.upper()}_LIST": v for k, v in container.items()}
 
     template_ctx = {
         'generated_time': datetime.now().strftime("%Y-%m-%d"),

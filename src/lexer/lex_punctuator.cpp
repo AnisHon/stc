@@ -14,7 +14,7 @@ namespace stc::lexer {
 /**
  * 符号处理函数，采用朴素的 switch 写法
  */
-TokenKind Lexer::lex_punctuator_kind_() {
+PPTokenKind Lexer::lex_punctuator_kind_() {
     ASSERT(is_punctuators_start(this->peek_()), "未知的 punctuator_start 字符");
     switch (this->peek_()) {
     case U'!':
@@ -22,210 +22,210 @@ TokenKind Lexer::lex_punctuator_kind_() {
         switch (this->peek_()) {
         case U'=': // !=
             this->consume_();
-            return TokenKind::NotEqual;
+            return PPTokenKind::NotEqual;
         default: // !
-            return TokenKind::Bang;
+            return PPTokenKind::Bang;
         }
     case U'%':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // %=
             this->consume_();
-            return TokenKind::PercentEqual;
+            return PPTokenKind::PercentEqual;
         case U':':
             this->consume_();
             if (const auto arr = peekn_<2>(); arr[0] == '%' && arr[1] == ':') {
                 // %:%:
                 this->consume_n_<2>();
-                return TokenKind::HashHashAlt;
+                return PPTokenKind::HashHashAlt;
             }
-            return TokenKind::HashAlt; // %:
+            return PPTokenKind::HashAlt; // %:
 
         case U'>': // %>
             this->consume_();
-            return TokenKind::RBraceAlt;
+            return PPTokenKind::RBraceAlt;
         default:
-            return TokenKind::Percent; // %
+            return PPTokenKind::Percent; // %
         }
     case U'&':
         this->consume_();
         switch (this->peek_()) {
         case U'&': // &&
             this->consume_();
-            return TokenKind::AmpAmp;
+            return PPTokenKind::AmpAmp;
         case U'=': // &=
             this->consume_();
-            return TokenKind::AmpEqual;
+            return PPTokenKind::AmpEqual;
         default: // &
-            return TokenKind::Amp;
+            return PPTokenKind::Amp;
         }
     case U'(': // (
         this->consume_();
-        return TokenKind::LParen;
+        return PPTokenKind::LParen;
     case U')': // )
         this->consume_();
-        return TokenKind::RParen;
+        return PPTokenKind::RParen;
     case U'*': // *
         this->consume_();
-        return TokenKind::Star;
+        return PPTokenKind::Star;
     case U'+':
         this->consume_();
         switch (this->peek_()) {
         case U'+': // ++
             this->consume_();
-            return TokenKind::PlusPlus;
+            return PPTokenKind::PlusPlus;
         case U'=': // +=
             this->consume_();
-            return TokenKind::PlusEqual;
+            return PPTokenKind::PlusEqual;
         default: // +
-            return TokenKind::Plus;
+            return PPTokenKind::Plus;
         }
     case U',': // ,
         this->consume_();
-        return TokenKind::Comma;
+        return PPTokenKind::Comma;
     case U'-':
         this->consume_();
         switch (this->peek_()) {
         case U'-': // --
             this->consume_();
-            return TokenKind::MinusMinus;
+            return PPTokenKind::MinusMinus;
         case U'=': // -=
             this->consume_();
-            return TokenKind::MinusEqual;
+            return PPTokenKind::MinusEqual;
         case U'>': // ->
             this->consume_();
-            return TokenKind::Arrow;
+            return PPTokenKind::Arrow;
         default: // -
-            return TokenKind::Minus;
+            return PPTokenKind::Minus;
         }
     case U'.':
         this->consume_();
         if (const auto arr = this->peekn_<2>(); arr[0] == U'.' && arr[1] == U'.') {
             // ...
             this->consume_n_<2>();
-            return TokenKind::Ellipsis;
+            return PPTokenKind::Ellipsis;
         }
         // .
-        return TokenKind::Dot;
+        return PPTokenKind::Dot;
     case U'/':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // /=
             this->consume_();
-            return TokenKind::SlashEqual;
+            return PPTokenKind::SlashEqual;
         default: // /
-            return TokenKind::Slash;
+            return PPTokenKind::Slash;
         }
     case U':': // :
         this->consume_();
         switch (this->peek_()) {
         case U'>':
             this->consume_();
-            return TokenKind::RBracketAlt;
+            return PPTokenKind::RBracketAlt;
         default:
-            return TokenKind::Colon;
+            return PPTokenKind::Colon;
         }
     case U';': // ;
         this->consume_();
-        return TokenKind::Semicolon;
+        return PPTokenKind::Semicolon;
     case U'<':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // <=
             this->consume_();
-            return TokenKind::LessEqual;
+            return PPTokenKind::LessEqual;
         case U'<':
             this->consume_();
             switch (this->peek_()) {
             case U'=': // <<=
                 this->consume_();
-                return TokenKind::ShiftLeftEqual;
+                return PPTokenKind::ShiftLeftEqual;
             default: // <<
-                return TokenKind::ShiftLeft;
+                return PPTokenKind::ShiftLeft;
             }
         case U':': // <:
             this->consume_();
-            return TokenKind::LBracketAlt;
+            return PPTokenKind::LBracketAlt;
         case U'%': // <%
             this->consume_();
-            return TokenKind::LBraceAlt;
+            return PPTokenKind::LBraceAlt;
         default: // <
-            return TokenKind::Less;
+            return PPTokenKind::Less;
         }
     case U'=':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // ==
             this->consume_();
-            return TokenKind::EqualEqual;
+            return PPTokenKind::EqualEqual;
         default: // =
-            return TokenKind::Equal;
+            return PPTokenKind::Equal;
         }
     case U'>':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // >=
             this->consume_();
-            return TokenKind::GreaterEqual;
+            return PPTokenKind::GreaterEqual;
         case U'>':
             this->consume_();
             switch (this->peek_()) {
             case U'=': // >>=
                 this->consume_();
-                return TokenKind::ShiftRightEqual;
+                return PPTokenKind::ShiftRightEqual;
             default: // >>
-                return TokenKind::ShiftRight;
+                return PPTokenKind::ShiftRight;
             }
         default: // >
-            return TokenKind::Greater;
+            return PPTokenKind::Greater;
         }
     case U'?': // ?
         this->consume_();
-        return TokenKind::Question;
+        return PPTokenKind::Question;
     case U'[': // [
         this->consume_();
-        return TokenKind::LBracket;
+        return PPTokenKind::LBracket;
     case U']': // ]
         this->consume_();
-        return TokenKind::RBracket;
+        return PPTokenKind::RBracket;
     case U'^':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // ^=
             this->consume_();
-            return TokenKind::CaretEqual;
+            return PPTokenKind::CaretEqual;
         default: // ^
-            return TokenKind::Caret;
+            return PPTokenKind::Caret;
         }
     case U'{': // {
         this->consume_();
-        return TokenKind::LBrace;
+        return PPTokenKind::LBrace;
     case U'|':
         this->consume_();
         switch (this->peek_()) {
         case U'=': // |=
             this->consume_();
-            return TokenKind::PipeEqual;
+            return PPTokenKind::PipeEqual;
         case U'|': // ||
             this->consume_();
-            return TokenKind::PipePipe;
+            return PPTokenKind::PipePipe;
         default: // |
-            return TokenKind::Pipe;
+            return PPTokenKind::Pipe;
         }
     case U'}': // }
         this->consume_();
-        return TokenKind::RBrace;
+        return PPTokenKind::RBrace;
     case U'~': // ~
         this->consume_();
-        return TokenKind::Tilde;
+        return PPTokenKind::Tilde;
     case U'#':
         this->consume_();
         switch (this->peek_()) {
         case U'#': // ##
             this->consume_();
-            return TokenKind::HashHash;
+            return PPTokenKind::HashHash;
         default: // #
-            return TokenKind::Hash;
+            return PPTokenKind::Hash;
         }
     default:
         UNREACHABLE();
