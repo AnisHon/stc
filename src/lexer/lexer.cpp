@@ -28,6 +28,7 @@ namespace stc::lexer {
 Lexer::Lexer(
     const std::u8string_view source
     ) : is_start_of_line(true)
+        , mode_{LexerMode::Lexer}
         , prev_iter_{source.cbegin()}
         , source_beg_{source.cbegin()}
         , current_iter_{source.cbegin()}
@@ -35,7 +36,6 @@ Lexer::Lexer(
     ASSERT(utf8::is_valid(source.begin(), source.end()), "无效UTF8字符串");
 }
 
-[[nodiscard]]
 Lexer::NewLineType Lexer::is_new_line() const {
     const std::array arr{peekn_<2>()};
 
@@ -60,12 +60,10 @@ Lexer::NewLineType Lexer::is_new_line() const {
  */
 Lexer::CommentType Lexer::get_comment_type_() const {
     // 当前迭代器已经结束了一定不是 comment
-    const std::array arr{this->peekn_<2>()};
-
-    if (arr[0] == U'/' && arr[1] == U'/') {
+    if (this->is_match_(u8"//")) {
         return CommentType::SingleLineComment;
     }
-    if (arr[0] == U'/' || arr[1] == U'*') {
+    if (this->is_match_(u8"/*")) {
         return CommentType::MultiLineComment;
     }
     return CommentType::NotComment;
@@ -101,21 +99,11 @@ bool Lexer::is_comment_end_(const CommentType kind) const {
  * - U: 32位 char
  * - L: 平台相关，可能等价于 u 或 U，表示 Wide char（Long char）
  */
-Lexer::CharType Lexer::is_char_constant_start_() const {
-    const std::array arr{this->peekn_<2>()};
-    if (arr[0] == U'\'') {
-        return CharType::Char;
-    }
-    if (arr[0] == U'L' && arr[1] == U'\'') {
-        return CharType::LongChar;
-    }
-    if (arr[0] == U'u' && arr[1] == U'\'') {
-        return CharType::Char16;
-    }
-    if (arr[0] == U'U' && arr[1] == U'\'') {
-        return CharType::Char32;
-    }
-    return CharType::NotChar;
+bool Lexer::is_char_constant_start_() const {
+    return this->is_match_(u8"'") // '
+           || this->is_match_(u8"L'") // L'
+           || this->is_match_(u8"u'") // u'
+           || this->is_match_(u8"U'"); // U'
 }
 
 /**
@@ -125,35 +113,38 @@ Lexer::CharType Lexer::is_char_constant_start_() const {
  * - U: utf32
  * - L: 平台相关，可能等价于 u 或 U，表示 Wide String（Long String）
  */
-Lexer::StringType Lexer::is_string_start_() const {
-    const std::array arr{this->peekn_<3>()};
-    if (arr[0] == U'"') {
-        return StringType::String;
+bool Lexer::is_string_start_() const {
+    if (this->mode_ != LexerMode::Lexer) {
+        return false;
     }
-    if (arr[0] == U'u' && arr[1] == U'8' && arr[2] == U'"') {
-        return StringType::U8String;
-    }
-    if (arr[0] == U'u' && arr[1] == U'"') {
-        return StringType::U16String;
-    }
-    if (arr[0] == U'U' && arr[1] == U'"') {
-        return StringType::U32String;
-    }
-    if (arr[0] == U'L' && arr[1] == U'"') {
-        return StringType::LongString;
-    }
-    return StringType::NotString;
+    return this->is_match_(u8"\"") //  ""
+           || this->is_match_(u8"u8\"") // u8""
+           || this->is_match_(u8"u\"") // u""
+           || this->is_match_(u8"U\"") // U""
+           || this->is_match_(u8"L\""); // L""
 }
 
 /**
- * 是否是数字常量，
+ * 预处理宏 #define 的 <xxx>/"xxx" 部分
  */
-static bool is_number_constant_start(const char32_t code_point) {
-    const bool is_digit = std::isdigit(code_point);
-    const bool is_float = code_point == U'.';
-    return is_digit || is_float;
+bool Lexer::is_header_name_start_(const char32_t chr) const {
+    if (this->mode_ != LexerMode::Include) {
+        return false;
+    }
+    return chr == U'"' || chr == U'<';
 }
 
+/**
+ * 是否是数字常量，pp number 可以共用这个
+ * - first => '[0-9]'  '.'
+ * - first-2 => '.[0-9]'  '[0-9](e|E|[0-9])'  '0x'  '0X'
+ */
+bool Lexer::is_pp_number_constant_start_() const {
+    const std::array arr = this->peekn_<2>();
+    const bool is_digit{static_cast<bool>(std::isdigit(arr[0]))};
+    const bool is_float{arr[0] == U'.' && std::isdigit(arr[1])};
+    return is_digit || is_float;
+}
 
 /**
  * 获取当前区间的 string_view_()
@@ -176,34 +167,45 @@ Lexer::State Lexer::peek_state() const {
      * char string 与 ident 必须 ident 放在后面，L U u 有冲突
      * 数字开头 . 0-9，可能与符号冲突，
      */
-    //
-    //
-    //
-    //
 
-    // 是否是string
-    if (this->is_string_start_() != StringType::NotString) {
+    // 是否是 注释
+    if (this->get_comment_type_() != CommentType::NotComment) {
+        return State::MaybeComment;
+    }
+
+    // 是否是 string
+    if (this->is_string_start_()) {
         return State::MaybeString;
     }
 
-    // 是否是char
-    if (this->is_char_constant_start_() != CharType::NotChar) {
+    // 是否是 header name
+    if (this->is_header_name_start_(chr)) {
+        return State::MaybeHeaderName;
+    }
+
+    // 是否是 char
+    if (this->is_char_constant_start_()) {
         return State::MaybeChar;
     }
 
-    // 标识符，不判断关键字，由于预处理器的原因所有标识符都要后期重确认
+    // 是否是 标识符，不判断关键字，由于预处理器的原因所有标识符都要后期重确认
     if (is_ident_start(chr)) {
         return State::MaybeIdent;
     }
 
     /// 是否是 数字
-    if (chr == is_number_constant_start(chr)) {
-        return State::MaybeNumberConstant;
+    if (this->is_pp_number_constant_start_()) {
+        return State::MaybePPNumber;
     }
 
-    // 是否是特殊符号
+    // 是否是 特殊符号
     if (is_punctuators_start(chr)) {
         return State::MaybePunctuator;
+    }
+
+    // 是否是 ucn
+    if (chr == U'\\') {
+        return State::MaybeUCN;
     }
 
     // 结束
@@ -217,9 +219,9 @@ Lexer::State Lexer::peek_state() const {
 
 /**
  * 必须保证 is_ident_start 成立
- * 只会返回 Keyword 和 Ident 的 Token
+ * 只会返回 Ident 的 PPToken
  */
-Token Lexer::lex_keyword_or_ident_() {
+PPToken Lexer::lex_ident_() {
     ASSERT(is_ident_start(this->peek_())); // 一定要满足这个函数
     this->consume_(); // 消耗掉开头字符
 
@@ -227,19 +229,46 @@ Token Lexer::lex_keyword_or_ident_() {
         this->consume_();
     }
 
-    const auto view{this->get_current_view_()};
-    const TokenKind kind{lookup_keyword(view)};
-
-    return this->make_token_(kind);
+    return this->make_token_(PPTokenKind::Ident);
 }
 
 /**
  * 符号处理函数，采用朴素的 switch 写法
  */
-Token Lexer::lex_punctuator_() {
+PPToken Lexer::lex_punctuator_() {
     ASSERT(is_punctuators_start(this->peek_()), "未知 punctuator_start 字符");
-    const TokenKind kind = this->lex_punctuator_kind_(); // 进行识别
+    const PPTokenKind kind = this->lex_punctuator_kind_(); // 进行识别
     return this->make_token_(kind); // make 一个 token
+}
+
+/**
+ * 注释
+ */
+PPToken Lexer::lex_comment_() {
+    const auto comment_type{this->get_comment_type_()};
+    ASSERT(comment_type != CommentType::NotComment);
+
+    TODO("comment处理要复杂很多");
+}
+
+PPToken Lexer::lex_pp_number_() {
+    TODO("未实现 pp number");
+}
+
+PPToken Lexer::lex_char_() {
+    TODO("未实现 char");
+}
+
+PPToken Lexer::lex_string_() {
+    TODO("未实现 string");
+}
+
+PPToken Lexer::lex_header_name_() {
+    TODO("未实现 header name");
+}
+
+PPToken Lexer::lex_ucn_() {
+    TODO("未实现 ucn");
 }
 
 /**
@@ -284,10 +313,18 @@ bool Lexer::match_(const char32_t c) {
     return false;
 }
 
-[[nodiscard]]
 inline char32_t Lexer::peek_() const {
     return peekn_<1>()[0];
 }
+
+bool Lexer::is_match_(const std::u8string_view str) const {
+    const auto len = static_cast<size_t>(std::distance(this->current_iter_, this->source_end_));
+    if (str.size() < len) {
+        return false;
+    }
+    return std::u8string_view(this->current_iter_, str.size()) == str;
+}
+
 
 /**
  * 跳过空白字符
@@ -300,47 +337,8 @@ void Lexer::skip_white_space() {
 }
 
 /**
- * 跳过注释
- * @return 是否未出错，跳过成功返回 true，不是注释返回 true，注释未闭合返回 false
- */
-bool Lexer::skip_comment_() {
-    const auto comment_type{this->get_comment_type_()};
-    if (comment_type == CommentType::NotComment) {
-        // 不是注释跳过
-        return true;
-    }
-
-    bool comment_end{false};
-
-    while (this->is_eof()) {
-        if (this->is_comment_end_(comment_type)) {
-            // 到达 comment 结束退出
-            comment_end = true;
-            break;
-        }
-        this->consume_();
-    }
-
-    if (comment_end) {
-        switch (comment_type) {
-        case CommentType::MultiLineComment: // 多行结尾 跳过两次
-            consume_();
-            [[fallthrough]];
-        case CommentType::SingleLineComment: // 单行结尾 跳过一次（包括\r\n都跳过了）
-            consume_();
-            [[fallthrough]];
-        default:
-            this->prev_iter_ = this->current_iter_; // 清空迭代器区间
-        }
-    }
-
-    return comment_end;
-}
-
-/**
  * 返回当前位置location
  */
-[[nodiscard]]
 source::Location Lexer::make_current_location_() const {
     const auto sz{static_cast<std::uint32_t>(this->current_iter_ - this->source_beg_)};
     return {sz};
@@ -349,7 +347,6 @@ source::Location Lexer::make_current_location_() const {
 /**
  * 返回当前的range
  */
-[[nodiscard]]
 source::LocationRange Lexer::make_range_() const {
     const auto curr_sz{static_cast<std::uint32_t>(this->current_iter_ - this->source_beg_)};
     const auto prev_sz{static_cast<std::uint32_t>(this->prev_iter_ - this->source_beg_)};
@@ -364,43 +361,45 @@ source::LocationRange Lexer::make_range_() const {
     return range;
 }
 
-Token Lexer::make_token_(const TokenKind kind) {
+PPToken Lexer::make_token_(const PPTokenKind kind) {
     ASSERT(this->current_iter_ != this->source_end_, "试图构建一个空TOKEN");
 
     const auto view{this->get_current_view_()};
     const Lexeme lexeme = interner.intern(view);
     const source::LocationRange range{this->make_range_()};
     this->prev_iter_ = this->current_iter_;
-    return Token{kind, lexeme, range};
+    return PPToken{kind, lexeme, range};
 }
 
-Token Lexer::next_token() {
+PPToken Lexer::next_token() {
 
     // 跳过空白字符
     this->skip_white_space();
-    // 跳过注释，未成功就报错
-    if (!this->skip_comment_()) {
-        return invalid_token();
-    }
 
     const auto current_state{peek_state()};
     switch (current_state) {
     case State::MaybeIdent: // 解析
-        return this->lex_keyword_or_ident_();
+        return this->lex_ident_();
     case State::MaybePunctuator:
         return this->lex_punctuator_();
-    case State::MaybeNumberConstant:
-        TODO();
+    case State::MaybeHeaderName:
+        return this->lex_header_name_();
+    case State::MaybeUCN:
+        return this->lex_ucn_();
+    case State::MaybePPNumber:
+        return this->lex_pp_number_();
     case State::MaybeChar:
-        TODO();
+        return this->lex_char_();
     case State::MaybeString:
-        TODO();
+        return this->lex_string_();
+    case State::MaybeComment:
+        return this->lex_comment_();
     case State::Invalid: // 不推进，没有状态转移
         return invalid_token();
     case State::Eof: // lexer 已经结束，返回 EOF
-        return Token{TokenKind::Eof, null_lexeme(), make_range_()};
+        return PPToken{PPTokenKind::Eof, null_lexeme(), make_range_()};
     default:
-        UNREACHABLE("Uncovered branch: ");
+        UNREACHABLE("Uncovered branch {}", static_cast<size_t>(current_state));
     }
 }
 

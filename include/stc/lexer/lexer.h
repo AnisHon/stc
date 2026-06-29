@@ -7,7 +7,7 @@
 
 #ifndef STC_LEXER_H
 #define STC_LEXER_H
-#include "token.h"
+#include "pp_token.h"
 #include "utf8cpp/utf8.h"
 
 namespace stc::lexer {
@@ -17,21 +17,39 @@ namespace stc::lexer {
  * Lexer必须要求错误utf8本身无错误，必须先检查一遍
  */
 class Lexer {
+
+    /**
+     * Lexer 模式
+     * - Lexer 上下文，标准模式
+     * - Include 上下文，预处理 Include
+     */
+    enum class LexerMode: std::uint8_t {
+        Lexer,
+        Include,
+
+    };
+
     /**
      * Lexer是一个状态机，这是状态
      */
     enum class State: std::uint8_t {
-        /// 可能是字符串或标识符
+        /// 标识符
         MaybeIdent,
-        /// 可能是宏或运算符
+        /// 注释
+        MaybeComment,
+        /// universal character name
+        MaybeUCN,
+        /// 标点符号
         MaybePunctuator,
-        /// 可能是数字常量
-        MaybeNumberConstant,
-        /// 可能是字符串
+        /// 字符串
         MaybeString,
+        /// define header name
+        MaybeHeaderName,
+        /// Preprocessing number
+        MaybePPNumber,
         /// 可能是字符
         MaybeChar,
-        /// 错误状态，指针不会推进，只会返回 Invalid Token
+        /// 错误状态，指针不会推进，只会返回 Invalid PPToken
         Invalid,
         /// 结束状态
         Eof,
@@ -57,31 +75,6 @@ class Lexer {
     };
 
     /**
-     * 字符类型
-     */
-    enum class CharType : std::uint8_t {
-        NotChar,
-        Char,
-        /// 平台相关 char 32 或 16
-        LongChar,
-        Char16,
-        Char32,
-    };
-
-    /**
-     * 字符串类型
-     */
-    enum class StringType : std::uint8_t {
-        NotString,
-        String,
-        /// 平台相关 string
-        LongString,
-        U8String,
-        U16String,
-        U32String,
-    };
-
-    /**
      * 判断换行类型
      */
     [[nodiscard]]
@@ -94,10 +87,16 @@ class Lexer {
     bool is_comment_end_(CommentType kind) const;
 
     [[nodiscard]]
-    CharType is_char_constant_start_() const;
+    bool is_char_constant_start_() const;
 
     [[nodiscard]]
-    StringType is_string_start_() const;
+    bool is_string_start_() const;
+
+    [[nodiscard]]
+    bool is_header_name_start_(char32_t chr) const;
+
+    [[nodiscard]]
+    bool is_pp_number_constant_start_() const;
 
     [[nodiscard]]
     std::u8string_view get_current_view_() const;
@@ -112,17 +111,56 @@ class Lexer {
     /**
      * 如果 is_ident_start 成立就是则可以调用这个函数，否则出错
      */
-    Token lex_keyword_or_ident_();
+    [[nodiscard]]
+    PPToken lex_ident_();
 
     /**
      * 识别 punctuator kind，消耗字符
      */
-    TokenKind lex_punctuator_kind_();
+    [[nodiscard]]
+    PPTokenKind lex_punctuator_kind_();
 
     /**
      * 符号处理函数
      */
-    Token lex_punctuator_();
+    [[nodiscard]]
+    PPToken lex_punctuator_();
+
+    /**
+     * 注释处理
+     */
+    [[nodiscard]]
+    PPToken lex_comment_();
+
+    /**
+     * preprocessing number 处理
+     */
+    [[nodiscard]]
+    PPToken lex_pp_number_();
+
+    /**
+     * char 处理
+     */
+    [[nodiscard]]
+    PPToken lex_char_();
+
+    /**
+     * 字符串 处理
+     */
+    [[nodiscard]]
+    PPToken lex_string_();
+
+    /**
+     * include header name 处理
+     */
+    [[nodiscard]]
+    PPToken lex_header_name_();
+
+    /**
+     * universal character name 处理
+     */
+    [[nodiscard]]
+    PPToken lex_ucn_();
 
     /**
      * 是否到达文件尾
@@ -149,6 +187,8 @@ class Lexer {
      */
     bool match_(char32_t c);
 
+    //bool match_(std::u8string_view str) const;
+
     /**
      * peek 当前字符，当迭代器结束返回 zero 字符
      */
@@ -171,16 +211,13 @@ class Lexer {
         return res;
     }
 
+    [[nodiscard]]
+    bool is_match_(std::u8string_view str) const;
+
     /**
      * 跳过空白字符
      */
     void skip_white_space();
-
-    /**
-     * 跳过注释处理函数
-     * @return 是否未出错
-     */
-    bool skip_comment_();
 
     /**
      * @return 当前位置的loc
@@ -195,9 +232,9 @@ class Lexer {
     source::LocationRange make_range_() const;
 
     /**
-      * 利用当前信息构建一个 Token，会移动 prev 指针
+      * 利用当前信息构建一个 PPToken，会移动 prev 指针
       */
-    Token make_token_(TokenKind kind);
+    PPToken make_token_(PPTokenKind kind);
 
 public:
     explicit Lexer(std::u8string_view source);
@@ -207,13 +244,16 @@ public:
      * 注意返回的Invalid Token是没有具体位置信息的，需要使用 recover 跳过提供一个位置信息
      * @return 下一个token
      */
-    Token next_token();
+    PPToken next_token();
 
 private:
     /// 是否是行开始状态
     bool is_start_of_line;
 
-    /// 每次 Token 结束的下一个位置
+    /// lexer 模式
+    LexerMode mode_;
+
+    /// 每次 PPToken 结束的下一个位置
     std::u8string_view::const_iterator prev_iter_;
 
     /// 起始位置迭代器
