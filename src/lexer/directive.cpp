@@ -1,11 +1,11 @@
 /**
- * @file directive.c
+ * @file directive.cpp
  * @author anishan
  * @date 2026/6/13
  */
 
 #include <string_view>
-#include "stc/preprocessor/directive.h"
+#include "../../include/stc/lexer/directive.h"
 
 using namespace std::string_view_literals;
 

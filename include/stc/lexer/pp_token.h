@@ -1,5 +1,5 @@
 /**
- * @file token.h
+ * @file pp_token.h
  * @author anishan
  * @date 2026/6/11
  * token 及其相关工具函数定义
@@ -15,10 +15,10 @@
 namespace stc::lexer {
 
 /**
- * Token 数据结构，设计为不可变数据类型
+ * PPToken 数据结构，设计为不可变数据类型
  */
-struct Token {
-    /// Token 的种类
+struct PPToken {
+    /// PPToken 的种类
     const TokenKind kind;
 
     /// 词素
@@ -45,7 +45,7 @@ struct Token {
  * 返回一个无效token
  * @return 无效Token
  */
-constexpr Token invalid_token() {
+constexpr PPToken invalid_token() {
     return {TokenKind::Invalid, null_lexeme(), source::zero_range()};
 }
 

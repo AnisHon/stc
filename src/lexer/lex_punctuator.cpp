@@ -5,7 +5,7 @@
  * 为了清晰将这一坨分开写
  */
 
-#include "stc/lexer/token.h"
+#include "stc/lexer/pp_token.h"
 #include "stc/lexer/lexer.h"
 #include "stc/utils/macros.h"
 

@@ -12,7 +12,7 @@
 #include <stack>
 
 #include "stc/source/manager.h"
-#include "stc/preprocessor/directive.h"
+#include "directive.h"
 
 
 namespace stc::lexer {

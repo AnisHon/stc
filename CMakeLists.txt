@@ -34,7 +34,6 @@ set(STC_PUB_INC_DIR "${STC_INC_DIR}/stc" CACHE INTERNAL "STC public include dire
 # project source code
 add_subdirectory(src/utils)
 add_subdirectory(src/source)
-add_subdirectory(src/preprocessor)
 add_subdirectory(src/lexer)
 add_subdirectory(src)
 
