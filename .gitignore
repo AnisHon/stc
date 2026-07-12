@@ -11,6 +11,8 @@ CTestTestfile.cmake
 !CMakeLists.txt
 !*.cmake.in
 
+docs/
+
 # 编译产物
 *.o
 *.obj

@@ -2,7 +2,7 @@ set(STC_LEXER_INC_DIR "${STC_PUB_INC_DIR}/lexer")
 
 # lexer module
 set(STC_LEXER_INC
-        ${STC_LEXER_INC_DIR}/token.h
+        ${STC_LEXER_INC_DIR}/pp_token.h
         ${STC_LEXER_INC_DIR}/lexer.h
         ${STC_LEXER_INC_DIR}/token_stream.h
         ${STC_LEXER_INC_DIR}/string_interner.h

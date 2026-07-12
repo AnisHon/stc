@@ -39,6 +39,6 @@ add_subdirectory(src)
 
 # enable test
 if (ENABLE_TESTS)
+    include(CTest)
     add_subdirectory(test)
 endif ()
-
