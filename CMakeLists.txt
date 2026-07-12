@@ -8,18 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_WARN_UNINITIALIZED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(ENABLE_TESTS "Build tests" ON)
-
-# 设置版本信息
-add_compile_definitions(
-        #    PROJECT_VERSION="${PROJECT_VERSION}"
-        PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-        PROJECT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-        PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-        PROJECT_VERSION_SUFFIX="${PROJECT_VERSION_SUFFIX}"
-)
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(CTest)
 
 # add dependencies
 include(Dependencies)
@@ -37,8 +28,7 @@ add_subdirectory(src/source)
 add_subdirectory(src/lexer)
 add_subdirectory(src)
 
-# enable test
-if (ENABLE_TESTS)
-    include(CTest)
+# enable tests
+if (BUILD_TESTING)
     add_subdirectory(test)
 endif ()

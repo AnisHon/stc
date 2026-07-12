@@ -18,6 +18,13 @@ set(STC_UTILS_SRC
 
 add_library(stc_utils ${STC_UTILS_SRC})
 
+target_compile_definitions(stc_utils PRIVATE
+        PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        PROJECT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+        PROJECT_VERSION_SUFFIX="${PROJECT_VERSION_SUFFIX}"
+)
+
 target_sources(stc_utils PRIVATE
         FILE_SET HEADERS
         BASE_DIRS
