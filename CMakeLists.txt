@@ -12,6 +12,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CTest)
 
+option(STC_USE_SYSTEM_DEPENDENCIES
+        "Use compatible dependencies installed on the system"
+        ON
+)
+
 # add dependencies
 include(Dependencies)
 

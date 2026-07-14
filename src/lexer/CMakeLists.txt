@@ -32,4 +32,4 @@ target_sources(stc_lexer PRIVATE
 
 target_include_directories(stc_lexer PUBLIC ${STC_INC_DIR})
 
-target_link_libraries(stc_lexer PRIVATE stc_dependencies)
+target_link_libraries(stc_lexer PRIVATE stc_common_deps)

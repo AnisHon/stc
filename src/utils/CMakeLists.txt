@@ -34,5 +34,4 @@ target_sources(stc_utils PRIVATE
 )
 
 target_include_directories(stc_utils PUBLIC ${STC_INC_DIR})
-
-target_link_libraries(stc_utils PRIVATE stc_dependencies)
+target_link_libraries(stc_utils PRIVATE stc_common_deps)
