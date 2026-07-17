@@ -25,7 +25,13 @@ struct PPToken {
     const Lexeme lexeme;
 
     /// 位置
-    const source::LocationRange range;
+    const source::SourceRange range;
+
+    ///
+    const bool leading_space;
+
+    /// 是否是行开始
+    const bool start_of_line;
 };
 
 /**

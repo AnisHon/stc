@@ -223,13 +223,13 @@ class Lexer {
      * @return 当前位置的loc
      */
     [[nodiscard]]
-    source::Location make_current_location_() const;
+    source::SourceLocation make_current_location_() const;
 
     /**
      * 计算当前的位置
      */
     [[nodiscard]]
-    source::LocationRange make_range_() const;
+    source::SourceRange make_range_() const;
 
     /**
       * 利用当前信息构建一个 PPToken，会移动 prev 指针

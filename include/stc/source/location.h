@@ -21,124 +21,121 @@
 
 namespace stc::source {
 
-/// FileID 和 MacroID 的 0 视作无效 ID
-using FileID = std::uint32_t;
-using MacroID = std::uint32_t;
-
-constexpr FileID InvalidFileID = 0;
-constexpr MacroID InvalidMacroID = 0;
-
 /**
- * 文件信息，
+ * FileID 的 0 视作无效 ID
  */
-struct FileInfo {
-    /// 文件ID，冗余存储
-    const FileID id;
+class FileID {
+    std::uint32_t value_{};
 
-    /// 文件路径
-    const std::filesystem::path path;
+public:
+    static constexpr FileID invalid() {
+        return FileID{};
+    }
 
-    /// 文件内容
-    const std::u8string content;
+    bool operator==(const FileID&) const = default;
 
-    /// 行号 映射 行开始偏移量 的快速索引
-    const std::vector<std::uint32_t> line_starts;
-};
-
-/**
- * 宏定义的代码信息，这里是 define
- */
-struct MacroInfo {
-    /// 当前的ID，冗余存储
-    const MacroID macro_id;
-
-    /// 定义宏的文件
-    const FileID file_id;
-
-    /// 宏定义的文件起始位置
-    const std::uint32_t file_begin;
-
-    /// 宏定义的文件结束位置
-    const std::uint32_t file_end;
-};
-
-/**
- * 文件的额外信息
- */
-struct FileEntry {
-    /// 来自的文件
-    const FileID id;
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 
 };
 
 
 /**
- * 宏展开的额外信息，不是 include
+ * MacroID 的 0 视作无效 ID
  */
-struct MacroEntry {
-    /// 使用的宏
-    const MacroID id;
+class MacroID {
+    std::uint32_t value_{};
 
-    /// 具体宏展开后的内容，由宏生成
-    const std::u8string content;
+public:
+    static constexpr MacroID invalid() {
+        return MacroID{};
+    }
+
+    bool operator==(const MacroID&) const = default;
+
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
+
 };
 
+
 /**
- * 代码开始结束，代码内容
+ * 0 表示无效位置
  */
-struct SourceEntry {
+class SourceLocation {
+    std::int32_t value{};
 
-    /// 逻辑起始位置
-    const uint32_t begin;
+public:
+    static constexpr SourceLocation invalid() {
+        return SourceLocation{};
+    }
 
-    /// 逻辑结束位置
-    const uint32_t end;
+    bool operator==(const SourceLocation&) const = default;
 
-    /// 代码内容
-    const std::u8string_view buffer;
-
-    /// 在文件中的起始位置
-    const std::uint32_t file_begin;
-
-    /// 在文件中的结束位置
-    const std::uint32_t file_end;
-
-    /// 具体变体
-    const std::variant<FileEntry, MacroEntry> variant;
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 };
 
-/**
- * 位置
- */
-struct Location {
-    uint32_t offset;
-};
-
-/**
- * 实现偏移量和location的加法，都是32位数不使用指针和引用，拷贝更快
- * @return new_location: location.offset + rhs
- */
-constexpr Location operator+(Location lhs, const uint32_t rhs) {
-    lhs.offset += rhs;
-    return lhs;
-}
 
 /**
  * 位置区间，左闭右开 [L, R)
  */
-struct LocationRange {
-    const Location begin;
-    const Location end;
+struct SourceRange {
+    const SourceLocation begin;
+    const SourceLocation end;
+
+    constexpr static SourceRange invalid() {
+        return {SourceLocation::invalid(), SourceLocation::invalid()};
+    }
+
+    /**
+     * 空 range, [at, at)
+     */
+    constexpr static SourceRange empty(const SourceLocation at) {
+        return {at, at};
+    }
+
+    /**
+     * 合并两个 range
+     * a.join(b)  ->  [a.begin, b.end)
+     */
+    [[nodiscard]]
+    constexpr SourceRange join(const SourceRange other) const {
+        return {.begin = this->begin, .end = other.end};
+    }
+
+    bool operator==(const SourceRange&) const = default;
+
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 };
 
 
-constexpr Location zero_loc() {
-    return {};
-}
+/**
+ *
+ */
+struct FileLocation {
+    const FileID file_id;
+    const std::uint32_t byte_offset;
+};
 
-constexpr LocationRange zero_range() {
-    return {zero_loc(), zero_loc()};
-}
+/**
+ *
+ */
+struct PresumedLocation {
+    const std::string filename;
+    const std::uint32_t line;
+    const std::uint32_t column;
+};
+
 
 }
 

@@ -339,7 +339,7 @@ void Lexer::skip_white_space() {
 /**
  * 返回当前位置location
  */
-source::Location Lexer::make_current_location_() const {
+source::SourceLocation Lexer::make_current_location_() const {
     const auto sz{static_cast<std::uint32_t>(this->current_iter_ - this->source_beg_)};
     return {sz};
 }
@@ -347,16 +347,16 @@ source::Location Lexer::make_current_location_() const {
 /**
  * 返回当前的range
  */
-source::LocationRange Lexer::make_range_() const {
+source::SourceRange Lexer::make_range_() const {
     const auto curr_sz{static_cast<std::uint32_t>(this->current_iter_ - this->source_beg_)};
     const auto prev_sz{static_cast<std::uint32_t>(this->prev_iter_ - this->source_beg_)};
 
     // 当前token
-    const source::Location curr{curr_sz};
+    const source::SourceLocation curr{curr_sz};
 
-    const source::Location prev{prev_sz};
+    const source::SourceLocation prev{prev_sz};
 
-    const source::LocationRange range{prev, curr};
+    const source::SourceRange range{prev, curr};
 
     return range;
 }
@@ -366,7 +366,7 @@ PPToken Lexer::make_token_(const PPTokenKind kind) {
 
     const auto view{this->get_current_view_()};
     const Lexeme lexeme = interner.intern(view);
-    const source::LocationRange range{this->make_range_()};
+    const source::SourceRange range{this->make_range_()};
     this->prev_iter_ = this->current_iter_;
     return PPToken{kind, lexeme, range};
 }

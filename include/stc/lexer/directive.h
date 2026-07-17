@@ -37,8 +37,8 @@ enum class DirectiveKind: std::uint8_t {
 
 struct Directive {
     DirectiveKind kind;
-    source::Location begin;
-    source::Location end;
+    source::SourceLocation begin;
+    source::SourceLocation end;
 };
 
 /**

@@ -17,6 +17,96 @@
 
 namespace stc::source {
 
+/**
+ * 
+ */
+struct LineDirectiveInfo {
+    const uint32_t offset;
+    const uint32_t phy_line;
+};
+
+
+/**
+ * 源码文件
+ */
+struct FileInfo {
+    /// 文件ID，冗余存储
+    const FileID id;
+
+    /// 文件路径
+    const std::filesystem::path path;
+
+    /// 文件内容
+    const std::u8string content;
+
+    /// 行号 映射 行开始偏移量 的快速索引
+    const std::vector<std::uint32_t> line_starts;
+
+    const std::vector<LineDirectiveInfo> line_directives;
+};
+
+
+/**
+ * 文件的额外信息
+ */
+struct FileEntry {
+    /// 来自的文件
+    const FileID id;
+
+    const uint32_t byte_offset;
+};
+
+/**
+ * 宏展开的额外信息，不是 include
+ */
+struct MacroEntry {
+    /// 使用的宏
+    const MacroID id;
+
+    /// 具体宏展开后的内容，由宏生成
+    const std::u8string content;
+};
+
+/**
+ * 代码开始结束，代码内容
+ */
+struct SourceEntry {
+
+    /// 逻辑起始位置
+    const uint32_t begin;
+
+    /// 逻辑结束位置
+    const uint32_t end;
+
+    /// 代码内容
+    const std::u8string_view buffer;
+
+    /// 在文件中的起始位置
+    const std::uint32_t file_begin;
+
+    /// 在文件中的结束位置
+    const std::uint32_t file_end;
+
+    /// 具体变体
+    const std::variant<FileEntry, MacroEntry> variant;
+};
+
+/**
+ * 宏定义的代码信息，这里是 define
+ */
+struct MacroInfo {
+    /// 当前的ID，冗余存储
+    const MacroID macro_id;
+
+    /// 定义宏的文件
+    const FileID file_id;
+
+    /// 宏定义的文件起始位置
+    const std::uint32_t file_begin;
+
+    /// 宏定义的文件结束位置
+    const std::uint32_t file_end;
+};
 
 class Manager {
 
