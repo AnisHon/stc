@@ -2,13 +2,13 @@
 #include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
-
+#include <fstream>
 #include "stc/utils/io_utils.h"
 
 namespace {
 
 class TemporaryFile {
-  public:
+public:
     explicit TemporaryFile(const std::string_view suffix) {
         const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
         path_ = std::filesystem::temp_directory_path() /
@@ -24,7 +24,7 @@ class TemporaryFile {
         return path_;
     }
 
-  private:
+private:
     std::filesystem::path path_;
 };
 

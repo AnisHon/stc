@@ -17,22 +17,22 @@ namespace stc::utils {
  * @param mask 查询位置的掩码
  * @return 是否有属性
  */
-inline bool has_unicode_class(char32_t chr, uint32_t mask);
+bool has_unicode_class(char32_t chr, uint32_t mask);
 
 /**
  * 是否是 XID_Start 属性的字符，支持快路径
  */
-inline bool is_xid_start(char32_t chr);
+bool is_xid_start(char32_t chr);
 
 /**
  * 是否是 XID_Continue 属性的字符，支持快路径
  */
-inline bool is_xid_continue(char32_t chr);
+bool is_xid_continue(char32_t chr);
 
 /**
  * 是否是ascii空白符号
  */
-inline bool is_ascii_whitespace(char32_t chr);
+bool is_ascii_whitespace(char32_t chr);
 
 }
 

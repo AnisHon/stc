@@ -14,43 +14,20 @@ namespace stc::utils {
  * @return 行开始索引表
  */
 std::vector<std::uint32_t> get_line_start_indices(const std::string_view content) {
-    enum class State: std::uint8_t {
-        LineStart,
-        CR, // \r
-        Normal
-    };
-    // todo 重构一下，无需用状态机
     std::vector<std::uint32_t> line_starts;
-    auto state = State::LineStart;
-    size_t i = 0;
+    // 文本的第一个字符永远是第一行的开始（即使内容为空，通常也认为存在起始偏移0）
+    line_starts.push_back(0);
 
-    while (i < content.size()) {
-        switch (state) {
-        case State::LineStart:
-            line_starts.push_back(i);
-            state = State::Normal;
-            break;
-        case State::CR:
-            // CRLF \r\n
-            if (content[i] == '\n') {
-                i++;
-            }
-            state = State::LineStart;
-            break;
-        case State::Normal:
-            if (content[i] == '\r') {
-                state = State::CR;
-            } else if (content[i] == '\n') {
-                state = State::LineStart;
-            } else {
-                state = State::Normal;
-            }
-            i++;
-            break;
-        default:
-            UNREACHABLE();
+    size_t pos = 0;
+    while ((pos = content.find_first_of("\r\n", pos)) != std::string_view::npos) {
+        if (content[pos] == '\r' && pos + 1 < content.size() && content[pos + 1] == '\n') {
+            pos += 2;
+        } else {
+            pos += 1;
         }
+        line_starts.push_back(static_cast<std::uint32_t>(pos));
     }
+
     return line_starts;
 }
 
