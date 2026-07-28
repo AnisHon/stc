@@ -13,10 +13,10 @@
 using namespace std::string_view_literals;
 
 TEST_CASE("string_interner", "[lexer]") {
-    const std::u8string_view view = GENERATE(u8"123"sv, u8"if"sv, u8"\"😄😅\""sv, u8"你好世界"sv);
+    const std::string_view view = GENERATE("123"sv, "if"sv, "\"😄😅\""sv, "你好世界"sv);
     stc::lexer::StringInterner intern;
 
-    char8_t str[] = u8"a";
+    char str[] = "a";
     auto str1 = intern.intern(view);
     auto str2 = intern.intern(view);
     REQUIRE(str1 == str2);

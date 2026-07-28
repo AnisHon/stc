@@ -31,10 +31,6 @@ enum class PPTokenKind : uint8_t {
 #undef X
 };
 
-/**
- * 是否是特殊字符（ + - * / ; () [] {} += == 之类 ）的开始字符
- */
-bool is_punctuators_start(char32_t chr);
 
 /**
  * 是否是预处理

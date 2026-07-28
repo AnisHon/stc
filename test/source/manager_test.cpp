@@ -17,7 +17,9 @@ public:
         remove();
     }
 
-    ~TemporarySource() { remove(); }
+    ~TemporarySource() {
+        remove();
+    }
 
     void write(const std::string_view content) const {
         std::ofstream output(path_, std::ios::binary);
@@ -31,7 +33,9 @@ public:
         std::filesystem::remove(path_, error);
     }
 
-    [[nodiscard]] const std::filesystem::path& path() const { return path_; }
+    [[nodiscard]] const std::filesystem::path& path() const {
+        return path_;
+    }
 
 private:
     std::filesystem::path path_;
@@ -49,7 +53,7 @@ TEST_CASE("Manager deduplicates a successfully loaded source file", "[source][ma
 
     REQUIRE(first.has_value());
     REQUIRE(second.has_value());
-    REQUIRE(*first != stc::source::InvalidFileID);
+    REQUIRE(*first != stc::source::FileID::invalid());
     REQUIRE(*second == *first);
 }
 
@@ -68,5 +72,5 @@ TEST_CASE("Manager retries a source file after an earlier open failure",
     const auto retry = manager.create_file(source.path());
 
     REQUIRE(retry.has_value());
-    REQUIRE(*retry != stc::source::InvalidFileID);
+    REQUIRE(*retry != stc::source::FileID::invalid());
 }

@@ -7,38 +7,6 @@
 
 namespace stc::lexer {
 
-bool is_punctuators_start(const char32_t chr) {
-    switch (chr) {
-    case U'!':
-    case U'%':
-    case U'&':
-    case U'(':
-    case U')':
-    case U'*':
-    case U'+':
-    case U',':
-    case U'-':
-    case U'.':
-    case U'/':
-    case U':':
-    case U';':
-    case U'<':
-    case U'=':
-    case U'>':
-    case U'?':
-    case U'[':
-    case U']':
-    case U'^':
-    case U'{':
-    case U'|':
-    case U'}':
-    case U'~':
-    case U'#':
-        return true;
-    default:
-        return false;
-    }
-}
 
 /**
  * 是否是预处理
