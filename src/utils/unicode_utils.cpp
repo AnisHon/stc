@@ -3,8 +3,9 @@
  * @author anishan
  * @date 2026/7/28
  */
-#include <iterator>
 #include "stc/utils/unicode_utils.h"
+#include "unicode_props.h"
+#include <iterator>
 
 namespace stc::utils {
 
@@ -24,7 +25,7 @@ bool has_unicode_class(const char32_t chr, const std::uint32_t mask) {
         const int mid = l + (r - l) / 2; // 防止溢出
         if (gen::UNICODE_RANGES[mid].beg <= chr) {
             result = mid; // 记录候选位置
-            l = mid + 1; // 继续向右找更大的 beg
+            l = mid + 1;  // 继续向右找更大的 beg
         } else {
             r = mid - 1;
         }
@@ -43,14 +44,10 @@ bool has_unicode_class(const char32_t chr, const std::uint32_t mask) {
 bool is_xid_start(const char32_t chr) {
     // 快路径
     if (chr <= 0x7f) {
-        return (chr >= U'A' && chr <= U'Z') ||
-               (chr >= U'a' && chr <= U'z');
+        return (chr >= U'A' && chr <= U'Z') || (chr >= U'a' && chr <= U'z');
     }
 
-    return has_unicode_class(
-        chr,
-        static_cast<uint32_t>(gen::UnicodeClass::XIDStart)
-        );
+    return has_unicode_class(chr, static_cast<uint32_t>(gen::UnicodeClass::XIDStart));
 }
 
 /**
@@ -59,21 +56,16 @@ bool is_xid_start(const char32_t chr) {
 bool is_xid_continue(const char32_t chr) {
     // 快路径
     if (chr <= 0x7f) {
-        return (chr >= U'A' && chr <= U'Z') ||
-               (chr >= U'a' && chr <= U'z') ||
-               (chr >= U'0' && chr <= U'9') ||
-               chr == U'_';
+        return (chr >= U'A' && chr <= U'Z') || (chr >= U'a' && chr <= U'z') ||
+               (chr >= U'0' && chr <= U'9') || chr == U'_';
     }
 
-    return has_unicode_class(
-        chr,
-        static_cast<uint32_t>(gen::UnicodeClass::XIDContinue)
-        );
+    return has_unicode_class(chr, static_cast<uint32_t>(gen::UnicodeClass::XIDContinue));
 }
 
 bool is_ascii_whitespace(const char32_t chr) {
-    return chr == U' ' || chr == U'\t' || chr == U'\n' ||
-           chr == U'\r' || chr == U'\f' || chr == U'\v';
+    return chr == U' ' || chr == U'\t' || chr == U'\n' || chr == U'\r' || chr == U'\f' ||
+           chr == U'\v';
 }
 
-}
+} // namespace stc::utils

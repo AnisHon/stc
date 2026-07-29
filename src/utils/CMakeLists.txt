@@ -2,29 +2,21 @@ set(STC_UTILS_INC_DIR "${STC_PUB_INC_DIR}/utils")
 
 set(STC_UTILS_INC
         ${STC_UTILS_INC_DIR}/macros.h
-        ${STC_UTILS_INC_DIR}/version.h
         ${STC_UTILS_INC_DIR}/io_utils.h
         ${STC_UTILS_INC_DIR}/strutils.h
         ${STC_UTILS_INC_DIR}/unicode_utils.h
-        ${STC_UTILS_INC_DIR}/generated/unicode_props.h
         #${STC_UTILS_INC_DIR}/
 )
 
 set(STC_UTILS_SRC
-        version.cpp
         macros.cpp
         generated/unicode_props.cpp
+        strutils.cpp
+        io_utils.cpp
+        unicode_utils.cpp
 )
 
 add_library(stc_utils ${STC_UTILS_SRC})
-
-target_compile_definitions(stc_utils PRIVATE
-        PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-        PROJECT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-        PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-        PROJECT_VERSION_SUFFIX="${PROJECT_VERSION_SUFFIX}"
-)
-
 target_sources(stc_utils PRIVATE
         FILE_SET HEADERS
         BASE_DIRS
@@ -32,6 +24,8 @@ target_sources(stc_utils PRIVATE
         FILES
         ${STC_UTILS_INC}
 )
+
+target_generate_unicode_props(stc_utils)
 
 target_include_directories(stc_utils PUBLIC ${STC_INC_DIR})
 target_link_libraries(stc_utils PRIVATE stc_common_deps)

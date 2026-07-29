@@ -2,11 +2,10 @@
  * @date 2026-06-22 15:26:54
  * Generated, DO NOT EDIT!!!
  */
-#include "stc/utils/macros.h"
 #include "stc/lexer/token_kinds.h"
+#include "stc/utils/macros.h"
 
 namespace stc::lexer {
-
 
 /**
  * 是否是预处理
@@ -14,7 +13,7 @@ namespace stc::lexer {
 bool is_preprocessor(const PPTokenKind k) {
     switch (k) {
 #define X(kind, symbol, name, since) case PPTokenKind::name:
-    STC_TOKEN_KIND_PREPROCESSOR_LIST
+        STC_TOKEN_KIND_PREPROCESSOR_LIST
 #undef X
         return true;
     default:
@@ -27,9 +26,10 @@ bool is_preprocessor(const PPTokenKind k) {
  */
 std::string_view to_string(const PPTokenKind k) {
     switch (k) {
-#define X(kind, symbol, name, since) \
-    case PPTokenKind::name: return #name;
-    STC_PP_TOKEN_KIND_ALL_LIST
+#define X(kind, symbol, name, since)                                                               \
+    case PPTokenKind::name:                                                                        \
+        return #name;
+        STC_PP_TOKEN_KIND_ALL_LIST
 #undef X
     default:
         UNREACHABLE("uncovered enumerate: {}", static_cast<size_t>(k));
@@ -41,9 +41,10 @@ std::string_view to_string(const PPTokenKind k) {
  */
 std::string_view to_symbol(const PPTokenKind k) {
     switch (k) {
-#define X(kind, symbol, name, since) \
-    case PPTokenKind::name: return symbol;
-    STC_PP_TOKEN_KIND_ALL_LIST
+#define X(kind, symbol, name, since)                                                               \
+    case PPTokenKind::name:                                                                        \
+        return symbol;
+        STC_PP_TOKEN_KIND_ALL_LIST
 #undef X
     default:
         UNREACHABLE("uncovered enumerate: {}", static_cast<size_t>(k));

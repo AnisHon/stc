@@ -6,7 +6,6 @@
  */
 
 #include "stc/lexer/lexer.h"
-#include "stc/lexer/pp_token.h"
 #include "stc/utils/macros.h"
 
 #include <array>

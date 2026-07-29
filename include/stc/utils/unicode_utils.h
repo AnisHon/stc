@@ -7,7 +7,7 @@
 #ifndef STC_UNICODE_UTILS_H
 #define STC_UNICODE_UTILS_H
 
-#include "stc/utils/generated/unicode_props.h"
+#include <cstdint>
 
 namespace stc::utils {
 
@@ -17,7 +17,7 @@ namespace stc::utils {
  * @param mask 查询位置的掩码
  * @return 是否有属性
  */
-bool has_unicode_class(char32_t chr, uint32_t mask);
+bool has_unicode_class(char32_t chr, std::uint32_t mask);
 
 /**
  * 是否是 XID_Start 属性的字符，支持快路径
@@ -34,6 +34,6 @@ bool is_xid_continue(char32_t chr);
  */
 bool is_ascii_whitespace(char32_t chr);
 
-}
+} // namespace stc::utils
 
-#endif //STC_UNICODE_UTILS_H
+#endif // STC_UNICODE_UTILS_H
