@@ -18,10 +18,8 @@ option(STC_USE_SYSTEM_DEPENDENCIES
 )
 
 # add dependencies
-include(Dependencies)
-
-# init python
-include(PyCodegen)
+include(Dependencies) # dependiencies
+include(CodeGen) # codegen
 
 # set global vars
 set(STC_INC_DIR "${CMAKE_SOURCE_DIR}/include" CACHE INTERNAL "STC include directory")

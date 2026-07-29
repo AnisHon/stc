@@ -1,12 +1,14 @@
+# README
+
 ### 生成 `unicode_props` 代码
 
 ```shell
 uv run script/unicode_gen.py resources/DerivedCoreProperties.txt \
-  --output_source src/utils/generated/unicode_props.cpp \
-  --output_header include/stc/utils/generated/unicode_props.h \
-  --template_source resources/templates/unicode_props.cpp.jinja \
-  --template_header resources/templates/unicode_props.h.jinja \
-  --include_path stc/utils/generated/unicode_props.h \
+  --output_source ${GEN_SOURCE_DIR}/unicode_props.cpp \
+  --output_header ${GEN_HEADER_DIR}/unicode_props.h \
+  --template_source ${TEMPLATE_DIR}/unicode_props.cpp.jinja \
+  --template_header ${TEMPLATE_DIR}/unicode_props.h.jinja \
+  --include_path ${PATH}/unicode_props.h \
   --namespace stc::utils::gen
 ```
 
@@ -14,6 +16,6 @@ uv run script/unicode_gen.py resources/DerivedCoreProperties.txt \
 
 ```shell
 uv run script/token_gen.py resources/token_def.txt \
-  --template resources/templates/token_kinds.inc.jinja \
-  -o include/stc/lexer/generated/token_kinds.inc
+  --template ${TEMPLATE_DIR}/token_kinds.inc.jinja \
+  -o ${GEN_HEADER_DIR}/token_kinds.inc
 ```

@@ -1,0 +1,34 @@
+#ifndef STC_VERSION_H
+#define STC_VERSION_H
+
+#include <fmt/core.h>
+#include <string_view>
+
+// stupid clang-foramt, fku
+// clang-format off
+#define PROJECT_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define PROJECT_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define PROJECT_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define PROJECT_VERSION_SUFFIX "@PROJECT_VERSION_SUFFIX@"
+// clang-format on
+
+namespace stc {
+
+constexpr std::string_view say_hello() {
+    return "say hello to my little friend";
+}
+
+/**
+ * 获取版本号字符串，格式为 11.45.14-alpha
+ */
+constexpr std::string get_version() {
+    return fmt::format("{}.{}.{}-{}",
+                       PROJECT_VERSION_MAJOR,
+                       PROJECT_VERSION_MINOR,
+                       PROJECT_VERSION_PATCH,
+                       PROJECT_VERSION_SUFFIX);
+}
+
+} // namespace stc
+
+#endif

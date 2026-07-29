@@ -69,6 +69,7 @@ Thumbs.db
 .cache/
 compile_commands.json
 compile_flags.txt
+.clangd
 
 # 代码覆盖率
 *.gcda
@@ -83,3 +84,5 @@ coverage/
 
 # 虚拟目录
 .venv/
+__pycache__/
+
