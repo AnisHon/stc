@@ -30,9 +30,24 @@ bool is_xid_start(char32_t chr);
 bool is_xid_continue(char32_t chr);
 
 /**
- * 是否是ascii空白符号
+ * 是否是 ASCII 空白符号
  */
-bool is_ascii_whitespace(char32_t chr);
+bool is_ascii_whitespace(char chr);
+
+/**
+ * 是否是 ASCII 换行字符
+ */
+bool is_newline(char chr);
+
+/**
+ * 是否是 ASCII hexadecimal digit（0-9|A-F|a-f）
+ */
+bool is_hex(char chr);
+
+/**
+ * 是否是 ASCII octal digit（0-7）
+ */
+bool is_oct(char chr);
 
 } // namespace stc::utils
 

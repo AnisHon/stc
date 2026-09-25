@@ -223,3 +223,12 @@ void panic(
         std::source_location::current()                              \
         __VA_OPT__(,) __VA_ARGS__                                    \
     )
+
+/**
+ * 隐式控制流，但是不返回任何值
+ * 不建议在作用域内存在 _err 变量(不应该用编译器预留标识符)
+ */
+#define TRY(expr)                                       \
+    do {                                                \
+        if (auto _err = (expr); !_err) return _err;     \
+    } while (false)

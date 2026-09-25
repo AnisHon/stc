@@ -14,10 +14,8 @@
 
 #ifndef STC_SOURCE_LOCATION_H
 #define STC_SOURCE_LOCATION_H
-#include <filesystem>
 #include <string>
-#include <variant>
-#include <vector>
+#include <cstdint>
 
 namespace stc::source {
 
@@ -25,9 +23,13 @@ namespace stc::source {
  * FileID 的 0 视作无效 ID
  */
 class FileID {
-    std::uint32_t value_{};
 
 public:
+    constexpr FileID() = default;
+
+    constexpr explicit FileID(const std::uint32_t value) : value_{value} {
+    }
+
     static constexpr FileID invalid() {
         return FileID{};
     }
@@ -39,6 +41,9 @@ public:
         return *this != invalid();
     }
 
+private:
+    std::uint32_t value_{0};
+
 };
 
 
@@ -46,9 +51,12 @@ public:
  * MacroID 的 0 视作无效 ID
  */
 class MacroID {
-    std::uint32_t value_{};
-
 public:
+    constexpr MacroID() = default;
+
+    constexpr explicit MacroID(const std::uint32_t value) : value_{value} {
+    }
+
     static constexpr MacroID invalid() {
         return MacroID{};
     }
@@ -60,6 +68,9 @@ public:
         return *this != invalid();
     }
 
+private:
+    std::uint32_t value_{0};
+
 };
 
 
@@ -67,9 +78,12 @@ public:
  * 0 表示无效位置
  */
 class SourceLocation {
-    std::int32_t value{};
-
 public:
+    constexpr SourceLocation() = default;
+
+    constexpr explicit SourceLocation(const std::uint32_t value) : value{value} {
+    }
+
     static constexpr SourceLocation invalid() {
         return SourceLocation{};
     }
@@ -80,15 +94,23 @@ public:
     constexpr bool is_valid() const {
         return *this != invalid();
     }
+
+private:
+    std::uint32_t value{};
+
 };
 
 
 /**
  * 位置区间，左闭右开 [L, R)
  */
-struct SourceRange {
-    const SourceLocation begin;
-    const SourceLocation end;
+class SourceRange {
+public:
+    constexpr SourceRange() = default;
+
+    constexpr SourceRange(const SourceLocation begin, const SourceLocation end) : begin{begin},
+        end{end} {
+    }
 
     constexpr static SourceRange invalid() {
         return {SourceLocation::invalid(), SourceLocation::invalid()};
@@ -107,7 +129,7 @@ struct SourceRange {
      */
     [[nodiscard]]
     constexpr SourceRange join(const SourceRange other) const {
-        return {.begin = this->begin, .end = other.end};
+        return {this->begin, other.end};
     }
 
     bool operator==(const SourceRange&) const = default;
@@ -116,6 +138,10 @@ struct SourceRange {
     constexpr bool is_valid() const {
         return *this != invalid();
     }
+
+private:
+    const SourceLocation begin{};
+    const SourceLocation end{};
 };
 
 
@@ -128,7 +154,7 @@ struct FileLocation {
 };
 
 /**
- *
+ * 用户可以使用使用 '#line' 设置文件和行号
  */
 struct PresumedLocation {
     const std::string filename;

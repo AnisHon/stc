@@ -10,21 +10,21 @@
 
 #include <filesystem>
 #include <unordered_map>
+#include <variant>
+#include <vector>
 
 #include "location.h"
 #include "stc/utils/io_utils.h"
 
-
 namespace stc::source {
 
 /**
- * 
+ *
  */
 struct LineDirectiveInfo {
     const uint32_t offset;
     const uint32_t phy_line;
 };
-
 
 /**
  * 源码文件
@@ -37,14 +37,14 @@ struct FileInfo {
     const std::filesystem::path path;
 
     /// 文件内容
-    const std::u8string content;
+    const std::string content;
 
     /// 行号 映射 行开始偏移量 的快速索引
     const std::vector<std::uint32_t> line_starts;
 
+    /// 被 include 引用的位置
     const std::vector<LineDirectiveInfo> line_directives;
 };
-
 
 /**
  * 文件的额外信息
@@ -64,7 +64,7 @@ struct MacroEntry {
     const MacroID id;
 
     /// 具体宏展开后的内容，由宏生成
-    const std::u8string content;
+    const std::string content;
 };
 
 /**
@@ -79,7 +79,7 @@ struct SourceEntry {
     const uint32_t end;
 
     /// 代码内容
-    const std::u8string_view buffer;
+    const std::string_view buffer;
 
     /// 在文件中的起始位置
     const std::uint32_t file_begin;
@@ -110,7 +110,7 @@ struct MacroInfo {
 
 class Manager {
 
-public:
+  public:
     Manager();
 
     /**
@@ -121,12 +121,11 @@ public:
         FileID file_id;
 
         /// 宏定义的文件起始位置
-        std::uint32_t file_begin;
+        std::uint32_t file_begin{};
 
         /// 宏定义的文件结束位置
-        std::uint32_t file_end;
+        std::uint32_t file_end{};
     };
-
 
     /**
      * 创建文件信息，会自动读取文件
@@ -148,7 +147,7 @@ public:
      */
     void push_entry(SourceEntry entry);
 
-private:
+  private:
     /// path 到 FileID 的映射，防重
     std::unordered_map<std::string, FileID> file_id_;
 
@@ -162,6 +161,6 @@ private:
     std::vector<SourceEntry> entries_;
 };
 
-}
+} // namespace stc::source
 
-#endif //STC_SOURCE_MANAGER_H
+#endif // STC_SOURCE_MANAGER_H

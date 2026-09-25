@@ -6,8 +6,22 @@
 
 #include "stc/utils/strutils.h"
 
+#include <utf8/unchecked.h>
 
 namespace stc::utils {
+
+std::tuple<char32_t, size_t> UTF8Decoder::decode(std::string_view::const_iterator iter) const {
+    const auto original_iter = iter;
+    const char32_t cp = utf8::unchecked::next(iter);
+    const size_t bytes = std::distance(original_iter, iter);
+    return {cp, bytes};
+}
+
+std::tuple<char32_t, size_t> UTF16Decoder::decode(std::string_view::const_iterator iter) const {
+    const char32_t cp = utf8::unchecked::next16(iter);
+    return {cp, 2};
+}
+
 /**
  * 计算行开始索引映射表
  * @param content 进行分段字符串的片段

@@ -17,7 +17,7 @@ namespace stc::lexer {
  * 词素，比 view 等值比较速度更快
  */
 struct Lexeme {
-    const char8_t* const str;
+    const char* const str;
     const size_t len;
 };
 
@@ -53,14 +53,12 @@ public:
      * @param str 加入字符串
      * @return
      */
-    Lexeme intern(std::u8string_view str);
+    Lexeme intern(std::string_view str);
 
 private:
-    std::unordered_set<std::u8string_view> intern_table_{};
+    std::unordered_set<std::string_view> intern_table_{};
     std::pmr::monotonic_buffer_resource arena_{};
 };
-
-inline thread_local StringInterner interner;
 
 } // namespace stc::lexer
 

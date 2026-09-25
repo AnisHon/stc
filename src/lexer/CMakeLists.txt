@@ -8,6 +8,7 @@ set(STC_LEXER_INC
         ${STC_LEXER_INC_DIR}/string_interner.h
         ${STC_LEXER_INC_DIR}/token_kinds.h
         ${STC_LEXER_INC_DIR}/directive.h
+        ${STC_LEXER_INC_DIR}/lex_opt.h
         #${STC_LEXER_INCLUDE_DIR}/
 )
 
@@ -16,7 +17,6 @@ set(STC_LEXER_SRC
         lexer.cpp
         string_interner.cpp
         token_kinds.cpp
-        lex_punctuator.cpp
         directive.cpp
 )
 

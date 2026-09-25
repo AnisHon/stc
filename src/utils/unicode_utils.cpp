@@ -25,7 +25,7 @@ bool has_unicode_class(const char32_t chr, const std::uint32_t mask) {
         const int mid = l + (r - l) / 2; // 防止溢出
         if (gen::UNICODE_RANGES[mid].beg <= chr) {
             result = mid; // 记录候选位置
-            l = mid + 1;  // 继续向右找更大的 beg
+            l = mid + 1; // 继续向右找更大的 beg
         } else {
             r = mid - 1;
         }
@@ -63,9 +63,21 @@ bool is_xid_continue(const char32_t chr) {
     return has_unicode_class(chr, static_cast<uint32_t>(gen::UnicodeClass::XIDContinue));
 }
 
-bool is_ascii_whitespace(const char32_t chr) {
-    return chr == U' ' || chr == U'\t' || chr == U'\n' || chr == U'\r' || chr == U'\f' ||
-           chr == U'\v';
+bool is_ascii_whitespace(const char chr) {
+    return chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r' || chr == '\f' ||
+           chr == '\v';
+}
+
+bool is_newline(const char chr) {
+    return chr == '\n' || chr == '\r';
+}
+
+bool is_hex(const char chr) {
+    return chr >= '0' && chr <= '9' || chr >= 'A' && chr <= 'F' || chr >= 'a' && chr <= 'f';
+}
+
+bool is_oct(const char chr) {
+    return chr >= '0' && chr <= '7';
 }
 
 } // namespace stc::utils
