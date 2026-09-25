@@ -1,25 +1,53 @@
 BasedOnStyle: LLVM
 
+# --- ident, tab, column
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
-
 ColumnLimit: 100
 
+# --- opening brace never start a new line
 BreakBeforeBraces: Attach
 
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Empty
-
+# --- I like aligning ptr and ref to the left. it fits C grammar.
 PointerAlignment: Left
 ReferenceAlignment: Left
 
-SortIncludes: true
+# --- stupid, fuck you clangformat, NEVER break template arguments;
+BreakTemplateDeclarations: MultiLine
+PenaltyBreakTemplateDeclaration: 1000
+PenaltyReturnTypeOnItsOwnLine: 10
 
-NamespaceIndentation: None
+#
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 4
+PackConstructorInitializers: NextLine
 
+# --- function
+AlignAfterOpenBracket: Align
 BinPackArguments: false
 BinPackParameters: false
+BreakAfterOpenBracketFunction: false
+BreakBeforeCloseBracketFunction: false
+AlwaysBreakAfterReturnType: None
 
+# --- Include
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+
+# --- namspace
+NamespaceIndentation: None
+FixNamespaceComments: true
+
+# --- other
+SpaceBeforeParens: ControlStatements
+SpaceBeforeCpp11BracedList: true
+SpacesInSquareBrackets: false
+SpacesInAngles: Never
+
+# --- collapse
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: Inline
 SeparateDefinitionBlocks: Always

@@ -1,12 +1,48 @@
 Checks: >
   bugprone-*,
   performance-*,
-
   modernize-use-nullptr,
   modernize-use-override,
   modernize-use-using,
   modernize-loop-convert,
-
+  modernize-make-unique,
+  modernize-make-shared,
+  modernize-use-nodiscard,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-pro-type-member-init,
   readability-braces-around-statements,
-
+  readability-identifier-naming,
   -bugprone-easily-swappable-parameters
+
+CheckConfigs:
+  # type / class / struct / enum / variant -> UpperCamelCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+
+  # namspace / function / var / member  -> snake_case
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+
+  # === global var -> UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  # - key: readability-identifier-naming.ConstexprVariableCase
+  #   value: UPPER_CASE
