@@ -1,53 +1,356 @@
 BasedOnStyle: LLVM
+Language: Cpp
 
-# --- ident, tab, column
+# =============================================================================
+# Basic layout
+# =============================================================================
+
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
+ContinuationIndentWidth: 4
 ColumnLimit: 100
 
-# --- opening brace never start a new line
+# Attach opening braces:
+#
+# if (...) {
+# }
+#
+# void foo() {
+# }
 BreakBeforeBraces: Attach
 
-# --- I like aligning ptr and ref to the left. it fits C grammar.
-PointerAlignment: Left
-ReferenceAlignment: Left
 
-# --- stupid, fuck you clangformat, NEVER break template arguments;
-BreakTemplateDeclarations: MultiLine
-PenaltyBreakTemplateDeclaration: 1000
-PenaltyReturnTypeOnItsOwnLine: 10
+# =============================================================================
+# Function calls / parameters
+# =============================================================================
 
+# When a (...) list has to wrap:
 #
-BreakConstructorInitializers: BeforeComma
-ConstructorInitializerIndentWidth: 4
-PackConstructorInitializers: NextLine
+# foo(
+#     arg1,
+#     arg2
+# );
+#
+# NOTE:
+# clang-format 21 cannot distinguish function parentheses from if/while
+# parentheses here. clang-format 22+ has more fine-grained options.
+AlignAfterOpenBracket: BlockIndent
 
-# --- function
-AlignAfterOpenBracket: Align
+# Never squeeze multiple wrapped arguments onto the same line.
 BinPackArguments: false
-BinPackParameters: false
-BreakAfterOpenBracketFunction: false
-BreakBeforeCloseBracketFunction: false
-AlwaysBreakAfterReturnType: None
+BinPackParameters: OnePerLine
 
-# --- Include
-SortIncludes: CaseSensitive
-IncludeBlocks: Regroup
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 
-# --- namspace
-NamespaceIndentation: None
-FixNamespaceComments: true
+# Don't force every function definition with parameters to wrap if it fits.
+BreakFunctionDefinitionParameters: false
 
-# --- other
-SpaceBeforeParens: ControlStatements
-SpaceBeforeCpp11BracedList: true
-SpacesInSquareBrackets: false
-SpacesInAngles: Never
 
-# --- collapse
+# =============================================================================
+# Short constructs
+# =============================================================================
+
+# Short functions defined inside a class may stay on one line:
+#
+# int size() const { return size_; }
+#
+# Ordinary out-of-class functions are still expanded.
+AllowShortFunctionsOnASingleLine: InlineOnly
+
+# Do not compress control flow.
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortCaseLabelsOnASingleLine: false
+
+# Simple lambdas may stay on one line.
 AllowShortLambdasOnASingleLine: Inline
-SeparateDefinitionBlocks: Always
+
+# Empty classes / structs may stay compact.
+AllowShortBlocksOnASingleLine: Empty
+
+
+# =============================================================================
+# Templates / concepts
+# =============================================================================
+
+# Always:
+#
+# template <typename T>
+# T *cast(...);
+BreakTemplateDeclarations: Yes
+
+# Keep template arguments normally compact.
+BreakBeforeTemplateCloser: false
+
+# Prefer:
+#
+# template <typename T>
+# requires SomeConcept<T>
+# void foo();
+BreakBeforeConceptDeclarations: Always
+
+
+# =============================================================================
+# Expressions
+# =============================================================================
+
+# Arithmetic:
+#
+# auto value = first
+#     + second
+#     + third;
+#
+# This is your preferred operator-at-start style.
+BreakBeforeBinaryOperators: All
+
+# Don't aggressively explode every binary operation merely because one wraps.
+BreakBinaryOperations: Never
+
+# Avoid visual column alignment in expressions.
+AlignOperands: DontAlign
+
+# Ternary:
+#
+# auto value = condition
+#     ? foo
+#     : bar;
+BreakBeforeTernaryOperators: true
+
+
+# =============================================================================
+# Pointers / references / qualifiers
+# =============================================================================
+
+# Your requested style:
+#
+# Token *token;
+# SourceManager &source;
+PointerAlignment: Right
+ReferenceAlignment: Right
+DerivePointerAlignment: false
+
+# Keep const exactly where the author wrote it.
+#
+# const Token *
+# Token const *
+#
+# clang-format won't rewrite one into the other.
+QualifierAlignment: Leave
+
+
+# =============================================================================
+# Constructor initializer lists
+# =============================================================================
+
+# Prefer normal trailing commas:
+#
+# Foo::Foo()
+#     : a_(...),
+#       b_(...),
+#       c_(...) {
+# }
+BreakConstructorInitializers: BeforeColon
+
+ConstructorInitializerIndentWidth: 4
+
+# When wrapped, use one initializer per line.
+PackConstructorInitializers: Never
+
+
+# =============================================================================
+# Inheritance lists
+# =============================================================================
+
+# Prefer:
+#
+# class Parser
+#     : public ParserBase,
+#       public DiagnosticConsumer {
+# };
+BreakInheritanceList: BeforeColon
+
+
+# =============================================================================
+# Classes / access modifiers
+# =============================================================================
+
+# class Foo {
+# public:
+#     ...
+#
+# private:
+#     ...
+# };
+AccessModifierOffset: -4
+
+# Keep access sections visually separated when they form distinct blocks.
+EmptyLineBeforeAccessModifier: LogicalBlock
+EmptyLineAfterAccessModifier: Never
+
+
+# =============================================================================
+# switch
+# =============================================================================
+
+# switch (...) {
+# case Foo:
+#     ...
+# case Bar:
+#     ...
+# }
+IndentCaseLabels: false
+
+# Don't add another indentation level merely because a case has statements.
+IndentCaseBlocks: false
+
+
+# =============================================================================
+# Namespaces
+# =============================================================================
+
+# namespace foo {
+#
+# class Bar {
+# };
+#
+# } // namespace foo
+NamespaceIndentation: None
+FixNamespaceComments: true
+CompactNamespaces: false
+
+
+# =============================================================================
+# Includes
+# =============================================================================
+
+# clang-format must not touch include ordering.
+SortIncludes:
+  Enabled: false
+
+# Since sorting is disabled, also don't merge/regroup include blocks.
+IncludeBlocks: Preserve
+
+
+# =============================================================================
+# Braced initialization
+# =============================================================================
+
+# Prefer:
+#
+# SourceLocation loc{file, offset};
+#
+# std::vector<int> values{
+#     ...
+# };
+Cpp11BracedListStyle: true
+SpaceBeforeCpp11BracedList: false
+
+# clang-format 21 option:
+# don't suddenly bin-pack giant initializer lists with >= 20 items.
+BinPackLongBracedList: false
+
+
+# =============================================================================
+# Comments
+# =============================================================================
+
+# Wrap long comments to ColumnLimit.
+ReflowComments: Always
+
+# Enforce normal:
+#
+# // comment
+#
+# instead of:
+#
+# //comment
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
+
+
+# =============================================================================
+# Preprocessor
+# =============================================================================
+
+# #if FOO
+# #  if BAR
+# #    define BAZ
+# #  endif
+# #endif
+IndentPPDirectives: AfterHash
+
+# Two spaces per nested PP level looks substantially better than 4 here.
+PPIndentWidth: 2
+
+# Align multiline macro backslashes:
+#
+# #define FOO(x) \
+#     something  \
+#     something
+AlignEscapedNewlines: Left
+
+
+# =============================================================================
+# Empty lines
+# =============================================================================
+
+MaxEmptyLinesToKeep: 1
+
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
+
+
+# =============================================================================
+# Alignment
+# =============================================================================
+
+# Avoid table-like alignment and noisy diffs.
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveBitFields: None
+AlignConsecutiveMacros: None
+
+AlignTrailingComments:
+  Kind: Never
+
+
+# =============================================================================
+# Spaces
+# =============================================================================
+
+SpaceBeforeParens: ControlStatements
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+SpaceBeforeAssignmentOperators: true
+
+SpaceBeforeCaseColon: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+
+
+# =============================================================================
+# Return type / declaration breaking
+# =============================================================================
+
+# Strongly discourage:
+#
+# VeryLongReturnType
+# foo();
+#
+# This is a preference, not an absolute prohibition.
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+
+# =============================================================================
+# Formatter must not rewrite program structure
+# =============================================================================
+
+InsertBraces: false
+RemoveBracesLLVM: false
+RemoveSemicolon: false
+

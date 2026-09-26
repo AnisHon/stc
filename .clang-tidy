@@ -1,48 +1,248 @@
+---
 Checks: >
+  -*,
+
+  clang-analyzer-*,
+
   bugprone-*,
+  -bugprone-easily-swappable-parameters,
+
   performance-*,
+
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-owning-memory,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-special-member-functions,
+  cppcoreguidelines-use-enum-class,
+  cppcoreguidelines-virtual-class-destructor,
+
+  google-build-using-namespace,
+  google-explicit-constructor,
+
+  modernize-avoid-c-arrays,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
   modernize-use-nullptr,
   modernize-use-override,
   modernize-use-using,
-  modernize-loop-convert,
-  modernize-make-unique,
-  modernize-make-shared,
-  modernize-use-nodiscard,
-  cppcoreguidelines-init-variables,
-  cppcoreguidelines-pro-type-member-init,
-  readability-braces-around-statements,
+
+  misc-const-correctness,
+  misc-include-cleaner,
+  misc-static-assert,
+
+  readability-convert-member-functions-to-static,
+  readability-else-after-return,
+  readability-function-cognitive-complexity,
   readability-identifier-naming,
-  -bugprone-easily-swappable-parameters
+  readability-make-member-function-const,
+  readability-redundant-access-specifiers,
+  readability-redundant-casting,
+  readability-redundant-control-flow,
+  readability-redundant-declaration,
+  readability-redundant-function-ptr-dereference,
+  readability-redundant-inline-specifier,
+  readability-redundant-member-init,
+  readability-redundant-smartptr-get,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-static-accessed-through-instance
 
-CheckConfigs:
-  # type / class / struct / enum / variant -> UpperCamelCase
-  - key: readability-identifier-naming.ClassCase
-    value: CamelCase
-  - key: readability-identifier-naming.StructCase
-    value: CamelCase
-  - key: readability-identifier-naming.EnumCase
-    value: CamelCase
-  - key: readability-identifier-naming.TypeAliasCase
-    value: CamelCase
-  - key: readability-identifier-naming.TemplateParameterCase
-    value: CamelCase
-  - key: readability-identifier-naming.EnumConstantCase
-    value: CamelCase
+WarningsAsErrors: ''
 
-  # namspace / function / var / member  -> snake_case
-  - key: readability-identifier-naming.NamespaceCase
-    value: lower_case
-  - key: readability-identifier-naming.FunctionCase
-    value: lower_case
-  - key: readability-identifier-naming.VariableCase
-    value: lower_case
-  - key: readability-identifier-naming.MemberCase
-    value: lower_case
-  - key: readability-identifier-naming.ParameterCase
-    value: lower_case
+HeaderFileExtensions:
+  - h
+  - hh
+  - hpp
+  - hxx
+  - inc
 
-  # === global var -> UPPER_CASE
-  - key: readability-identifier-naming.GlobalConstantCase
-    value: UPPER_CASE
-  # - key: readability-identifier-naming.ConstexprVariableCase
-  #   value: UPPER_CASE
+ImplementationFileExtensions:
+  - c
+  - cc
+  - cpp
+  - cxx
+
+FormatStyle: file
+
+CheckOptions:
+
+  # ===========================================================================
+  # Cognitive complexity
+  # ===========================================================================
+
+  # Parser / Sema naturally contain fairly complex control flow.
+  # Default is 25; we deliberately relax this to 40.
+  readability-function-cognitive-complexity.Threshold: 40
+
+  # One top-level diagnostic is enough. Don't emit a warning for every
+  # individual if / loop contributing to the score.
+  readability-function-cognitive-complexity.DescribeBasicIncrements: false
+
+  # Macro internals should not distort normal function complexity.
+  readability-function-cognitive-complexity.IgnoreMacros: true
+
+
+  # ===========================================================================
+  # Naming: types
+  # ===========================================================================
+
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.UnionCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TypedefCase: CamelCase
+
+  # template <typename NodeT>
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+
+  # concept ASTNode = ...
+  readability-identifier-naming.ConceptCase: CamelCase
+
+
+  # ===========================================================================
+  # Naming: namespaces / functions
+  # ===========================================================================
+
+  # namespace sema
+  # namespace source
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.InlineNamespaceCase: lower_case
+
+  # parse_expression()
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.MethodCase: lower_case
+
+  # Keep constexpr methods consistent with ordinary methods.
+  readability-identifier-naming.ConstexprMethodCase: lower_case
+
+
+  # ===========================================================================
+  # Naming: variables / parameters
+  # ===========================================================================
+
+  # auto source_location = ...
+  readability-identifier-naming.LocalVariableCase: lower_case
+
+  # void parse_expression(const Token &current_token)
+  readability-identifier-naming.ParameterCase: lower_case
+
+  # Local const is still ordinary snake_case:
+  #
+  # const auto token_count = tokens.size();
+  readability-identifier-naming.LocalConstantCase: lower_case
+
+  # constexpr is a compile-time property, not an ALL_CAPS naming category:
+  #
+  # constexpr std::size_t default_buffer_size = 4096;
+  readability-identifier-naming.ConstexprVariableCase: lower_case
+
+
+  # ===========================================================================
+  # Naming: data members
+  # ===========================================================================
+
+  # class Parser {
+  # private:
+  #     SourceManager &source_manager_;
+  # };
+  readability-identifier-naming.PrivateMemberCase: lower_case
+  readability-identifier-naming.PrivateMemberSuffix: _
+
+  # struct BinaryExpr {
+  #     Expr *lhs;
+  #     Expr *rhs;
+  # };
+  readability-identifier-naming.PublicMemberCase: lower_case
+
+  # Protected follows the encapsulated member style.
+  readability-identifier-naming.ProtectedMemberCase: lower_case
+  readability-identifier-naming.ProtectedMemberSuffix: _
+
+
+  # ===========================================================================
+  # Naming: constants
+  # ===========================================================================
+
+  # Real named const objects at namespace / static scope:
+  #
+  # const int MAX_RETRY_COUNT = 3;
+  readability-identifier-naming.GlobalConstantCase: UPPER_CASE
+  readability-identifier-naming.StaticConstantCase: UPPER_CASE
+
+  # constexpr has a more specific rule above, therefore remains snake_case.
+
+
+  # ===========================================================================
+  # Naming: enums / macros / globals
+  # ===========================================================================
+
+  # enum class TokenKind {
+  #     Identifier,
+  #     IntegerLiteral,
+  #     LeftParen,
+  # };
+  readability-identifier-naming.EnumConstantCase: CamelCase
+
+  # #define STC_ASSERT(...)
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+
+  # Rare globals remain plain snake_case.
+  readability-identifier-naming.GlobalVariableCase: lower_case
+
+  # You don't currently use static mutable members enough to justify s_foo.
+  readability-identifier-naming.StaticVariableCase: lower_case
+
+
+  # ===========================================================================
+  # Const correctness
+  # ===========================================================================
+
+  # You explicitly wanted const suggestions for locals, references, pointers
+  # and pointees where clang-tidy can prove them.
+  misc-const-correctness.AnalyzeValues: true
+  misc-const-correctness.AnalyzeReferences: true
+  misc-const-correctness.AnalyzePointers: true
+
+  # Also inspect whether the pointed-to object can be const.
+  misc-const-correctness.WarnPointersAsValues: true
+  misc-const-correctness.TransformPointersAsValues: true
+
+
+  # ===========================================================================
+  # Includes
+  # ===========================================================================
+
+  # Report both:
+  #
+  #   1. symbols used without their owning header
+  #   2. includes which are not actually used
+  #
+  # Do not run clang-tidy --fix blindly if you only want diagnostics.
+  misc-include-cleaner.UnusedIncludes: true
+  misc-include-cleaner.MissingIncludes: true
+  misc-include-cleaner.DeduplicateFindings: true
+
+
+  # ===========================================================================
+  # bugprone
+  # ===========================================================================
+
+  # assert(foo()) can be dangerous if foo() has effects. Be strict.
+  bugprone-assert-side-effect.CheckFunctionCalls: true
+
+  # We deliberately disabled easily-swappable-parameters above because it
+  # tends to produce design/style noise in parser/compiler APIs.
+
+
+  # ===========================================================================
+  # Special members / ownership
+  # ===========================================================================
+
+  # Rule-of-five style diagnostics.
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
+
+...
