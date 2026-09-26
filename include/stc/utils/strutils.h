@@ -7,7 +7,6 @@
 
 #ifndef STC_STRUTILS_H
 #define STC_STRUTILS_H
-#include "macros.h"
 
 #include <vector>
 

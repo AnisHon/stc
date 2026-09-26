@@ -10,7 +10,7 @@
 #include "pp_token.h"
 #include <cstdint>
 
-namespace stc::lexer {
+namespace stc {
 
 /**
  * 'std::string_view::const_iterator' is too long
@@ -54,9 +54,9 @@ private:
     /// 尾后迭代器
     const SVIter source_end_;
 
-    bool leading_space;
+    bool leading_space_;
 
-    bool start_of_line;
+    bool start_of_line_;
 };
 
 } // namespace stc::lexer

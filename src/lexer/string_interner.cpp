@@ -7,7 +7,7 @@
 #include <cstring>
 #include "stc/lexer/string_interner.h"
 
-namespace stc::lexer {
+namespace stc {
 
 Lexeme StringInterner::intern(const std::string_view str) {
     // 如果找到，返回池内的字符串，不能信任用户传进来的 string_view 所以这里进行两次哈希

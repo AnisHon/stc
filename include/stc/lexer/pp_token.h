@@ -12,7 +12,7 @@
 #include "token_kinds.h"
 #include "string_interner.h"
 
-namespace stc::lexer {
+namespace stc {
 
 /**
  * PPToken 数据结构，设计为不可变数据类型

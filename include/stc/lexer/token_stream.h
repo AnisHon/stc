@@ -15,7 +15,7 @@
 #include "directive.h"
 
 
-namespace stc::lexer {
+namespace stc {
 
 class TokenStream {
 public:

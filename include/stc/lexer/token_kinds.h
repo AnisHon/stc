@@ -19,7 +19,7 @@
   STC_TOKEN_KIND_PP_LIST                                                       \
   STC_TOKEN_KIND_PUNCTUATOR_LIST
 
-namespace stc::lexer {
+namespace stc {
 
 /**
  * 没有 Token

@@ -13,7 +13,7 @@
 
 #include <expected>
 
-namespace stc::lexer {
+namespace stc {
 
 namespace {
 
@@ -52,7 +52,7 @@ enum class UCNKind : std::uint8_t { Invalid = 0, U16, U32 };
 Lexer::Lexer(StringInterner *interner, const std::string_view source)
     : interner_{interner}, curr_iter_{source.cbegin()},
       source_beg_{source.cbegin()}, source_end_{source.cend()},
-      leading_space{false}, start_of_line{false} {
+      leading_space_{false}, start_of_line_{false} {
   // ASSERT(utf8::is_valid(source.begin(), source.end()), "无效UTF8字符串");
 }
 
@@ -232,8 +232,8 @@ static UCNKind check_ucn(const SVIter iter) {
 static std::uint32_t scan_ident(SVIter iter) {
   const auto start{iter};
   while (true) {
-    char32_t cp;
-    uint32_t bytes;
+    char32_t cp = 0;
+    uint32_t bytes = 0;
     if (*iter == '\\') {
       std::tie(cp, bytes) = next_codepoint(iter);
     } else {
@@ -738,7 +738,7 @@ static SkipSpaceResult skip_space(SVIter iter) {
  */
 PPToken Lexer::next_token() {
   const auto res = skip_space(this->curr_iter_);
-  this->leading_space = res.leading_space;
+  this->leading_space_ = res.leading_space;
 }
 
 } // namespace stc::lexer

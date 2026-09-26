@@ -4,13 +4,13 @@
 
 #include "stc/lexer/token_kinds.h"
 
-using stc::lexer::PPTokenKind;
+using stc::PPTokenKind;
 
 TEST_CASE("punctuator metadata is internally consistent", "[lexer][token-kind]") {
-    REQUIRE(stc::lexer::to_string(PPTokenKind::ShiftLeftEqual) == "ShiftLeftEqual");
-    REQUIRE(stc::lexer::to_symbol(PPTokenKind::ShiftLeftEqual) == "<<=");
-    REQUIRE(stc::lexer::to_symbol(PPTokenKind::HashHashAlt) == "%:%:");
-    REQUIRE(stc::lexer::is_preprocessor(PPTokenKind::Hash));
-    REQUIRE(stc::lexer::is_preprocessor(PPTokenKind::HashHash));
-    REQUIRE_FALSE(stc::lexer::is_preprocessor(PPTokenKind::Plus));
+    REQUIRE(stc::to_string(PPTokenKind::ShiftLeftEqual) == "ShiftLeftEqual");
+    REQUIRE(stc::to_symbol(PPTokenKind::ShiftLeftEqual) == "<<=");
+    REQUIRE(stc::to_symbol(PPTokenKind::HashHashAlt) == "%:%:");
+    REQUIRE(stc::is_preprocessor(PPTokenKind::Hash));
+    REQUIRE(stc::is_preprocessor(PPTokenKind::HashHash));
+    REQUIRE_FALSE(stc::is_preprocessor(PPTokenKind::Plus));
 }

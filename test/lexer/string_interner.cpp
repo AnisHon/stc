@@ -14,7 +14,7 @@ using namespace std::string_view_literals;
 
 TEST_CASE("string_interner", "[lexer]") {
     const std::string_view view = GENERATE("123"sv, "if"sv, "\"😄😅\""sv, "你好世界"sv);
-    stc::lexer::StringInterner intern;
+    stc::StringInterner intern;
 
     char str[] = "a";
     auto str1 = intern.intern(view);

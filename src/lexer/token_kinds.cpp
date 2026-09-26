@@ -5,7 +5,7 @@
 #include "stc/lexer/token_kinds.h"
 #include "stc/utils/macros.h"
 
-namespace stc::lexer {
+namespace stc {
 
 /**
  * 是否是预处理

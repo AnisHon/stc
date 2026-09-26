@@ -11,7 +11,7 @@
 #include <memory_resource>
 #include <unordered_set>
 
-namespace stc::lexer {
+namespace stc {
 
 /**
  * 词素，比 view 等值比较速度更快
