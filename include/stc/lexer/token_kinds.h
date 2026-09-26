@@ -5,20 +5,19 @@
 #pragma once
 
 #include "stc/lexer/token_kinds.inc"
-#include <cstdint>
 #include <string_view>
 
-#define STC_TOKEN_KIND_PUNCTUATOR_LIST                                                             \
-    STC_TOKEN_KIND_DELIMITER_LIST                                                                  \
-    STC_TOKEN_KIND_OPERATOR_LIST                                                                   \
-    STC_TOKEN_KIND_PREPROCESSOR_LIST                                                               \
-    STC_TOKEN_KIND_DIGRAPH_LIST
+#define STC_TOKEN_KIND_PUNCTUATOR_LIST                                         \
+  STC_TOKEN_KIND_DELIMITER_LIST                                                \
+  STC_TOKEN_KIND_OPERATOR_LIST                                                 \
+  STC_TOKEN_KIND_PREPROCESSOR_LIST                                             \
+  STC_TOKEN_KIND_DIGRAPH_LIST
 
-#define STC_PP_TOKEN_KIND_ALL_LIST                                                                 \
-    STC_TOKEN_KIND_SPECIAL_LIST                                                                    \
-    STC_TOKEN_KIND_IDENTIFIER_LIST                                                                 \
-    STC_TOKEN_KIND_PP_LIST                                                                         \
-    STC_TOKEN_KIND_PUNCTUATOR_LIST
+#define STC_PP_TOKEN_KIND_ALL_LIST                                             \
+  STC_TOKEN_KIND_SPECIAL_LIST                                                  \
+  STC_TOKEN_KIND_IDENTIFIER_LIST                                               \
+  STC_TOKEN_KIND_PP_LIST                                                       \
+  STC_TOKEN_KIND_PUNCTUATOR_LIST
 
 namespace stc::lexer {
 
@@ -27,7 +26,7 @@ namespace stc::lexer {
  */
 enum class PPTokenKind : uint8_t {
 #define X(kind, symbol, name, since) name,
-    STC_PP_TOKEN_KIND_ALL_LIST
+  STC_PP_TOKEN_KIND_ALL_LIST
 #undef X
 };
 

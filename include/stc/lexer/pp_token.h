@@ -8,7 +8,7 @@
 #ifndef STC_TOKEN_H
 #define STC_TOKEN_H
 
-#include "stc/source/location.h"
+#include "stc/source/source_location.h"
 #include "token_kinds.h"
 #include "string_interner.h"
 
@@ -25,7 +25,7 @@ struct PPToken {
      */
     constexpr static PPToken invalid() {
         return {.kind = PPTokenKind::Invalid, .lexeme = null_lexeme(),
-                .range = source::SourceRange::invalid()};
+                .range = SourceRange::invalid()};
     }
 
     /// PPToken 的种类
@@ -35,7 +35,7 @@ struct PPToken {
     const Lexeme lexeme;
 
     /// 位置
-    const source::SourceRange range;
+    const SourceRange range;
 
     ///
     const bool leading_space;

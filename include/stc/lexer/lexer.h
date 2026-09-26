@@ -8,11 +8,7 @@
 #define STC_LEXER_H
 
 #include "pp_token.h"
-#include "stc/utils/strutils.h"
-
 #include <cstdint>
-#include <expected>
-#include <optional>
 
 namespace stc::lexer {
 

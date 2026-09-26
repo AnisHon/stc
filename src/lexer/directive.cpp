@@ -9,7 +9,7 @@
 
 using namespace std::string_view_literals;
 
-namespace stc::preprocessor {
+namespace stc::pp {
 
 constexpr std::pair<std::string_view, DirectiveKind> entries[] = {
     {"#define"sv, DirectiveKind::PpDefine},

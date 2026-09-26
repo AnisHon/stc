@@ -2,13 +2,13 @@ set(STC_SOURCE_INC_DIR "${STC_PUB_INC_DIR}/source")
 
 # source module
 set(STC_SOURCE_INC
-        ${STC_SOURCE_INC_DIR}/location.h
-        ${STC_SOURCE_INC_DIR}/manager.h
+        ${STC_SOURCE_INC_DIR}/source_location.h
+        ${STC_SOURCE_INC_DIR}/source_manager.h
         #${STC_SOURCE_INC_DIR}/
 )
 
 set(STC_SOURCE_SRC
-        manager.cpp
+        source_manager.cpp
 )
 
 add_library(stc_source ${STC_SOURCE_SRC})

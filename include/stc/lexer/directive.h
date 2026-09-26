@@ -10,13 +10,13 @@
 #include <cstdint>
 #include <string_view>
 
-#include "stc/source/location.h"
+#include "stc/source/source_location.h"
 
-namespace stc::preprocessor {
+namespace stc::pp {
 
 /**
  * 简单的
- * pp 表示 preprocessor
+ * pp 表示 pp
  */
 enum class DirectiveKind: std::uint8_t {
     PpDefine,
@@ -37,8 +37,8 @@ enum class DirectiveKind: std::uint8_t {
 
 struct Directive {
     DirectiveKind kind;
-    source::SourceLocation begin;
-    source::SourceLocation end;
+    SourceLocation begin;
+    SourceLocation end;
 };
 
 /**

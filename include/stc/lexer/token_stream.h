@@ -11,7 +11,7 @@
 #include <memory>
 #include <stack>
 
-#include "stc/source/manager.h"
+#include "stc/source/source_manager.h"
 #include "directive.h"
 
 
@@ -19,11 +19,11 @@ namespace stc::lexer {
 
 class TokenStream {
 public:
-    explicit TokenStream(const std::shared_ptr<source::Manager>& source_manager);
+    explicit TokenStream(const std::shared_ptr<SourceManager>& source_manager);
 
 private:
-    std::shared_ptr<source::Manager> source_manager_;
-    std::stack<preprocessor::Directive> pp_stack_;
+    std::shared_ptr<SourceManager> source_manager_;
+    std::stack<pp::Directive> pp_stack_;
 };
 
 

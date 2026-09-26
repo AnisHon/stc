@@ -6,8 +6,9 @@
 
 int main() {
 
-    fmt::println("Hello World! version: {}", stc::get_version());
+  fmt::println("Hello World! version: {}", stc::get_version());
 
-    // ASSERT(1 == 2, "shoule be");
-    return 0;
+  // ASSERT(1 == 2, "shoule be");
+
+  return 0;
 }
