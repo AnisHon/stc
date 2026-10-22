@@ -1,12 +1,13 @@
 add_executable(stc_test)
 target_sources(stc_test PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils/strutils_test.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils/io_utils_test.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/string_interner.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/directive_test.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/lexer/token_kinds_test.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/manager_test.cpp
+        ./test.cpp
+        ./utils/strutils_test.cpp
+        ./utils/io_utils_test.cpp
+        ./lexer/string_interner.cpp
+        ./lexer/directive_test.cpp
+        ./lexer/token_kinds_test.cpp
+        ./lexer/lexer_test_helper.cpp
+        ./source/manager_test.cpp
         #        ${CMAKE_CURRENT_SOURCE_DIR}/
 )
 target_link_libraries(stc_test PRIVATE stc_exec_lib Catch2::Catch2WithMain)
