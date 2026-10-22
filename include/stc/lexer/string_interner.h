@@ -17,8 +17,8 @@ namespace stc {
  * 词素，比 view 等值比较速度更快
  */
 struct Lexeme {
-    const char* const str;
-    const size_t len;
+    char* str;
+    size_t len;
 };
 
 /**

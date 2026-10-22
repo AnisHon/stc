@@ -27,23 +27,23 @@ namespace source {
  * FileID 的 0 视作无效 ID
  */
 class FileID {
-
 public:
-  constexpr FileID() = default;
+    constexpr FileID() = default;
 
-  constexpr explicit FileID(const std::uint32_t value) : value_{value} {}
+    constexpr explicit FileID(const std::uint32_t value)
+        : value_{value} {}
 
-  static constexpr FileID invalid() { return FileID{}; }
+    static constexpr FileID invalid() { return FileID{}; }
 
-  bool operator==(const FileID &) const = default;
+    bool operator==(const FileID &) const = default;
 
-  [[nodiscard]]
-  constexpr bool is_valid() const {
-    return *this != invalid();
-  }
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 
 private:
-  std::uint32_t value_{0};
+    std::uint32_t value_{0};
 };
 
 /**
@@ -51,38 +51,39 @@ private:
  */
 class MacroID {
 public:
-  constexpr MacroID() = default;
+    constexpr MacroID() = default;
 
-  constexpr explicit MacroID(const std::uint32_t value) : value_{value} {}
+    constexpr explicit MacroID(const std::uint32_t value)
+        : value_{value} {}
 
-  static constexpr MacroID invalid() { return MacroID{}; }
+    static constexpr MacroID invalid() { return MacroID{}; }
 
-  bool operator==(const MacroID &) const = default;
+    bool operator==(const MacroID &) const = default;
 
-  [[nodiscard]]
-  constexpr bool is_valid() const {
-    return *this != invalid();
-  }
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 
 private:
-  std::uint32_t value_{0};
+    std::uint32_t value_{0};
 };
 
 /**
  *
  */
 struct FileLocation {
-  const FileID file_id;
-  const std::uint32_t byte_offset;
+    const FileID file_id;
+    const std::uint32_t byte_offset;
 };
 
 /**
  * 用户可以使用使用 '#line' 设置文件和行号
  */
 struct PresumedLocation {
-  const std::string filename;
-  const std::uint32_t line;
-  const std::uint32_t column;
+    const std::string filename;
+    const std::uint32_t line;
+    const std::uint32_t column;
 };
 
 } // namespace source
@@ -90,65 +91,63 @@ struct PresumedLocation {
 /**
  * 0 表示无效位置
  */
-class SourceLocation {
+struct SourceLocation {
 public:
-  constexpr SourceLocation() = default;
+    constexpr SourceLocation() = default;
 
-  constexpr explicit SourceLocation(const std::uint32_t value) : value{value} {}
+    constexpr explicit SourceLocation(const std::uint32_t value)
+        : value{value} {}
 
-  static constexpr SourceLocation invalid() { return SourceLocation{}; }
+    static constexpr SourceLocation invalid() { return SourceLocation{}; }
 
-  bool operator==(const SourceLocation &) const = default;
+    bool operator==(const SourceLocation &) const = default;
 
-  [[nodiscard]]
-  constexpr bool is_valid() const {
-    return *this != invalid();
-  }
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 
-private:
-  std::uint32_t value{};
+    std::uint32_t value{};
 };
 
 /**
  * 位置区间，左闭右开 [L, R)
  */
-class SourceRange {
+struct SourceRange {
 public:
-  constexpr SourceRange() = default;
+    constexpr SourceRange() = default;
 
-  constexpr SourceRange(const SourceLocation begin, const SourceLocation end)
-      : begin{begin}, end{end} {}
+    constexpr SourceRange(const SourceLocation begin, const SourceLocation end)
+        : begin{begin},
+          end{end} {}
 
-  constexpr static SourceRange invalid() {
-    return {SourceLocation::invalid(), SourceLocation::invalid()};
-  }
+    constexpr static SourceRange invalid() {
+        return {SourceLocation::invalid(), SourceLocation::invalid()};
+    }
 
-  /**
-   * 空 range, [at, at)
-   */
-  constexpr static SourceRange empty(const SourceLocation at) {
-    return {at, at};
-  }
+    /**
+     * 空 range, [at, at)
+     */
+    constexpr static SourceRange empty(const SourceLocation at) { return {at, at}; }
 
-  /**
-   * 合并两个 range
-   * a.join(b)  ->  [a.begin, b.end)
-   */
-  [[nodiscard]]
-  constexpr SourceRange join(const SourceRange other) const {
-    return {this->begin, other.end};
-  }
+    /**
+     * 合并两个 range
+     * a.join(b)  ->  [a.begin, b.end)
+     */
+    [[nodiscard]]
+    constexpr SourceRange join(const SourceRange other) const {
+        return {this->begin, other.end};
+    }
 
-  bool operator==(const SourceRange &) const = default;
+    bool operator==(const SourceRange &) const = default;
 
-  [[nodiscard]]
-  constexpr bool is_valid() const {
-    return *this != invalid();
-  }
+    [[nodiscard]]
+    constexpr bool is_valid() const {
+        return *this != invalid();
+    }
 
-private:
-  const SourceLocation begin{};
-  const SourceLocation end{};
+    SourceLocation begin;
+    SourceLocation end;
 };
 
 } // namespace stc

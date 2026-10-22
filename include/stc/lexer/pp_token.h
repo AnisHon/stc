@@ -29,19 +29,19 @@ struct PPToken {
     }
 
     /// PPToken 的种类
-    const PPTokenKind kind;
+    PPTokenKind kind;
 
     /// 词素
-    const Lexeme lexeme;
+    Lexeme lexeme;
 
     /// 位置
-    const SourceRange range;
+    SourceRange range;
 
     ///
-    const bool leading_space;
+    bool leading_space;
 
     /// 是否是行开始
-    const bool start_of_line;
+    bool start_of_line;
 
 };
 

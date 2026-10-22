@@ -40,16 +40,16 @@ public:
      */
     FileBuffer() = default;
 
-    FileBuffer(const FileBuffer&) = delete;
+    FileBuffer(const FileBuffer &) = delete;
 
-    FileBuffer& operator=(const FileBuffer&) = delete;
+    FileBuffer &operator=(const FileBuffer &) = delete;
 
-    FileBuffer(FileBuffer&& other) noexcept
+    FileBuffer(FileBuffer &&other) noexcept
         : data_(std::exchange(other.data_, nullptr)),
           logical_size_(std::exchange(other.logical_size_, 0)),
           kind_(std::exchange(other.kind_, StorageKind::Empty)) {}
 
-    FileBuffer& operator=(FileBuffer&& other) noexcept;
+    FileBuffer &operator=(FileBuffer &&other) noexcept;
 
     ~FileBuffer();
 
@@ -58,25 +58,22 @@ public:
      */
     static std::expected<FileBuffer, utils::IOError> open(const std::filesystem::path &path);
 
-    /**
-     * 获取头指针
-     */
-    char *get();
+    char *begin() {return this->data_;}
+
+    char *end() {return this->data_ + this->size();}
 
     /**
      * 文件大学，不是内部大小
      */
-    size_t size();
-
+    size_t size() const {return this->logical_size_;};
 
 private:
-    explicit FileBuffer(const std::filesystem::path &path);
+    enum class StorageKind : std::uint8_t { Empty, Heap, MMap };
 
-    enum class StorageKind: std::uint8_t {
-        Empty,
-        Heap,
-        MMap
-    };
+    explicit FileBuffer(char *data, size_t logical_size, StorageKind kind)
+        : data_(data),
+          logical_size_(logical_size),
+          kind_(kind) {};
 
     char *data_{};
     size_t logical_size_{};
@@ -202,11 +199,11 @@ public:
      * 推入代码片段
      * @param entry 代码片段
      */
-    void push_entry(SourceEntry entry);
+    // void push_entry(SourceEntry entry);
 
 private:
-    /// path 到 FileID 的映射，防重
-    std::unordered_map<std::string, source::FileID> file_id_;
+    /// path 到 FileID 的映射，去重
+    std::unordered_map<std::string, source::FileID> path2id_;
 
     /// FileID 到 FileInfo 的映射，0无效
     std::vector<source::FileInfo> files_;
@@ -215,7 +212,7 @@ private:
     std::vector<source::MacroInfo> macros_;
 
     /// 源码 entries 数组，所有展开都会在这里展平
-    std::vector<SourceEntry> entries_;
+    // std::vector<SourceEntry> entries_;
 };
 
 } // namespace stc
