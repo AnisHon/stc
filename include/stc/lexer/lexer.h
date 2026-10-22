@@ -30,9 +30,8 @@ enum class LexerError : std::uint8_t {
  * And the end iterator must be valid and point to the trailing \0.
  */
 class Lexer {
-
 public:
-    Lexer(StringInterner* interner, std::string_view source);
+    Lexer(StringInterner *interner, std::string_view source);
 
     /**
      * 获取下一个token，可能出现 EOF InvalidToken，
@@ -43,7 +42,7 @@ public:
 
 private:
     /// 驻留池
-    StringInterner* interner_;
+    StringInterner *interner_;
 
     /// 当前位置迭代器 TODO 重命名 curr_iter_
     SVIter curr_iter_;
@@ -59,6 +58,6 @@ private:
     bool start_of_line_;
 };
 
-} // namespace stc::lexer
+} // namespace stc
 
 #endif // STC_LEXER_H

@@ -52,9 +52,8 @@ std::expected<FileBuffer, utils::IOError> FileBuffer::open(const std::filesystem
         return std::unexpected(utils::IOError::ReadFailed);
     }
 
-
     // 读
-    char *data = new char[size + 1];  // 多塞一个 \0
+    char *data = new char[size + 1]; // 多塞一个 \0
     data[size] = '\0';
     file.read(data, size);
 

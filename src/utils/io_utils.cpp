@@ -13,7 +13,7 @@ namespace stc::utils {
  * @param path 文件路径
  * @return expected: 读到的字符串  unexpected: 读取出错的出错信息
  */
-std::expected<std::string, IOError> read_text(const std::filesystem::path& path) {
+std::expected<std::string, IOError> read_text(const std::filesystem::path &path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) {
         return std::unexpected(IOError::OpenFailed);

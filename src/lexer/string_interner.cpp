@@ -15,9 +15,7 @@ Lexeme StringInterner::intern(const std::string_view str) {
         return Lexeme{it->data(), str.size()};
     }
     // 没找到，创建，多申请一个字节放 NULL 字符
-    const auto block = static_cast<char*>(
-        this->arena_.allocate(str.size() + 1, alignof(char8_t))
-    );
+    const auto block = static_cast<char *>(this->arena_.allocate(str.size() + 1, alignof(char8_t)));
 
     // 初始化字符串
     std::memcpy(block, str.data(), str.size());
@@ -29,4 +27,4 @@ Lexeme StringInterner::intern(const std::string_view str) {
     return Lexeme{block, str.size()};
 }
 
-}
+} // namespace stc

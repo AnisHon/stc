@@ -27,7 +27,7 @@ constexpr std::pair<std::string_view, DirectiveKind> entries[] = {
 };
 
 DirectiveKind from_string(const std::string_view view) {
-    for (const auto& [directive, kind] : entries) {
+    for (const auto &[directive, kind] : entries) {
         if (directive == view) {
             return kind;
         }
@@ -35,4 +35,4 @@ DirectiveKind from_string(const std::string_view view) {
     return DirectiveKind::Invalid;
 }
 
-}
+} // namespace stc::pp

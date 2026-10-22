@@ -14,19 +14,17 @@
 #include "stc/source/source_manager.h"
 #include "directive.h"
 
-
 namespace stc {
 
 class TokenStream {
 public:
-    explicit TokenStream(const std::shared_ptr<SourceManager>& source_manager);
+    explicit TokenStream(const std::shared_ptr<SourceManager> &source_manager);
 
 private:
     std::shared_ptr<SourceManager> source_manager_;
     std::stack<pp::Directive> pp_stack_;
 };
 
+} // namespace stc
 
-}
-
-#endif //STC_TOKEN_STREAM_H
+#endif // STC_TOKEN_STREAM_H

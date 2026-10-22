@@ -56,16 +56,15 @@ bool is_xid_start(const char32_t chr) {
 bool is_xid_continue(const char32_t chr) {
     // 快路径
     if (chr <= 0x7f) {
-        return (chr >= U'A' && chr <= U'Z') || (chr >= U'a' && chr <= U'z') ||
-               (chr >= U'0' && chr <= U'9') || chr == U'_';
+        return (chr >= U'A' && chr <= U'Z') || (chr >= U'a' && chr <= U'z')
+            || (chr >= U'0' && chr <= U'9') || chr == U'_';
     }
 
     return has_unicode_class(chr, static_cast<uint32_t>(gen::UnicodeClass::XIDContinue));
 }
 
 bool is_ascii_whitespace(const char chr) {
-    return chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r' || chr == '\f' ||
-           chr == '\v';
+    return chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r' || chr == '\f' || chr == '\v';
 }
 
 bool is_newline(const char chr) {

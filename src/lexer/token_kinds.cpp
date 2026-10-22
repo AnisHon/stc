@@ -26,8 +26,8 @@ bool is_preprocessor(const PPTokenKind k) {
  */
 std::string_view to_string(const PPTokenKind k) {
     switch (k) {
-#define X(kind, symbol, name, since)                                                               \
-    case PPTokenKind::name:                                                                        \
+#define X(kind, symbol, name, since) \
+    case PPTokenKind::name:          \
         return #name;
         STC_PP_TOKEN_KIND_ALL_LIST
 #undef X
@@ -41,8 +41,8 @@ std::string_view to_string(const PPTokenKind k) {
  */
 std::string_view to_symbol(const PPTokenKind k) {
     switch (k) {
-#define X(kind, symbol, name, since)                                                               \
-    case PPTokenKind::name:                                                                        \
+#define X(kind, symbol, name, since) \
+    case PPTokenKind::name:          \
         return symbol;
         STC_PP_TOKEN_KIND_ALL_LIST
 #undef X
@@ -51,4 +51,4 @@ std::string_view to_symbol(const PPTokenKind k) {
     }
 }
 
-} // namespace stc::lexer
+} // namespace stc

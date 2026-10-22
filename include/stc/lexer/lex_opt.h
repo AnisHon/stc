@@ -7,8 +7,6 @@
 #ifndef STC_LEXOPT_H
 #define STC_LEXOPT_H
 
-struct lex_opt {
+struct lex_opt {};
 
-};
-
-#endif //STC_LEXOPT_H
+#endif // STC_LEXOPT_H

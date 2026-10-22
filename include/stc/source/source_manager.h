@@ -58,14 +58,14 @@ public:
      */
     static std::expected<FileBuffer, utils::IOError> open(const std::filesystem::path &path);
 
-    char *begin() {return this->data_;}
+    char *begin() { return this->data_; }
 
-    char *end() {return this->data_ + this->size();}
+    char *end() { return this->data_ + this->size(); }
 
     /**
      * 文件大学，不是内部大小
      */
-    size_t size() const {return this->logical_size_;};
+    size_t size() const { return this->logical_size_; };
 
 private:
     enum class StorageKind : std::uint8_t { Empty, Heap, MMap };

@@ -7,10 +7,6 @@
 #ifndef STC_SOUCE_BUFFER_H
 #define STC_SOUCE_BUFFER_H
 
-namespace stc {
-
-
-
-} // namespace stc
+namespace stc {} // namespace stc
 
 #endif // STC_SOUCE_BUFFER_H

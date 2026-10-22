@@ -18,7 +18,7 @@ namespace stc::pp {
  * 简单的
  * pp 表示 pp
  */
-enum class DirectiveKind: std::uint8_t {
+enum class DirectiveKind : std::uint8_t {
     PpDefine,
     PpUndef,
     PpInclude,
@@ -47,7 +47,6 @@ struct Directive {
  */
 DirectiveKind from_string(std::string_view view);
 
-}
+} // namespace stc::pp
 
-
-#endif //STC_DIRECTIVE_KIND_H
+#endif // STC_DIRECTIVE_KIND_H

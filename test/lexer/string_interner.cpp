@@ -27,5 +27,4 @@ TEST_CASE("string_interner", "[lexer]") {
         auto str3 = intern.intern(str);
         REQUIRE(str3 != str2);
     }
-
 }

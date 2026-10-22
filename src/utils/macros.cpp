@@ -14,15 +14,14 @@
 
 #include "stc/utils/macros.h"
 
-
 [[noreturn]]
 void stc::utils::inner_::panic_(
     std::string_view kind,
     std::string_view condition,
     std::string_view message,
-    const std::source_location& loc,
+    const std::source_location &loc,
     const uint32_t skip
-    ) {
+) {
     // 大标题
     fmt::print(
         stderr,
@@ -31,14 +30,10 @@ void stc::utils::inner_::panic_(
         "{}\n"
         "========================================\n",
         kind
-        );
+    );
 
     if (!condition.empty()) {
-        fmt::print(
-            stderr,
-            "Condition : {}\n",
-            condition
-            );
+        fmt::print(stderr, "Condition : {}\n", condition);
     }
 
     const auto tid = std::this_thread::get_id();
@@ -49,7 +44,7 @@ void stc::utils::inner_::panic_(
         tid,
         loc.file_name(),
         loc.line()
-        );
+    );
 
     if (!message.empty()) {
         fmt::println(stderr, "{}", message);

@@ -3,7 +3,7 @@
  * @author Anis Han
  * @date 2026/6/14
  */
-#define CATCH_CONFIG_MAIN  // 只需在一个 .cpp 文件中定义 main 函数
+#define CATCH_CONFIG_MAIN // 只需在一个 .cpp 文件中定义 main 函数
 #include <catch2/catch_test_macros.hpp>
 
 int add(int a, int b) {

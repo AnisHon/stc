@@ -15,8 +15,7 @@ std::vector<stc::PPTokenKind> code2pptoken(std::string code) {
     code.push_back('\0');
     Lexer lexer(&internal, code);
 
-    
-    PPToken tok = lexer.next_token(); 
+    PPToken tok = lexer.next_token();
     while (tok.kind != PPTokenKind::Invalid || tok.kind != PPTokenKind::Eof) {
         res.push_back(tok.kind);
         tok = lexer.next_token();

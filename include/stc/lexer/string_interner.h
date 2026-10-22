@@ -17,14 +17,14 @@ namespace stc {
  * 词素，比 view 等值比较速度更快
  */
 struct Lexeme {
-    char* str;
+    char *str;
     size_t len;
 };
 
 /**
  * 更快的比较
  */
-constexpr bool operator==(const Lexeme& a, const Lexeme& b) {
+constexpr bool operator==(const Lexeme &a, const Lexeme &b) {
     return a.str == b.str;
 }
 
@@ -44,9 +44,9 @@ class StringInterner {
 public:
     StringInterner() = default;
 
-    StringInterner(const StringInterner&) = delete;
+    StringInterner(const StringInterner &) = delete;
 
-    StringInterner(StringInterner&&) = delete;
+    StringInterner(StringInterner &&) = delete;
 
     /**
      * 将字符串加入驻留池
@@ -60,6 +60,6 @@ private:
     std::pmr::monotonic_buffer_resource arena_{};
 };
 
-} // namespace stc::lexer
+} // namespace stc
 
-#endif //STC_IDENT_TABLE_H
+#endif // STC_IDENT_TABLE_H
