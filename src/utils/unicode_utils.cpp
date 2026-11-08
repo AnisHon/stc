@@ -63,16 +63,8 @@ bool is_xid_continue(const char32_t chr) {
     return has_unicode_class(chr, static_cast<uint32_t>(gen::UnicodeClass::XIDContinue));
 }
 
-bool is_ascii_whitespace(const char chr) {
-    return chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r' || chr == '\f' || chr == '\v';
-}
-
 bool is_newline(const char chr) {
     return chr == '\n' || chr == '\r';
-}
-
-bool is_hex(const char chr) {
-    return chr >= '0' && chr <= '9' || chr >= 'A' && chr <= 'F' || chr >= 'a' && chr <= 'f';
 }
 
 bool is_oct(const char chr) {

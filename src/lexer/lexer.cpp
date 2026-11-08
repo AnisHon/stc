@@ -11,6 +11,7 @@
 #include "stc/utils/macros.h"
 #include "stc/utils/unicode_utils.h"
 
+#include <cctype>
 #include <expected>
 
 namespace stc {
@@ -62,22 +63,49 @@ Lexer::Lexer(StringInterner *interner, const std::string_view source)
 namespace {
 
 /**
+ * chr 平凡，字符应该被解析为单个字符
+ * chr 不平凡，字符存在组合解析的可能性
+ */
+bool is_trival_chr(const char c) {
+    return c != '\\' && c != '?';
+} 
+
+/**
  * lex Trigraph, unify Line-Ending(LF, CR, CRLF -> LF)
  */
-std::tuple<char, std::uint32_t> next_chr_slow(SVIter iter) {
-    TODO("");
+std::tuple<char, std::uint32_t> peek_chr_slow(SVIter iter) {
+    ASSERT(is_trival_chr(*iter));
+    if (*iter == '\\') {
+    
+    } else if (*iter == '?' && *iter == '') {
+
+    }
 }
 
 /**
  *
  */
-std::tuple<char, std::uint32_t> next_chr(SVIter iter) {
-    TODO("");
+std::tuple<char, std::uint32_t> peek_chr(SVIter iter) {
+    if (is_trival_chr(*iter)) {
+        return {*iter, 1};
+    }
+    return peek_chr_slow(iter);
 }
+
+std::tuple<char, SVIter> next_chr(const SVIter iter) {
+    const auto [chr, sz] = peek_chr_slow(iter);
+    return {chr, iter + sz};
+}
+
+std::tuple<char, SVIter> next_chr_slow(const SVIter iter) {
+    const auto [chr, sz] = peek_chr_slow(iter);
+    return {chr, iter + sz};
+}
+
 
 SVIter consume_chr(const SVIter iter, char &chr) {
     uint32_t sz{};
-    std::tie(chr, sz) = next_chr(iter);
+    std::tie(chr, sz) = peek_chr(iter);
     return sz + iter;
 }
 
@@ -93,7 +121,7 @@ std::tuple<CommentKind, std::uint32_t> check_comment(const SVIter iter) {
         return {CommentKind::Invalid, 0};
     }
 
-    const auto [chr, bytes] = next_chr_slow(iter + 1);
+    const auto [chr, bytes] = peek_chr_slow(iter + 1);
     switch (chr) {
     case '/':
         return {CommentKind::Line, bytes + 1};
@@ -125,7 +153,7 @@ std::tuple<CharStrKind, std::uint32_t> check_char(const SVIter iter) {
         return {CharStrKind::Invalid, 0};
     }
 
-    if (const auto [chr, bytes] = next_chr_slow(iter + 1); chr == '\'') {
+    if (const auto [chr, bytes] = peek_chr_slow(iter + 1); chr == '\'') {
         return {kind, bytes + 1};
     }
     return {CharStrKind::Invalid, 0};
@@ -152,7 +180,7 @@ std::tuple<CharStrKind, std::uint32_t> check_string(const SVIter iter) {
         return {CharStrKind::Invalid, 0};
     }
 
-    if (const auto [chr, bytes] = next_chr_slow(iter + 1); chr == '"') {
+    if (const auto [chr, bytes] = peek_chr_slow(iter + 1); chr == '"') {
         return {kind, bytes + 1};
     }
     return {CharStrKind::Invalid, 0};
@@ -177,7 +205,7 @@ std::uint32_t check_pp_number(const SVIter iter) {
         return 1;
     }
     if (chr == '.') {
-        if (const auto [nchr, bytes] = next_chr_slow(iter + 1); std::isdigit(nchr)) {
+        if (const auto [nchr, bytes] = peek_chr_slow(iter + 1); std::isdigit(nchr)) {
             return bytes + 1;
         }
     }
@@ -250,7 +278,7 @@ std::uint32_t scan_ident(SVIter iter) {
         if (*iter == '\\') {
             std::tie(cp, bytes) = next_codepoint(iter);
         } else {
-            std::tie(cp, bytes) = next_chr(iter);
+            std::tie(cp, bytes) = peek_chr(iter);
         }
         if (!utils::is_xid_start(cp)) {
             break;
@@ -543,7 +571,7 @@ std::uint32_t scan_line_comment(SVIter iter, const SVIter end) {
         std::uint32_t bytes = 1;
 
         if (chr == '\\') {
-            std::tie(chr, bytes) = next_chr_slow(iter);
+            std::tie(chr, bytes) = peek_chr_slow(iter);
         }
 
         if (utils::is_newline(chr)) {
@@ -564,7 +592,7 @@ std::expected<std::uint32_t, LexerError> scan_block_comment(SVIter iter, const S
         std::uint32_t bytes{1};
         if (first_chr == '*') {
             if (second_chr == '\\') {
-                std::tie(second_chr, bytes) = next_chr_slow(iter + 1);
+                std::tie(second_chr, bytes) = peek_chr_slow(iter + 1);
                 bytes++;
             }
         }
@@ -611,7 +639,7 @@ std::expected<std::uint32_t, LexerError> scan_string(SVIter iter, const SVIter e
     while (iter < end) {
         auto [chr, bytes] = next_codepoint(iter);
         if (chr == U'\\') {
-            std::tie(chr, bytes) = next_chr_slow(iter);
+            std::tie(chr, bytes) = peek_chr_slow(iter);
         }
 
         if (chr == U'\\') {
@@ -632,7 +660,7 @@ std::expected<std::uint32_t, LexerError> scan_header_name(SVIter iter) {
 // 识别四个 hex 数字
 std::expected<void, LexerError> scan_hex_qual(SVIter iter) {
     for (int i = 0; i < 4 && *iter != '\0'; ++i, ++iter) {
-        if (!utils::is_hex(*iter)) {
+        if (!std::isxdigit(*iter)) {
             return std::unexpected(LexerError::ExpectHex);
         }
     }
@@ -731,8 +759,8 @@ SkipSpaceResult skip_space(SVIter iter) {
 
     // 跳过空白符号，判断 leading space 和 start of line
     while (true) {
-        const auto [chr, bytes] = next_chr(iter);
-        if (utils::is_ascii_whitespace(chr)) {}
+        const auto [chr, bytes] = peek_chr(iter);
+        if (std::isspace(chr)) {}
     }
 }
 
