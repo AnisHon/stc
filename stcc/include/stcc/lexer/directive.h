@@ -1,0 +1,52 @@
+/**
+ * @file directive.h
+ * @author anishan
+ * @date 2026/6/13
+ */
+
+#ifndef STCC_DIRECTIVE_KIND_H
+#define STCC_DIRECTIVE_KIND_H
+
+#include <cstdint>
+#include <string_view>
+
+#include "stcc/source/source_location.h"
+
+namespace stcc::pp {
+
+/**
+ * 简单的
+ * pp 表示 pp
+ */
+enum class DirectiveKind : std::uint8_t {
+    PpDefine,
+    PpUndef,
+    PpInclude,
+    PpIf,
+    PpIfdef,
+    PpIfndef,
+    PpElif,
+    PpElse,
+    PpEndIf,
+    PpError,
+    PpPragma,
+    PpLine,
+    PpEmpty,
+    Invalid
+};
+
+struct Directive {
+    DirectiveKind kind;
+    SourceLocation begin;
+    SourceLocation end;
+};
+
+/**
+ * 需要自行切分字符串
+ * @param view 预处理指令片段
+ */
+DirectiveKind from_string(std::string_view view);
+
+} // namespace stcc::pp
+
+#endif // STCC_DIRECTIVE_KIND_H
