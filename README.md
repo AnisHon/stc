@@ -1,4 +1,4 @@
-# README
+# stcc
 
 STCC（simple toy chain）是一个学习 LLVM 模仿 clang 的练手项目
 
