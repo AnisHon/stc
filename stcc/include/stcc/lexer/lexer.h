@@ -7,8 +7,9 @@
 #ifndef STCC_LEXER_H
 #define STCC_LEXER_H
 
+#include "stcc/commons/types.h"
+
 #include "pp_token.h"
-#include <cstdint>
 
 namespace stcc {
 
@@ -17,7 +18,7 @@ namespace stcc {
  */
 using SVIter = std::string_view::const_iterator;
 
-enum class LexerError : std::uint8_t {
+enum class LexerError : uint8_t {
     Invalid,
     CommentUnclosed,
     CharUnclosed,

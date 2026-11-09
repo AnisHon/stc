@@ -8,8 +8,9 @@
 #ifndef STCC_STRUTILS_H
 #define STCC_STRUTILS_H
 
+#include "stcc/commons/types.h"
+
 #include <vector>
-#include <cstdint>
 #include <string_view>
 
 namespace stcc::utils {
@@ -19,7 +20,7 @@ namespace stcc::utils {
  * @param content 进行分段字符串的片段
  * @return 行开始索引表
  */
-std::vector<std::uint32_t> get_line_start_indices(std::string_view content);
+std::vector<uint32_t> get_line_start_indices(std::string_view content);
 
 } // namespace stcc::utils
 

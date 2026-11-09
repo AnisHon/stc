@@ -15,7 +15,7 @@ namespace stcc::utils {
  * @param mask 查询位置的掩码
  * @return 是否有属性
  */
-bool has_unicode_class(const char32_t chr, const std::uint32_t mask) {
+bool has_unicode_class(const char32_t chr, const uint32_t mask) {
     int l = 0;
     int r = static_cast<int>(std::size(gen::UNICODE_RANGES)) - 1;
 

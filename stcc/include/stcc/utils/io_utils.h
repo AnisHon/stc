@@ -6,6 +6,8 @@
 
 #ifndef STCC_IO_UTILS_H
 #define STCC_IO_UTILS_H
+
+#include "stcc/commons/types.h"
 #include <expected>
 #include <filesystem>
 #include <string>

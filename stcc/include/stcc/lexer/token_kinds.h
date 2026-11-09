@@ -4,9 +4,10 @@
  */
 #pragma once
 
+#include "stcc/commons/types.h"
+
 #include "stcc/lexer/token_kinds.inc"
 
-#include <cstdint>
 #include <string_view>
 
 #define STCC_TOKEN_KIND_PUNCTUATOR_LIST \
@@ -26,7 +27,7 @@ namespace stcc {
 /**
  * 没有 Token
  */
-enum class PPTokenKind : std::uint8_t {
+enum class PPTokenKind : uint8_t {
 #define X(kind, symbol, name, since) name,
     STCC_PP_TOKEN_KIND_ALL_LIST
 #undef X

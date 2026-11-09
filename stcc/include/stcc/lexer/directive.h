@@ -7,7 +7,8 @@
 #ifndef STCC_DIRECTIVE_KIND_H
 #define STCC_DIRECTIVE_KIND_H
 
-#include <cstdint>
+#include "stcc/commons/types.h"
+
 #include <string_view>
 
 #include "stcc/source/source_location.h"
@@ -18,7 +19,7 @@ namespace stcc::pp {
  * 简单的
  * pp 表示 pp
  */
-enum class DirectiveKind : std::uint8_t {
+enum class DirectiveKind : uint8_t {
     PpDefine,
     PpUndef,
     PpInclude,

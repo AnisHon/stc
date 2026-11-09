@@ -9,6 +9,7 @@
 #include <string_view>
 #include <vector>
 
+#include "stcc/commons/types.h"
 #include "stcc/source/source_manager.h"
 #include "stcc/source/source_location.h"
 #include "stcc/utils/io_utils.h"
@@ -70,7 +71,7 @@ SourceManager::SourceManager() {
 
 std::expected<source::FileID, utils::IOError> SourceManager::create_file(
     const std::filesystem::path &path
-) {
+    ) {
     // 自增 ID
     const source::FileID id{static_cast<source::FileID>(files_.size())};
 
@@ -85,7 +86,7 @@ std::expected<source::FileID, utils::IOError> SourceManager::create_file(
         [id, this, &path](source::FileBuffer content) -> source::FileID {
             // 算line start
             const std::string_view sv(content.begin(), content.end());
-            std::vector<std::uint32_t> line_starts = utils::get_line_start_indices(sv);
+            std::vector<uint32_t> line_starts = utils::get_line_start_indices(sv);
 
             // 加入文件，建立双射
             this->files_.emplace_back(id, path, std::move(content), std::move(line_starts));
@@ -93,7 +94,7 @@ std::expected<source::FileID, utils::IOError> SourceManager::create_file(
             // 算索引
             return id;
         }
-    );
+        );
 }
 
 source::MacroID SourceManager::create_macro(CreateMacroInfo info) {

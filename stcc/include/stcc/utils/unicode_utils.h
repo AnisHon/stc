@@ -7,7 +7,8 @@
 #ifndef STCC_UNICODE_UTILS_H
 #define STCC_UNICODE_UTILS_H
 
-#include <cstdint>
+#include "stcc/commons/types.h"
+
 
 namespace stcc::utils {
 
@@ -17,7 +18,7 @@ namespace stcc::utils {
  * @param mask 查询位置的掩码
  * @return 是否有属性
  */
-bool has_unicode_class(char32_t chr, std::uint32_t mask);
+bool has_unicode_class(char32_t chr, uint32_t mask);
 
 /**
  * 是否是 XID_Start 属性的字符，支持快路径

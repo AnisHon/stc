@@ -4,6 +4,7 @@
  * @date 2026/7/28
  */
 
+#include "stcc/commons/types.h"
 #include "stcc/utils/strutils.h"
 
 namespace stcc::utils {
@@ -13,8 +14,8 @@ namespace stcc::utils {
  * @param content 进行分段字符串的片段
  * @return 行开始索引表
  */
-std::vector<std::uint32_t> get_line_start_indices(const std::string_view content) {
-    std::vector<std::uint32_t> line_starts;
+std::vector<uint32_t> get_line_start_indices(const std::string_view content) {
+    std::vector<uint32_t> line_starts;
     // 文本的第一个字符永远是第一行的开始（即使内容为空，通常也认为存在起始偏移0）
     line_starts.push_back(0);
 
@@ -25,7 +26,7 @@ std::vector<std::uint32_t> get_line_start_indices(const std::string_view content
         } else {
             pos += 1;
         }
-        line_starts.push_back(static_cast<std::uint32_t>(pos));
+        line_starts.push_back(static_cast<uint32_t>(pos));
     }
 
     return line_starts;

@@ -21,7 +21,7 @@ void stcc::utils::inner_::panic_(
     std::string_view message,
     const std::source_location &loc,
     const uint32_t skip
-) {
+    ) {
     // 大标题
     fmt::print(
         stderr,
@@ -30,7 +30,7 @@ void stcc::utils::inner_::panic_(
         "{}\n"
         "========================================\n",
         kind
-    );
+        );
 
     if (!condition.empty()) {
         fmt::print(stderr, "Condition : {}\n", condition);
@@ -44,7 +44,7 @@ void stcc::utils::inner_::panic_(
         tid,
         loc.file_name(),
         loc.line()
-    );
+        );
 
     if (!message.empty()) {
         fmt::println(stderr, "{}", message);
@@ -56,8 +56,8 @@ void stcc::utils::inner_::panic_(
 
     for (auto trace : cpptrace::generate_trace(skip)) {
         fmt::println(stderr, "    {}: {}", index, trace.symbol);
-        const std::uint32_t line = trace.line.value_or(0);
-        const std::uint32_t column = trace.column.value_or(0);
+        const uint32_t line = trace.line.value_or(0);
+        const uint32_t column = trace.column.value_or(0);
         fmt::println(stderr, "            at {}:{}:{}", trace.filename, line, column);
         index++;
     }

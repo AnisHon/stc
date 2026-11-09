@@ -8,6 +8,8 @@
 #ifndef STCC_SOURCE_MANAGER_H
 #define STCC_SOURCE_MANAGER_H
 
+#include "stcc/commons/types.h"
+
 #include <expected>
 #include <unordered_map>
 #include <variant>
@@ -71,7 +73,7 @@ public:
     size_t size() const { return this->logical_size_; };
 
 private:
-    enum class StorageKind : std::uint8_t { Empty, Heap, MMap };
+    enum class StorageKind : uint8_t { Empty, Heap, MMap };
 
     explicit FileBuffer(char *data, size_t logical_size, StorageKind kind)
         : data_(data),
@@ -98,7 +100,7 @@ struct FileInfo {
     FileBuffer content;
 
     /// 行号 映射 行开始偏移量 的快速索引
-    std::vector<std::uint32_t> line_starts;
+    std::vector<uint32_t> line_starts;
 
     /// 被 include 引用的位置
     std::vector<LineDirectiveInfo> line_directives;
@@ -136,10 +138,10 @@ struct MacroInfo {
     source::FileID file_id;
 
     /// 宏定义的文件起始位置
-    std::uint32_t file_begin;
+    uint32_t file_begin;
 
     /// 宏定义的文件结束位置
-    std::uint32_t file_end;
+    uint32_t file_end;
 };
 
 } // namespace source
@@ -158,10 +160,10 @@ struct SourceEntry {
     std::string_view buffer;
 
     /// 在文件中的起始位置
-    std::uint32_t file_begin;
+    uint32_t file_begin;
 
     /// 在文件中的结束位置
-    std::uint32_t file_end;
+    uint32_t file_end;
 
     /// 具体变体
     std::variant<source::FileEntry, source::MacroEntry> variant;
@@ -179,10 +181,10 @@ public:
         source::FileID file_id;
 
         /// 宏定义的文件起始位置
-        std::uint32_t file_begin{};
+        uint32_t file_begin{};
 
         /// 宏定义的文件结束位置
-        std::uint32_t file_end{};
+        uint32_t file_end{};
     };
 
     /**

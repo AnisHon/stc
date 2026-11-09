@@ -4,11 +4,11 @@
  */
 #pragma once
 
-#include <cstdint>
+#include "stcc/commons/types.h"
 
 namespace {{ namespace_name }} {
 
-enum class UnicodeClass: std::uint32_t { {% for entry in tag_entries %}
+enum class UnicodeClass: uint32_t { {% for entry in tag_entries %}
     {{ entry[0] }} = {{ entry[1] }},
 {%- endfor %}
 };

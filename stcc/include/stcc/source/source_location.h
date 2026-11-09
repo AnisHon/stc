@@ -17,7 +17,8 @@
 
 #ifndef STCC_SOURCE_LOCATION_H
 #define STCC_SOURCE_LOCATION_H
-#include <cstdint>
+
+#include "stcc/commons/types.h"
 #include <string>
 
 namespace stcc {
@@ -30,7 +31,7 @@ class FileID {
 public:
     constexpr FileID() = default;
 
-    constexpr explicit FileID(const std::uint32_t value)
+    constexpr explicit FileID(const uint32_t value)
         : value_{value} {}
 
     static constexpr FileID invalid() { return FileID{}; }
@@ -43,7 +44,7 @@ public:
     }
 
 private:
-    std::uint32_t value_{0};
+    uint32_t value_{0};
 };
 
 /**
@@ -53,7 +54,7 @@ class MacroID {
 public:
     constexpr MacroID() = default;
 
-    constexpr explicit MacroID(const std::uint32_t value)
+    constexpr explicit MacroID(const uint32_t value)
         : value_{value} {}
 
     static constexpr MacroID invalid() { return MacroID{}; }
@@ -66,7 +67,7 @@ public:
     }
 
 private:
-    std::uint32_t value_{0};
+    uint32_t value_{0};
 };
 
 /**
@@ -74,7 +75,7 @@ private:
  */
 struct FileLocation {
     const FileID file_id;
-    const std::uint32_t byte_offset;
+    const uint32_t byte_offset;
 };
 
 /**
@@ -82,8 +83,8 @@ struct FileLocation {
  */
 struct PresumedLocation {
     const std::string filename;
-    const std::uint32_t line;
-    const std::uint32_t column;
+    const uint32_t line;
+    const uint32_t column;
 };
 
 } // namespace source
@@ -95,7 +96,7 @@ struct SourceLocation {
 public:
     constexpr SourceLocation() = default;
 
-    constexpr explicit SourceLocation(const std::uint32_t value)
+    constexpr explicit SourceLocation(const uint32_t value)
         : value{value} {}
 
     static constexpr SourceLocation invalid() { return SourceLocation{}; }
@@ -107,7 +108,7 @@ public:
         return *this != invalid();
     }
 
-    std::uint32_t value{};
+    uint32_t value{};
 };
 
 /**
