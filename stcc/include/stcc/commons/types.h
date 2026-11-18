@@ -7,19 +7,19 @@
 #ifndef STCC_INTS_H
 #define STCC_INTS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace stcc {
 
-using std::int8_t;
-using std::int16_t;
-using std::int32_t;
-using std::int64_t;
+using ::int8_t;
+using ::int16_t;
+using ::int32_t;
+using ::int64_t;
 
-using std::uint8_t;
-using std::uint16_t;
-using std::uint32_t;
-using std::uint64_t;
+using ::uint8_t;
+using ::uint16_t;
+using ::uint32_t;
+using ::uint64_t;
 
 }
 
