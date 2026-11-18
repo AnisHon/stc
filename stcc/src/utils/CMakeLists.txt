@@ -16,6 +16,9 @@ set(STCC_UTILS_SRC
 )
 
 add_library(stcc_utils ${STCC_UTILS_SRC})
+
+add_library(stcc::utils ALIAS stcc_utils)
+
 target_sources(stcc_utils PRIVATE
         FILE_SET HEADERS
         BASE_DIRS

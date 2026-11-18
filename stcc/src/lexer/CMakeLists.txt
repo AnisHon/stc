@@ -22,6 +22,8 @@ set(STCC_LEXER_SRC
 
 add_library(stcc_lexer ${STCC_LEXER_SRC})
 
+add_library(stcc::lexer ALIAS stcc_lexer)
+
 target_sources(stcc_lexer PRIVATE
         FILE_SET HEADERS
         BASE_DIRS
@@ -33,4 +35,6 @@ target_sources(stcc_lexer PRIVATE
 target_generate_token_inc(stcc_lexer)
 target_include_directories(stcc_lexer PUBLIC ${STCC_INC_DIR})
 
-target_link_libraries(stcc_lexer PRIVATE stcc_common_deps)
+target_link_libraries(stcc_lexer PRIVATE utf8cpp::utf8cpp)
+target_link_libraries(stcc_lexer PUBLIC stcc::source)
+

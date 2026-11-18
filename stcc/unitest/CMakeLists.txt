@@ -10,7 +10,7 @@ target_sources(stcc_test PRIVATE
         ./source/manager_test.cpp
         #        ${CMAKE_CURRENT_SOURCE_DIR}/
 )
-target_link_libraries(stcc_test PRIVATE stcc_exec_lib Catch2::Catch2WithMain)
+target_link_libraries(stcc_test PRIVATE stcc_lib Catch2::Catch2WithMain)
 include(Catch)
 
 catch_discover_tests(stcc_test)  # 自动发现所有 TEST_CASE

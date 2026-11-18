@@ -46,9 +46,3 @@ if (BUILD_TESTING)
     )
     FetchContent_MakeAvailable(Catch2)
 endif ()
-
-add_library(stcc_common_deps INTERFACE)
-target_link_libraries(stcc_common_deps INTERFACE
-        fmt::fmt
-        cpptrace::cpptrace
-)

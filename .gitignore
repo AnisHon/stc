@@ -11,7 +11,9 @@ CTestTestfile.cmake
 !CMakeLists.txt
 !*.cmake.in
 
-docs/
+/docs/*
+!/docs/development/
+!/docs/clang-study/
 
 # 编译产物
 *.o
@@ -56,6 +58,7 @@ test-suite.log
 docs/html/
 docs/latex/
 docs/_build/
+docs/**
 
 # macOS
 .DS_Store

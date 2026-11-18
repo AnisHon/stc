@@ -13,6 +13,8 @@ set(STCC_SOURCE_SRC
 
 add_library(stcc_source ${STCC_SOURCE_SRC})
 
+add_library(stcc::source ALIAS stcc_source)
+
 target_sources(stcc_source PRIVATE
         FILE_SET HEADERS
         BASE_DIRS
@@ -23,4 +25,4 @@ target_sources(stcc_source PRIVATE
 
 target_include_directories(stcc_source PUBLIC ${STCC_INC_DIR})
 
-target_link_libraries(stcc_source PRIVATE stcc_common_deps)
+target_link_libraries(stcc_source PRIVATE cpptrace::cpptrace fmt::fmt)
