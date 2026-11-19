@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 
 project(stcc VERSION 11.45.14)
 set(PROJECT_VERSION_SUFFIX "alpha")
@@ -12,11 +12,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CTest)
 
-option(STCC_USE_SYSTEM_DEPENDENCIES
-        "Use compatible dependencies installed on the system"
-        ON
-)
-
 # add dependencies
 include(Dependencies) # dependiencies
 include(CodeGen) # codegen
@@ -25,10 +20,6 @@ include(CodeGen) # codegen
 set(STCC_INC_DIR "${PROJECT_SOURCE_DIR}/include" CACHE INTERNAL "STCC include directory")
 set(STCC_PUB_INC_DIR "${STCC_INC_DIR}/stcc" CACHE INTERNAL "STCC public include directory")
 
-# project source code
-add_subdirectory(src/utils)
-add_subdirectory(src/source)
-add_subdirectory(src/lexer)
 add_subdirectory(src)
 
 # enable tests

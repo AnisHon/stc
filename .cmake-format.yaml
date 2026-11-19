@@ -1,0 +1,49 @@
+# .cmake-format.yaml
+# Target: cmake-format / cmakelang 0.6.13
+
+format:
+  # 基础布局
+  line_width: 100
+  tab_size: 4
+  use_tabchars: false
+  line_ending: unix
+
+  # 参数布局
+  # 超过 3 个位置参数时，优先使用纵向布局
+  max_pargs_hwrap: 3
+
+  # 超过 3 个参数分组时，优先纵向布局
+  max_subgroups_hwrap: 3
+
+  # 水平换行最多允许 1 行
+  max_lines_hwrap: 1
+
+  # 保持短命令单行，不强制任何命令展开
+  always_wrap: []
+
+  # 多行命令的右括号独占一行
+  dangle_parens: true
+  dangle_align: prefix
+
+  # 命令和关键字大小写
+  command_case: lower
+  keyword_case: upper
+
+  # 命令与左括号之间不加空格
+  separate_ctrl_name_with_space: false
+  separate_fn_name_with_space: false
+
+  # 不修改参数顺序
+  enable_sort: false
+  autosort: false
+
+# 注释
+markup:
+  # 禁止注释的 Markdown 解析和重新折行
+  enable_markup: false
+
+  # 不自动重绘井号分隔线
+  canonicalize_hashrulers: false
+
+lint:
+  max_lin_length: 100
