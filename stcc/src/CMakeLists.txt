@@ -9,7 +9,7 @@ add_subdirectory(lexer)
 
 
 target_generate_version_header(stcc::lib)
-target_link_libraries(stcc_lib INTERFACE stcc::lexer stcc::source stcc::utils)
+target_link_libraries(stcc_lib INTERFACE stcc::lexer stcc::source stcc::utils stcc::cxx23)
 target_include_directories(stcc_lib INTERFACE ${STCC_INC_DIR})
 
 # executable

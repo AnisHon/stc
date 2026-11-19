@@ -3,8 +3,10 @@ cmake_minimum_required(VERSION 3.25)
 project(stcc VERSION 11.45.14)
 set(PROJECT_VERSION_SUFFIX "alpha")
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_library(stcc_cxx23 INTERFACE)
+add_library(stcc::cxx23 ALIAS stcc_cxx23)
+target_compile_features(stcc_cxx23 INTERFACE cxx_std_23)
+
 set(CMAKE_WARN_UNINITIALIZED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -13,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CTest)
 
 # add dependencies
-include(Dependencies) # dependiencies
+include(Dependencies) # dependencies
 include(CodeGen) # codegen
 
 # set global vars

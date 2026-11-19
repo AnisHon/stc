@@ -35,6 +35,6 @@ target_sources(stcc_lexer PRIVATE
 target_generate_token_inc(stcc_lexer)
 target_include_directories(stcc_lexer PUBLIC ${STCC_INC_DIR})
 
+target_link_libraries(stcc_lexer PUBLIC stcc::source stcc::utils stcc::cxx23)
 target_link_libraries(stcc_lexer PRIVATE utf8cpp::utf8cpp)
-target_link_libraries(stcc_lexer PUBLIC stcc::source)
 

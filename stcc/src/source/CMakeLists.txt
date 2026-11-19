@@ -25,4 +25,5 @@ target_sources(stcc_source PRIVATE
 
 target_include_directories(stcc_source PUBLIC ${STCC_INC_DIR})
 
+target_link_libraries(stcc_source PUBLIC stcc::cxx23)
 target_link_libraries(stcc_source PRIVATE cpptrace::cpptrace fmt::fmt)
