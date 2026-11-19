@@ -5,7 +5,8 @@
  * 简单的宏工具类
  */
 
-#pragma once
+#ifndef STCC_MACROS_H
+#define STCC_MACROS_H
 
 #include <source_location>
 #include <string_view>
@@ -118,7 +119,7 @@ void panic(const std::source_location &loc, fmt::format_string<Args...> fmtstr, 
 #  define ASSERT(expr, ...)                                                  \
       do {                                                                   \
           if (!(expr)) {                                                     \
-              stcc::utils::inner_::assert_failed(                             \
+              stcc::utils::inner_::assert_failed(                            \
                   #expr,                                                     \
                   std::source_location::current() __VA_OPT__(, ) __VA_ARGS__ \
               );                                                             \
@@ -149,3 +150,5 @@ void panic(const std::source_location &loc, fmt::format_string<Args...> fmtstr, 
         if (auto _err = (expr); !_err) \
             return _err;               \
     } while (false)
+
+#endif // STCC_MACROS_H
