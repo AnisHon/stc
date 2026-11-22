@@ -5,7 +5,9 @@
  */
 
 #include "stcc/sys/file.h"
+#include <stdint.h>
 #include <expected>
+#include <limits>
 #include <system_error>
 #include <utility>
 
@@ -51,7 +53,7 @@ constexpr FileT invalid_file = -1;
     fd = ::open(path.c_str(), O_RDONLY);
 
     if (fd == -1) {
-        return std::unexpected(std::make_error_code(std::errc::bad_file_descriptor));
+        return std::unexpected(std::make_error_code(std::errc::no_such_file_or_directory));
     }
 
 #endif
@@ -95,7 +97,6 @@ std::expected<FileKey, std::error_code> File::file_key() const {
 }
 
 std::expected<size_t, std::error_code> File::file_sz() const {
-    size_t file_size{};
 #if defined(STCC_PLATFORM_WINDOWS)
 
     LARGE_INTEGER size{};
@@ -106,7 +107,7 @@ std::expected<size_t, std::error_code> File::file_sz() const {
         );
     }
 
-    file_size = static_cast<size_t>(size.QuadPart);
+    const auto file_size = size.QuadPart;
 #elif defined(STCC_PLATFORM_POSIX)
     struct stat st{};
 
@@ -114,8 +115,11 @@ std::expected<size_t, std::error_code> File::file_sz() const {
         return std::unexpected(std::error_code(errno, std::generic_category()));
     }
 
-    file_size = static_cast<size_t>(st.st_size);
+    const auto file_size = st.st_size;
 #endif
-    return file_size;
+    if (file_size < 0 || static_cast<uintmax_t>(file_size) > (std::numeric_limits<size_t>::max)()) {
+        return std::unexpected(std::make_error_code(std::errc::file_too_large));
+    }
+    return static_cast<size_t>(file_size);
 }
 } // namespace stcc::sys
