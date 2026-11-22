@@ -1,5 +1,10 @@
 # 使用uv包管理，检测包
 find_program(UV_EXECUTABLE uv REQUIRED)
+set(STCC_PYTHON_PROJECT_INPUTS
+    "${PROJECT_SOURCE_DIR}/../pyproject.toml"
+    "${PROJECT_SOURCE_DIR}/../uv.lock"
+    "${PROJECT_SOURCE_DIR}/../.python-version"
+)
 
 # 生成 version.h
 function(target_generate_version_header TARGET_NAME)
@@ -43,12 +48,14 @@ function(target_generate_unicode_props TARGET_NAME)
     add_custom_command(
         OUTPUT "${OUT_CPP}" "${OUT_H}"
         COMMAND
-            ${UV_EXECUTABLE} run "${SCRIPT_FILE}" "${RESOURCE_FILE}" --output_source "${OUT_CPP}"
+            "${UV_EXECUTABLE}" run --no-sync "${SCRIPT_FILE}" "${RESOURCE_FILE}" --output_source "${OUT_CPP}"
             --output_header "${OUT_H}" --template_source "${TPL_SOURCE}" --template_header
             "${TPL_HEADER}" --include_path "unicode_props.h" --namespace "stcc::utils::gen"
-        DEPENDS "${SCRIPT_FILE}" "${RESOURCE_FILE}" "${TPL_SOURCE}" "${TPL_HEADER}"
+        DEPENDS "${SCRIPT_FILE}" "${PROJECT_SOURCE_DIR}/utils/utils.py" "${RESOURCE_FILE}" "${TPL_SOURCE}" "${TPL_HEADER}"
+                ${STCC_PYTHON_PROJECT_INPUTS}
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-        COMMENT "[CodeGen] Generating unicode_props code for ${TARGET_NAME} via uv...")
+        COMMENT "[CodeGen] Generating unicode_props code for ${TARGET_NAME} via uv..."
+        VERBATIM)
 
     target_sources(${TARGET_NAME} PRIVATE "${OUT_CPP}")
     target_include_directories(${TARGET_NAME} PRIVATE "${GEN_DIR}")
@@ -66,11 +73,13 @@ function(target_generate_token_inc TARGET_NAME)
 
     add_custom_command(
         OUTPUT "${OUT_INC}"
-        COMMAND ${UV_EXECUTABLE} run "${SCRIPT_FILE}" "${RESOURCE_FILE}" --template "${TPL_FILE}" -o
+        COMMAND "${UV_EXECUTABLE}" run --no-sync "${SCRIPT_FILE}" "${RESOURCE_FILE}" --template "${TPL_FILE}" -o
                 "${OUT_INC}"
-        DEPENDS "${SCRIPT_FILE}" "${RESOURCE_FILE}" "${TPL_FILE}"
+        DEPENDS "${SCRIPT_FILE}" "${PROJECT_SOURCE_DIR}/utils/utils.py" "${RESOURCE_FILE}" "${TPL_FILE}"
+                ${STCC_PYTHON_PROJECT_INPUTS}
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-        COMMENT "[CodeGen] Generating token_kinds.inc for ${TARGET_NAME} via uv...")
+        COMMENT "[CodeGen] Generating token_kinds.inc for ${TARGET_NAME} via uv..."
+        VERBATIM)
 
     target_sources(${TARGET_NAME} PUBLIC "${OUT_INC}")
     target_include_directories(${TARGET_NAME} PUBLIC "${GEN_DIR}")
