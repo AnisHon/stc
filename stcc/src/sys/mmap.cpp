@@ -8,7 +8,7 @@
 #include "stcc/sys/platform.h"
 #include "stcc/utils/macros.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <expected>
 #include <limits>
 #include <system_error>
@@ -24,12 +24,11 @@
 #endif
 
 namespace stcc::sys {
+
 std::expected<MMapResult, std::error_code> mmap_file(FileT file) noexcept {
     MMapResult result{};
 
 #if defined(STCC_PLATFORM_WINDOWS)
-    ASSERT(file != INVALID_HANDLE_VALUE, "invalid file");
-
     LARGE_INTEGER file_size{};
 
     if (!::GetFileSizeEx(file, &file_size)) {
@@ -40,7 +39,7 @@ std::expected<MMapResult, std::error_code> mmap_file(FileT file) noexcept {
     }
 
     if (file_size.QuadPart < 0
-        || static_cast<std::uint64_t>(file_size.QuadPart)
+        || static_cast<uint64_t>(file_size.QuadPart)
             > (std::numeric_limits<std::size_t>::max)()) {
         return std::unexpected(std::make_error_code(std::errc::file_too_large));
     }
@@ -58,7 +57,8 @@ std::expected<MMapResult, std::error_code> mmap_file(FileT file) noexcept {
         return std::unexpected(error);
     }
 
-    void *data = ::MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+    const auto view_size = static_cast<std::size_t>(file_size.QuadPart);
+    void *data = ::MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, view_size);
 
     if (!data) {
         const auto error
@@ -69,12 +69,10 @@ std::expected<MMapResult, std::error_code> mmap_file(FileT file) noexcept {
     }
 
     result.begin = static_cast<const char *>(data);
-    result.sz = static_cast<std::size_t>(file_size.QuadPart);
+    result.sz = view_size;
     result.handle = mapping;
 
 #elif defined(STCC_PLATFORM_POSIX)
-    ASSERT(file != -1, "invalid file");
-
     struct stat st{};
 
     if (::fstat(file, &st) == -1) {
@@ -83,7 +81,7 @@ std::expected<MMapResult, std::error_code> mmap_file(FileT file) noexcept {
     }
 
     if (st.st_size < 0
-        || static_cast<std::uintmax_t>(st.st_size) > std::numeric_limits<std::size_t>::max()) {
+        || static_cast<uintmax_t>(st.st_size) > std::numeric_limits<std::size_t>::max()) {
         return std::unexpected(std::make_error_code(std::errc::file_too_large));
     }
 

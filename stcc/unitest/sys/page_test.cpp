@@ -11,11 +11,11 @@
 #  include <unistd.h>
 #endif
 
-TEST_CASE("page_size reports the OS mapping granularity", "[sys][page][integration]") {
+TEST_CASE("page_size reports the OS page size", "[sys][page][integration]") {
 #if defined(STCC_PLATFORM_WINDOWS)
     SYSTEM_INFO info{};
     ::GetSystemInfo(&info);
-    const auto expected = info.dwAllocationGranularity;
+    const auto expected = info.dwPageSize;
 #elif defined(STCC_PLATFORM_POSIX)
     const auto expected = ::sysconf(_SC_PAGE_SIZE);
 #endif

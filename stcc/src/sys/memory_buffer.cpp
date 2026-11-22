@@ -7,66 +7,63 @@
 #include "stcc/sys/memory_buffer.h"
 #include "stcc/sys/mmap.h"
 #include "stcc/sys/page.h"
+#include "stcc/sys/platform.h"
+
 #include <algorithm>
-#include <cstddef>
-#include <expected>
 #include <gsl/pointers>
+#include <gsl/util>
 #include <limits>
-#include <sys/file.h>
 #include <utility>
 
 namespace stcc::sys {
 
 /* static */
 std::expected<MemoryBuffer, std::error_code> MemoryBuffer::open_file(File file) {
-    const auto res = file.file_sz();
-    if (!res) {
-        return std::unexpected(res.error());
+    const auto file_size = file.file_sz();
+    if (!file_size) {
+        return std::unexpected(file_size.error());
     }
-
-    const auto file_sz = *res;
-
-    // size = 0 mmap 无法映射
-    if (file_sz == 0) {
+    if (*file_size == 0) {
         const gsl::owner<char *> data = new char[1]{'\0'};
-        const auto mmap_res = MMapResult{.begin = data, .sz = 0};
-        return MemoryBuffer{mmap_res, BufferKind::Malloc};
+        return MemoryBuffer{data, 0, BufferKind::Heap};
     }
 
-    // 尝试映射
-    const auto mapping = mmap_file(file.native_handle());
+    auto mapping = mmap_file(file.native_handle());
     if (!mapping) {
         return std::unexpected(mapping.error());
     }
-    MMapResult mapping_result = *mapping;
+    const auto unmap_on_exit = gsl::finally([&mapping]() noexcept { unmmap_file(*mapping); });
+    const auto size = mapping->sz;
+    const auto page = page_size();
 
-    // 末尾 0 填充 mapping 可用
-    if (file_sz % page_size() != 0) {
-        return MemoryBuffer{mapping_result, BufferKind::MMap};
+    // 只有文件尾部还在最后一页内，才读取系统补出的字节。
+    if (page != 0 && size % page != 0 && mapping->begin[size] == '\0') {
+        MemoryBuffer buffer{mapping->begin, size, BufferKind::MMap};
+#if defined(STCC_PLATFORM_WINDOWS)
+        buffer.mapping_handle_ = mapping->handle;
+#elif defined(STCC_PLATFORM_POSIX)
+        // noting to do
+#endif
+        *mapping = {};
+        return buffer;
     }
 
-    // 为文件末尾的 NUL 留出一个字节，视图长度仍为文件大小。
-    if (file_sz >= (std::numeric_limits<std::size_t>::max)()
-        || file_sz > static_cast<std::uintmax_t>((std::numeric_limits<std::streamsize>::max)())) {
+    if (size == (std::numeric_limits<std::size_t>::max)()) {
         return std::unexpected(std::make_error_code(std::errc::file_too_large));
     }
-
-    gsl::owner<char *> data = new char[file_sz + 1];
-    std::copy(mapping_result.begin, mapping_result.begin + mapping_result.sz, data);
-    data[file_sz] = '\0';
-
-    // 删除文件映射
-    unmmap_file(mapping_result);
-    const MMapResult mmap_res{
-        .begin = data,
-        .sz = file_sz + 1,
-    };
-    return MemoryBuffer{mmap_res, BufferKind::Malloc};
+    const gsl::owner<char *> data = new char[size + 1];
+    std::copy_n(mapping->begin, size, data);
+    data[size] = '\0';
+    return MemoryBuffer{data, size, BufferKind::Heap};
 }
 
 MemoryBuffer::MemoryBuffer(MemoryBuffer &&other) noexcept
-    : buffer_{std::exchange(other.buffer_, {})},
+    : data_{std::exchange(other.data_, nullptr)},
+      size_{std::exchange(other.size_, 0)},
       kind_{std::exchange(other.kind_, BufferKind::None)} {
+#if defined(STCC_PLATFORM_WINDOWS)
+    mapping_handle_ = std::exchange(other.mapping_handle_, nullptr);
+#endif
 }
 
 MemoryBuffer &MemoryBuffer::operator=(MemoryBuffer &&other) noexcept {
@@ -75,8 +72,12 @@ MemoryBuffer &MemoryBuffer::operator=(MemoryBuffer &&other) noexcept {
     }
 
     release();
-    buffer_ = std::exchange(other.buffer_, {});
+    data_ = std::exchange(other.data_, nullptr);
+    size_ = std::exchange(other.size_, 0);
     kind_ = std::exchange(other.kind_, BufferKind::None);
+#if defined(STCC_PLATFORM_WINDOWS)
+    mapping_handle_ = std::exchange(other.mapping_handle_, nullptr);
+#endif
 
     return *this;
 }
@@ -86,24 +87,33 @@ MemoryBuffer::~MemoryBuffer() {
 }
 
 std::string_view MemoryBuffer::get_data() const {
-    if (!buffer_.begin) {
+    if (!data_) {
         return {};
     }
-    return {buffer_.begin, buffer_.sz};
+    return {data_, size_};
 }
 
 void MemoryBuffer::release() noexcept {
     switch (kind_) {
-    case BufferKind::MMap:
-        unmmap_file(buffer_);
+    case BufferKind::MMap: {
+        MMapResult mapping{
+            .begin = data_,
+            .sz = size_,
+#if defined(STCC_PLATFORM_WINDOWS)
+            .handle = std::exchange(mapping_handle_, nullptr),
+#endif
+        };
+        unmmap_file(mapping);
         break;
-    case BufferKind::Malloc:
-        delete[] buffer_.begin;
+    }
+    case BufferKind::Heap:
+        delete[] data_;
         break;
     case BufferKind::None:
         break;
     }
-    buffer_ = {};
+    data_ = nullptr;
+    size_ = 0;
     kind_ = BufferKind::None;
 }
 

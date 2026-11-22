@@ -20,9 +20,10 @@ size_t page_size() {
 #if defined(STCC_PLATFORM_WINDOWS)
         SYSTEM_INFO SystemInfo;
         GetSystemInfo(&SystemInfo);
-        return SystemInfo.dwAllocationGranularity;
+        return static_cast<size_t>(SystemInfo.dwPageSize);
 #elif defined(STCC_PLATFORM_POSIX)
-        return sysconf(_SC_PAGE_SIZE);
+        const auto size = sysconf(_SC_PAGE_SIZE);
+        return size > 0 ? static_cast<size_t>(size) : size_t{0};
 #endif
     }();
     return PAGE_SIZE;

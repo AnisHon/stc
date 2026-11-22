@@ -7,9 +7,10 @@
 #ifndef STCC_MEMORY_BUFFER_H
 #define STCC_MEMORY_BUFFER_H
 
-#include "stcc/sys/mmap.h"
+#include "stcc/sys/file.h"
 
-#include <cstdint>
+#include <stdint.h>
+#include <cstddef>
 #include <expected>
 #include <string_view>
 #include <system_error>
@@ -17,15 +18,14 @@
 namespace stcc::sys {
 
 /**
- * 读取文件，自动决定 malloc 或 mmap
- * 独占语义，只能移动不能拷贝
- * get_data() 返回的视图只包含文件数据。
+ * 独占文件缓冲区，只能移动。
+ * get_data() 的长度等于文件字节数，末尾的 NUL 放在视图之外。
  */
 class MemoryBuffer {
-    enum class BufferKind : std::uint8_t {
+    enum class BufferKind : uint8_t {
         None,
+        Heap,
         MMap,
-        Malloc,
     };
 
 public:
@@ -42,8 +42,9 @@ public:
     std::string_view get_data() const;
 
 private:
-    MemoryBuffer(MMapResult buffer, BufferKind kind) noexcept
-        : buffer_{buffer},
+    MemoryBuffer(const char *data, std::size_t size, BufferKind kind) noexcept
+        : data_{data},
+          size_{size},
           kind_{kind} {}
 
     /**
@@ -51,8 +52,12 @@ private:
      */
     void release() noexcept;
 
-    MMapResult buffer_;
+    const char *data_;
+    std::size_t size_;
     BufferKind kind_;
+#if defined(STCC_PLATFORM_WINDOWS)
+    HANDLE mapping_handle_{};
+#endif
 };
 
 } // namespace stcc::sys
