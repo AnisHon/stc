@@ -1,6 +1,6 @@
 include(FetchContent)
 
-# Dependencies:  fmt cpptrace utf8cpp catch2
+# Dependencies: fmt, spdlog, cpptrace, utf8cpp, GSL, Catch2
 
 fetchcontent_declare(
     fmt
@@ -10,6 +10,16 @@ fetchcontent_declare(
     SYSTEM
 )
 fetchcontent_makeavailable(fmt)
+
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use STCC's fmt dependency for spdlog")
+fetchcontent_declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.17.0
+    GIT_SHALLOW TRUE
+    SYSTEM
+)
+fetchcontent_makeavailable(spdlog)
 
 fetchcontent_declare(
     cpptrace
