@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <expected>
 #include <functional>
+#include <string_view>
 #include <system_error>
 
 namespace stcc::sys {
@@ -84,10 +85,14 @@ using FileKey = detail::PosixFileKey;
 
 #if defined(STCC_PLATFORM_WINDOWS)
 template <>
-struct std::hash<stcc::sys::detail::WIndowsFileKey> {
-    std::size_t operator()(const stcc::sys::detail::WIndowsFileKey &key) const noexcept {
-        size_t h1 = std::hash<uint64_t>{}(key.volume);
-        size_t h2 = std::hash<uint64_t>{}(key.file);
+struct std::hash<stcc::sys::detail::WindowsFileKey> {
+    std::size_t operator()(const stcc::sys::detail::WindowsFileKey &key) const noexcept {
+        const std::string_view identifier{
+            reinterpret_cast<const char *>(key.file.Identifier),
+            sizeof(key.file.Identifier),
+        };
+        const auto h1 = std::hash<uint64_t>{}(key.volume);
+        const auto h2 = std::hash<std::string_view>{}(identifier);
 
         // 简单的 hash combine
         return h1 ^ (h2 + 0x9e3779b9U + (h1 << 6) + (h1 >> 2));
