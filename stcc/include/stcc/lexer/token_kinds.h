@@ -4,11 +4,10 @@
  */
 #pragma once
 
-#include "stcc/commons/types.h"
-
 #include "stcc/lexer/token_kinds.inc"
 
 #include <string_view>
+#include <stdint.h>
 
 #define STCC_TOKEN_KIND_PUNCTUATOR_LIST \
     STCC_TOKEN_KIND_DELIMITER_LIST      \

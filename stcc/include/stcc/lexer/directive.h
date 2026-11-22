@@ -7,8 +7,7 @@
 #ifndef STCC_DIRECTIVE_KIND_H
 #define STCC_DIRECTIVE_KIND_H
 
-#include "stcc/commons/types.h"
-
+#include <stdint.h>
 #include <string_view>
 
 #include "stcc/source/source_location.h"

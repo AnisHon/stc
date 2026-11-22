@@ -1,5 +1,7 @@
-#include "stcc/commons/types.h"
 #include "stcc/utils/strutils.h"
+
+#include <array>
+#include <stdint.h>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -19,7 +21,7 @@ TEST_CASE("get_line_start_indices_test", "[strutils]") {
                 3   return 0;
                 4 })"sv,
     };
-    std::array<std::vector<stcc::uint32_t>, 4> test_answers{{
+    std::array<std::vector<uint32_t>, 4> test_answers{{
         {0, 4},
         {0, 3},
         {0, 2, 4, 6},

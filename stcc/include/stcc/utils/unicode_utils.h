@@ -7,8 +7,7 @@
 #ifndef STCC_UNICODE_UTILS_H
 #define STCC_UNICODE_UTILS_H
 
-#include "stcc/commons/types.h"
-
+#include <stdint.h>
 
 namespace stcc::utils {
 
@@ -39,7 +38,6 @@ bool is_newline(char chr);
  * 是否是 ASCII octal digit（0-7）
  */
 bool is_oct(char chr);
-
 
 } // namespace stcc::utils
 

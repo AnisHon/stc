@@ -8,8 +8,7 @@
 #ifndef STCC_STRUTILS_H
 #define STCC_STRUTILS_H
 
-#include "stcc/commons/types.h"
-
+#include <stdint.h>
 #include <vector>
 #include <string_view>
 

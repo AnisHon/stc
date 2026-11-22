@@ -4,7 +4,7 @@
  * @date 2026/7/28
  */
 
-#include "stcc/commons/types.h"
+#include <stdint.h>
 #include "stcc/utils/strutils.h"
 
 namespace stcc::utils {

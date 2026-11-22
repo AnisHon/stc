@@ -18,8 +18,8 @@
 #ifndef STCC_SOURCE_LOCATION_H
 #define STCC_SOURCE_LOCATION_H
 
-#include "stcc/commons/types.h"
 #include <string>
+#include <stdint.h>
 
 namespace stcc {
 
