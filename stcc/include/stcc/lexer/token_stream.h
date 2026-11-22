@@ -8,20 +8,15 @@
 #ifndef STCC_TOKEN_STREAM_H
 #define STCC_TOKEN_STREAM_H
 
-#include <memory>
 #include <stack>
 
-#include "stcc/source/source_manager.h"
 #include "directive.h"
 
 namespace stcc {
 
 class TokenStream {
 public:
-    explicit TokenStream(const std::shared_ptr<SourceManager> &source_manager);
-
 private:
-    std::shared_ptr<SourceManager> source_manager_;
     std::stack<pp::Directive> pp_stack_;
 };
 

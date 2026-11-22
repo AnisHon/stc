@@ -1,30 +1,31 @@
 /**
- * @file sys_page.cpp
+ * @file page.cpp
  * @author anishan
  * @date 2026/11/19
  */
 
-#ifdef _WIN32
+#include "stcc/sys/page.h"
+#include "stcc/sys/platform.h"
+
+#if defined(STCC_PLATFORM_WINDOWS)
 #  include <windows.h>
-#else
+#elif defined(STCC_PLATFORM_POSIX)
 #  include <unistd.h>
 #endif
 
-#include "sys_page.h"
-
-namespace stcc::utils {
+namespace stcc::sys {
 
 size_t page_size() {
     static const size_t PAGE_SIZE = [] {
-#ifdef _WIN32
+#if defined(STCC_PLATFORM_WINDOWS)
         SYSTEM_INFO SystemInfo;
         GetSystemInfo(&SystemInfo);
         return SystemInfo.dwAllocationGranularity;
-#else
+#elif defined(STCC_PLATFORM_POSIX)
         return sysconf(_SC_PAGE_SIZE);
 #endif
     }();
     return PAGE_SIZE;
 }
 
-} // namespace stcc::utils
+} // namespace stcc::sys
