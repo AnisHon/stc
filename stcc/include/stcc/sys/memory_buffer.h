@@ -29,7 +29,14 @@ class MemoryBuffer {
     };
 
 public:
-    static std::expected<MemoryBuffer, std::error_code> open_file(File file);
+    /// 构造一个未关联文件的空缓冲区。
+    MemoryBuffer() noexcept
+        : data_{nullptr},
+          size_{0},
+          kind_{BufferKind::None} {}
+
+    /// 从已打开的文件创建缓冲区。返回的缓冲区独立持有映射或副本。
+    static std::expected<MemoryBuffer, std::error_code> open_file(const File &file);
 
     MemoryBuffer(const MemoryBuffer &) = delete;
     MemoryBuffer &operator=(const MemoryBuffer &) = delete;

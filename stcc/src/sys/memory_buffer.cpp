@@ -18,7 +18,7 @@
 namespace stcc::sys {
 
 /* static */
-std::expected<MemoryBuffer, std::error_code> MemoryBuffer::open_file(File file) {
+std::expected<MemoryBuffer, std::error_code> MemoryBuffer::open_file(const File &file) {
     const auto file_size = file.file_sz();
     if (!file_size) {
         return std::unexpected(file_size.error());

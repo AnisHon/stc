@@ -8,13 +8,20 @@
 #include <stdint.h>
 #include <expected>
 #include <limits>
+#include <string>
 #include <system_error>
 #include <utility>
 
 #ifdef STCC_PLATFORM_POSIX
+#  include <cerrno>
 #  include <sys/stat.h>
 #  include <fcntl.h>
 #  include <unistd.h>
+#  if defined(STCC_PLATFORM_HAS_FCNTL_GET_PATH)
+#    include <sys/param.h>
+#  elif defined(STCC_PLATFORM_HAS_FCNTL_KINFO)
+#    include <sys/user.h>
+#  endif
 #endif
 
 namespace stcc::sys {
@@ -122,4 +129,68 @@ std::expected<size_t, std::error_code> File::file_sz() const {
     }
     return static_cast<size_t>(file_size);
 }
+
+std::expected<std::filesystem::path, std::error_code> File::phy_path() const {
+    if (fd_ == invalid_file) {
+        return std::unexpected(std::make_error_code(std::errc::bad_file_descriptor));
+    }
+
+#if defined(STCC_PLATFORM_WINDOWS)
+    std::wstring path(MAX_PATH, L'\0');
+    for (;;) {
+        const auto length = ::GetFinalPathNameByHandleW(
+            fd_,
+            path.data(),
+            static_cast<DWORD>(path.size()),
+            FILE_NAME_NORMALIZED | VOLUME_NAME_DOS
+        );
+        if (length == 0) {
+            return std::unexpected(
+                std::error_code(static_cast<int>(::GetLastError()), std::system_category())
+            );
+        }
+        if (length < path.size()) {
+            path.resize(length);
+            return std::filesystem::path{std::move(path)};
+        }
+        path.resize(length);
+    }
+#elif defined(STCC_PLATFORM_LINUX)
+    const auto fd_link = std::filesystem::path{"/proc/self/fd"} / std::to_string(fd_);
+    std::error_code ec;
+    auto path = std::filesystem::read_symlink(fd_link, ec);
+    if (ec) {
+        return std::unexpected(ec);
+    }
+    if (!path.is_absolute()) {
+        return std::unexpected(std::make_error_code(std::errc::no_such_file_or_directory));
+    }
+    // Linux 给已删除的文件名附上该后缀，真实文件名也可能恰好以它结尾。
+    if (path.native().ends_with(" (deleted)") && !std::filesystem::equivalent(fd_link, path, ec)) {
+        return std::unexpected(
+            ec ? ec : std::make_error_code(std::errc::no_such_file_or_directory)
+        );
+    }
+    return path;
+#elif defined(STCC_PLATFORM_HAS_FCNTL_GET_PATH)
+    char path[MAXPATHLEN]{};
+    if (::fcntl(fd_, F_GETPATH, path) == -1) {
+        return std::unexpected(std::error_code(errno, std::generic_category()));
+    }
+    return std::filesystem::path{path};
+#elif defined(STCC_PLATFORM_HAS_FCNTL_KINFO)
+    struct kinfo_file info{};
+    info.kf_structsize = sizeof(info);
+    if (::fcntl(fd_, F_KINFO, &info) == -1) {
+        return std::unexpected(std::error_code(errno, std::generic_category()));
+    }
+    if (info.kf_path[0] == '\0') {
+        return std::unexpected(std::make_error_code(std::errc::no_such_file_or_directory));
+    }
+    return std::filesystem::path{info.kf_path};
+#else
+    return std::unexpected(std::make_error_code(std::errc::operation_not_supported));
+#endif
+}
+
 } // namespace stcc::sys

@@ -36,6 +36,7 @@ using FileT = HANDLE;
  * 轻量级 File 抽象，包装平台相关文件标识符，提供平台无关接口，提供
  * - 获取大小
  * - 获取 FileKey 对象
+ * - 获取物理路径
  * - 获取原生文件标识符
  */
 class File {
@@ -62,6 +63,12 @@ public:
      * 文件大小
      */
     std::expected<size_t, std::error_code> file_sz() const;
+
+    /**
+     * 从已打开的文件句柄查询绝对路径，解析打开时经过的符号链接。
+     * 查询失败或平台无法从句柄取得路径时返回错误。
+     */
+    std::expected<std::filesystem::path, std::error_code> phy_path() const;
 
 private:
     explicit File(FileT fd)
