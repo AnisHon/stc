@@ -1,9 +1,8 @@
 set(STCC_SOURCE_INC_DIR "${STCC_PUB_INC_DIR}/source")
 
 # source module
-set(STCC_SOURCE_INC
-    ${STCC_SOURCE_INC_DIR}/source_location.h ${STCC_SOURCE_INC_DIR}/source_manager.h
-    #${STCC_SOURCE_INC_DIR}/
+set(STCC_SOURCE_INC ${STCC_SOURCE_INC_DIR}/source_location.h
+                    ${STCC_SOURCE_INC_DIR}/source_manager.h ${STCC_SOURCE_INC_DIR}/file_manager.h
 )
 
 set(STCC_SOURCE_SRC source_manager.cpp file_manager.cpp)
@@ -24,5 +23,12 @@ target_sources(
 
 target_include_directories(stcc_source PUBLIC ${STCC_INC_DIR})
 
-target_link_libraries(stcc_source PUBLIC stcc::cxx23 stcc::sys stcc::utils)
-target_link_libraries(stcc_source PRIVATE cpptrace::cpptrace fmt::fmt)
+target_link_libraries(
+    stcc_source
+    PUBLIC stcc::cxx23
+           stcc::commons
+           stcc::sys
+           stcc::utils
+           spdlog::spdlog
+    PRIVATE cpptrace::cpptrace fmt::fmt
+)
