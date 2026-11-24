@@ -4,21 +4,22 @@
  * @date 2026/6/13
  */
 
-#include <utf8cpp/utf8/unchecked.h>
-
-#include <expected>
 #include "stcc/lexer/lexer.h"
-#include "stcc/lexer/string_interner.h"
-#include "stcc/lexer/token_kinds.h"
-#include "stcc/utils/char_utils.h"
 #include "stcc/commons/macros.h"
+#include "stcc/commons/constant.h"
+#include "stcc/utils/char_utils.h"
 #include "stcc/utils/unicode_utils.h"
+#include "stcc/lexer/token_kinds.h"
+#include "stcc/lexer/string_interner.h"
+#include "stcc/utils/utf8.h"
+
+#include <utf8cpp/utf8.h>
 
 namespace stcc {
 
-
-Lexer::Lexer(StringInterner *interner, const std::string_view source)
-    : interner_{interner},
+Lexer::Lexer(StringInterner *interner, const std::string_view source, spdlog::logger &log)
+    : log_{log},
+      interner_{interner},
       curr_iter_{source.cbegin()},
       source_beg_{source.cbegin()},
       source_end_{source.cend()},
@@ -32,9 +33,8 @@ Lexer::Lexer(StringInterner *interner, const std::string_view source)
  * chr 不平凡，字符存在组合解析的可能性
  */
 static bool is_trivial_chr(const char c) {
-    return c != '\\' && c != '?';
+    return c != chr::esp && c != '?';
 }
-
 
 /**
  * trigraph 字符映射
@@ -46,7 +46,7 @@ constexpr char Lexer::map_trigraph(const char c) noexcept {
     case '(':
         return '[';
     case '/':
-        return '\\';
+        return chr::esp;
     case ')':
         return ']';
     case '\'':
@@ -60,127 +60,134 @@ constexpr char Lexer::map_trigraph(const char c) noexcept {
     case '-':
         return '~';
     default:
-        return '\0';
+        return chr::nul;
     }
 }
 
 /**
  * @param iter 反斜杠后的指针
  */
-static std::tuple<char, uint32_t> peek_after_backslash(SVIter iter) {
+Lexer::PeekResult<char> Lexer::peek_after_backslash(SourceIter iter) {
     uint32_t sz{1};
     while (utils::is_space(*iter)) {
         sz++;
         iter++;
     }
-    return {*iter, sz};
+    return {.value = *iter, .bytes = sz};
 }
-
 
 /**
  * lex Trigraph, unify Line-Ending(LF, CR, CRLF -> LF)
  */
-std::tuple<char, uint32_t> Lexer::peek_chr_slow(const SVIter iter) const {
-    ASSERT(is_trivial_chr(*iter));
+Lexer::PeekResult<char> Lexer::peek_chr_slow(const SourceIter iter) const {
+    ASSERT(!is_trivial_chr(*iter));
 
-    const SVIter first = iter;
-    const SVIter next = iter + 1;
+    const SourceIter first = iter;
+    const SourceIter next = iter + 1;
 
-    if (*first == '\\') {
+    if (*first == chr::esp) {
         return peek_after_backslash(iter + 1);
     }
-    if (*first == '?' && *next == '?') {
-        TODO("检测 trigraph 的 option"); // todo
+
+    const bool is_trigraph_start
+        = this->options_ && this->options_->enable_trigraph && *first == '?' && *next == '?';
+
+    if (is_trigraph_start) {
         const char tri = map_trigraph(*(iter + 2));
-        if (tri == '0') {
+        if (tri == chr::nul) {
             TODO("不合法的 tri"); // todo
         }
-        if (tri != '\\') {
-            return {tri, 3};
+        if (tri != chr::esp) {
+            return {.value = tri, .bytes = 3};
         }
         return peek_after_backslash(iter + 4);
-
     }
-    return {*first, 1};
+    return {.value = *first, .bytes = 1};
 }
 
-/**
- *
- */
-std::tuple<char, uint32_t> Lexer::peek_chr(SVIter iter) const {
+Lexer::LexResult<char> Lexer::next_chr_slow(SourceIter iter) const {
+    const auto result = this->peek_chr_slow(iter);
+    return {.value = result.value, .iter = iter + result.bytes};
+}
+
+Lexer::LexResult<char> Lexer::next_chr(SourceIter iter) const {
     if (is_trivial_chr(*iter)) {
-        return {*iter, 1};
-    }
-    return this->peek_chr_slow(iter);
-}
-
-static std::tuple<char32_t, uint32_t> next_codepoint(const SVIter it) noexcept {
-    auto it2{it};
-    char32_t cp{0};
-    try {
-        cp = utf8::unchecked::next(it2);
-    } catch (const std::exception &) {
-        TODO("未实现，非法码点"); // todo 处理非法码点
+        return {.value = *iter, .iter = iter + 1};
     }
 
-    const auto len{static_cast<size_t>(std::distance(it, it2))};
-    return {cp, len};
+    return next_chr_slow(iter);
 }
 
-/**
- * @return (comment kind, comment start bytes)
- */
-std::tuple<Lexer::CommentKind, uint32_t> Lexer::check_comment(const SVIter iter) const {
+Lexer::LexResult<char32_t> Lexer::next_codepoint(const SourceIter it) const noexcept {
+    SourceIter next_it{it};
+    char32_t next_cp{};
+
+    const auto [cp, bytes, status] = utils::utf8::decode(it, this->source_end_);
+
+    switch (status) {
+    case utils::utf8::DecodeStatus::Ok:
+        next_it = it + bytes;
+        next_cp = cp;
+        break;
+    case utils::utf8::DecodeStatus::Eof:
+        next_it = it;
+        next_cp = chr32::nul;
+        break;
+    case utils::utf8::DecodeStatus::Invalid: {
+        TODO("无效码，报错");
+        const size_t resync_bytes{utils::utf8::resync(it, this->source_end_)};
+        next_it = resync_bytes + it;
+        next_cp = chr32::replacement;
+        break;
+    }
+    }
+
+    return {.value = next_cp, .iter = next_it};
+}
+
+Lexer::LexResult<Lexer::CommentKind> Lexer::check_comment(const SourceIter iter) const {
     if (*iter != '/') {
-        return {CommentKind::Invalid, 0};
+        return {.value = CommentKind::Invalid, .iter = iter};
     }
 
-    const auto [chr, bytes] = this->peek_chr_slow(iter + 1);
-    switch (chr) {
+    const auto next = this->next_chr(iter + 1);
+    switch (next.value) {
     case '/':
-        return {CommentKind::Line, bytes + 1};
+        return {.value = CommentKind::Line, .iter = next.iter};
     case '*':
-        return {CommentKind::Block, bytes + 1};
+        return {.value = CommentKind::Block, .iter = next.iter};
     default:
-        return {CommentKind::Invalid, 0};
+        return {.value = CommentKind::Invalid, .iter = iter};
     }
 }
 
-/**
- * @return (char kind, char start bytes)
- */
-std::tuple<Lexer::CharStrKind, uint32_t> Lexer::check_char(const SVIter iter) const {
+Lexer::LexResult<Lexer::CharStrKind> Lexer::check_char(const SourceIter iter) const {
     auto kind{CharStrKind::Invalid};
+
     switch (*iter) {
     case '\'':
-        return {CharStrKind::ASCII, 1};
+        kind = CharStrKind::ASCII;
     case 'L':
         kind = CharStrKind::Wide;
-        break;
     case 'u':
         kind = CharStrKind::UTF16;
-        break;
     case 'U':
         kind = CharStrKind::UTF32;
-        break;
     default:
-        return {CharStrKind::Invalid, 0};
+        return {.value = kind, .iter = iter};
     }
 
-    if (const auto [chr, bytes] = this->peek_chr_slow(iter + 1); chr == '\'') {
-        return {kind, bytes + 1};
+    if (const auto next = this->next_chr(iter + 1); next.value == '\'') {
+        return {.value = kind, .iter = next.iter};
     }
-    return {CharStrKind::Invalid, 0};
+    return {.value = CharStrKind::Invalid, .iter = iter};
 }
 
-/**
- * @return (string kind, string start bytes)
- */
-std::tuple<Lexer::CharStrKind, uint32_t> Lexer::check_string(const SVIter iter) const {
+Lexer::LexResult<Lexer::CharStrKind> Lexer::check_string(const SourceIter iter) const {
     auto kind{CharStrKind::Invalid};
     switch (*iter) {
     case '"':
-        return {CharStrKind::ASCII, 1};
+        return {.value = CharStrKind::ASCII, .iter = iter + 1};
     case 'L':
         kind = CharStrKind::Wide;
         break;
@@ -191,16 +198,16 @@ std::tuple<Lexer::CharStrKind, uint32_t> Lexer::check_string(const SVIter iter) 
         kind = CharStrKind::UTF32;
         break;
     default:
-        return {CharStrKind::Invalid, 0};
+        return {.value = CharStrKind::Invalid, .iter = iter};
     }
 
-    if (const auto [chr, bytes] = this->peek_chr_slow(iter + 1); chr == '"') {
-        return {kind, bytes + 1};
+    if (const auto next = this->next_chr(iter + 1); next.value == '"') {
+        return {.value = kind, .iter = next.iter};
     }
-    return {CharStrKind::Invalid, 0};
+    return {.value = CharStrKind::Invalid, .iter = iter};
 }
 
-bool check_header_name(const SVIter iter) {
+bool check_header_name(const SourceIter iter) {
     const char chr = *iter;
     // return chr == '"' || chr == '<';
     TODO("test");
@@ -213,32 +220,36 @@ bool check_header_name(const SVIter iter) {
  * - first => '[0-9]'  '.'
  * - first-1 => '.[0-9]'  '[0-9](e|E|[0-9])'  '0x'  '0X'
  */
-uint32_t Lexer::check_pp_number(const SVIter iter) const {
+bool Lexer::check_pp_number(const SourceIter iter) const {
     const auto chr = *iter;
+
     if (utils::is_digit(chr)) {
-        return 1;
+        return true;
     }
     if (chr == '.') {
-        if (const auto [nchr, bytes] = this->peek_chr_slow(iter + 1); utils::is_digit(nchr)) {
-            return bytes + 1;
+        if (const auto next = this->next_chr(iter + 1); utils::is_digit(next.value)) {
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 /**
  * 不负责UCN
  */
-/* static */
-uint32_t Lexer::check_ident(const SVIter iter) {
-    if (const auto [cp, bytes] = next_codepoint(iter); utils::is_xid_start(cp) || cp == U'_') {
-        return bytes;
+Lexer::LexResult<bool> Lexer::check_ident(const SourceIter iter) const {
+    const auto next_cp = this->next_codepoint(iter);
+    SourceIter next_iter{iter};
+    bool is_ident{false};
+
+    if (utils::is_xid_start(next_cp.value) || next_cp.value == U'_') {
+        next_iter = next_cp.iter;
     }
-    return 0;
+    return {.value = is_ident, .iter = next_iter};
 }
 
-bool check_punctuators(const SVIter iter) {
+bool check_punctuators(const SourceIter iter) {
     switch (*iter) {
     case '!':
     case '%':
@@ -272,41 +283,43 @@ bool check_punctuators(const SVIter iter) {
 }
 
 /* static */
-Lexer::UCNKind Lexer::check_ucn(const SVIter iter) {
-    if (*iter != '\\') {
-        return UCNKind::Invalid;
+Lexer::LexResult<Lexer::UCNKind> Lexer::check_ucn(const SourceIter iter) {
+    if (*iter != chr::esp) {
+        return {.value = UCNKind::Invalid, .iter = iter};
     }
+
     switch (*(iter + 1)) {
     case 'u':
-        return UCNKind::U16;
+        return {.value = UCNKind::U16, .iter = iter + 2};
     case 'U':
-        return UCNKind::U32;
+        return {.value = UCNKind::U32, .iter = iter + 2};
     default:
-        return UCNKind::Invalid;
+        return {.value = UCNKind::Invalid, .iter = iter};
     }
 }
 
-uint32_t Lexer::scan_ident(SVIter iter) const {
-    const auto start{iter};
+Lexer::LexResult<PPTokenKind> Lexer::scan_ident(SourceIter iter) const {
     while (true) {
-        char32_t cp = 0;
-        uint32_t bytes = 0;
-        if (*iter == '\\') {
-            std::tie(cp, bytes) = next_codepoint(iter);
+        LexResult<char32_t> next;
+        if (*iter == chr::esp) {
+            const auto character = next_chr_slow(iter);
+            next = {.value = static_cast<char32_t>(character.value), .iter = character.iter};
         } else {
-            std::tie(cp, bytes) = peek_chr(iter);
+            const auto codepoint = next_codepoint(iter);
+            next = {.value = codepoint.value, .iter = codepoint.iter};
         }
-        if (!utils::is_xid_start(cp)) {
+        if (!utils::is_xid_continue(next.value)) {
             break;
         }
-        iter += bytes;
+        iter = next.iter;
     }
-    return std::distance(start, iter);
+    return {.value = PPTokenKind::Ident, .iter = iter};
 }
 
-Lexer::TokenKindResult Lexer::scan_punctuator(SVIter iter) const {
+Lexer::LexResult<PPTokenKind> Lexer::scan_punctuator(SourceIter iter) const {
+    this->log_.trace("scan punctuator");
+
     auto ty{PPTokenKind::Invalid};
-    const auto start{iter};
     switch (*iter) {
     case '!':
         iter++;
@@ -574,64 +587,58 @@ Lexer::TokenKindResult Lexer::scan_punctuator(SVIter iter) const {
     default:
         UNREACHABLE();
     }
-    return TokenKindResult{
-        .kind = ty,
-        .bytes = static_cast<uint32_t>(std::distance(start, iter))
-    };
+    return {.value = ty, .iter = iter};
 }
 
-uint32_t Lexer::scan_line_comment(SVIter iter, const SVIter end) const {
-    const SVIter start = iter;
+Lexer::LexResult<PPTokenKind> Lexer::scan_line_comment(
+    SourceIter iter,
+    const SourceIter end
+) const {
     while (iter < end) {
-        char chr = *iter;
-        uint32_t bytes = 1;
+        LexResult<char> next{.value = *iter, .iter = iter + 1};
 
-        if (chr == '\\') {
-            std::tie(chr, bytes) = this->peek_chr_slow(iter);
+        if (next.value == chr::esp) {
+            next = this->next_chr_slow(iter);
         }
 
-        if (utils::is_newline(chr)) {
+        if (utils::is_newline(next.value)) {
             break;
         }
-        iter += bytes;
+        iter = next.iter;
     }
-    return static_cast<uint32_t>(std::distance(start, iter));
+    return {.value = PPTokenKind::Invalid, .iter = iter};
 }
 
-std::expected<uint32_t, LexerError> Lexer::scan_block_comment(SVIter iter, const SVIter end) const {
-    const SVIter start = iter;
-    bool closed = false;
-
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_block_comment(
+    SourceIter iter,
+    const SourceIter end
+) const {
     while (iter < end) {
         const char first_chr = *iter;
-        char second_chr = *(iter + 1);
-        uint32_t bytes{1};
-        if (first_chr == '*') {
-            if (second_chr == '\\') {
-                std::tie(second_chr, bytes) = this->peek_chr_slow(iter + 1);
-                bytes++;
-            }
+        auto next_iter = iter + 1;
+        char second_chr = *next_iter;
+        if (first_chr == '*' && second_chr == chr::esp) {
+            const auto next = this->next_chr(next_iter);
+            second_chr = next.value;
+            next_iter = next.iter;
         }
 
-        iter += bytes;
+        iter = next_iter;
         if (first_chr == '*' && second_chr == '/') {
-            closed = true;
-            break;
+            return LexResult{.value = PPTokenKind::Invalid, .iter = iter + 1};
         }
     }
 
-    if (!closed) {
-        return std::unexpected(LexerError::CommentUnclosed);
-    }
-
-    return static_cast<uint32_t>(std::distance(start, iter));
+    return std::unexpected(LexerError::CommentUnclosed);
 }
 
-std::expected<uint32_t, LexerError> Lexer::scan_comment(
-    const SVIter iter,
-    const SVIter end,
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_comment(
+    const SourceIter iter,
+    const SourceIter end,
     const CommentKind kind
-    ) const {
+) const {
+    this->log_.trace("scan comment");
+
     switch (kind) {
     case CommentKind::Line:
         return scan_line_comment(iter, end);
@@ -640,26 +647,43 @@ std::expected<uint32_t, LexerError> Lexer::scan_comment(
     case CommentKind::Invalid:
         UNREACHABLE();
     }
-    return {};
+
+    UNREACHABLE();
 }
 
-std::expected<Lexer::TokenKindResult, LexerError> Lexer::scan_pp_number(SVIter iter) const {
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_pp_number(
+    SourceIter iter
+) const {
+    this->log_.trace("scan pp number");
+
     TODO("scan_pp_number");
 }
 
-std::expected<uint32_t, LexerError> scan_char(SVIter iter, const SVIter end) {
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_char(
+    SourceIter iter,
+    const SourceIter end
+) const {
+    this->log_.trace("scan char");
+
     TODO("scan_char");
 }
 
-std::expected<uint32_t, LexerError> Lexer::scan_string(SVIter iter, const SVIter end) const {
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_string(
+    SourceIter iter,
+    const SourceIter end
+) const {
+    this->log_.trace("scan string");
+
     while (iter < end) {
-        auto [chr, bytes] = next_codepoint(iter);
-        if (chr == U'\\') {
-            std::tie(chr, bytes) = this->peek_chr_slow(iter);
+        const auto codepoint = next_codepoint(iter);
+        LexResult<char32_t> next{.value = codepoint.value, .iter = codepoint.iter};
+        if (next.value == chr32::esp) {
+            const auto character = this->next_chr_slow(iter);
+            next = {.value = static_cast<char32_t>(character.value), .iter = character.iter};
         }
 
-        if (chr == U'\\') {
-            bytes += 1;
+        if (next.value == chr32::esp) {
+            ++next.iter;
         }
     }
     TODO("scan_string");
@@ -669,42 +693,49 @@ std::expected<uint32_t, LexerError> Lexer::scan_string(SVIter iter, const SVIter
  * < anything but newline and '<' >
  * " anything but newline and '"' "
  */
-std::expected<uint32_t, LexerError> scan_header_name(SVIter iter) {
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_header_name(
+    SourceIter iter
+) const {
+    this->log_.trace("scan header name");
+
     TODO("scan_header_name");
 }
 
-// 识别四个 hex 数字
-std::expected<void, LexerError> scan_hex_qual(SVIter iter) {
-    for (int i = 0; i < 4 && *iter != '\0'; ++i, ++iter) {
-        if (!utils::is_xdigit(*iter)) {
-            return std::unexpected(LexerError::ExpectHex);
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::scan_ucn(
+    SourceIter iter,
+    UCNKind kind
+) const {
+    ASSERT(kind != UCNKind::Invalid);
+
+    this->log_.trace("scan ucn");
+
+    while (kind != UCNKind::Invalid) {
+        switch (kind) {
+        case UCNKind::U16:
+            TRY(scan_hex_qual<4>(iter));
+            iter += 4;
+            break;
+        case UCNKind::U32:
+            TRY(scan_hex_qual<8>(iter));
+            iter += 8;
+            break;
+        default:
+            UNREACHABLE();
         }
-    }
-    return {};
-};
-
-std::expected<uint32_t, LexerError> Lexer::scan_ucn(SVIter iter, const Lexer::UCNKind kind) const {
-    const auto start{iter};
-    switch (kind) {
-    case UCNKind::U16: // 通过 fallthrough 识别两次 hex-qual
-        TRY(scan_hex_qual(iter).transform([] { return 0; }));
-        iter += 4;
-        [[fallthrough]];
-    case UCNKind::U32:
-        TRY(scan_hex_qual(iter).transform([] { return 0; }));
-        iter += 4;
-        break;
-    default:
-        UNREACHABLE();
+        const auto result = check_ucn(iter);
+        kind = result.value;
+        iter = result.iter;
     }
 
-    return {std::distance(start, iter)};
+    return LexResult{.value = PPTokenKind::Ucn, .iter = iter};
 }
 
-std::expected<Lexer::TokenKindResult, LexerError> Lexer::sacn_token_kind(
-    const SVIter iter, const SVIter end) const {
+std::expected<Lexer::LexResult<PPTokenKind>, LexerError> Lexer::sacn_token_kind(
+    const SourceIter iter,
+    const SourceIter end
+) const {
     if (iter >= end) {
-        return TokenKindResult{.kind = PPTokenKind::Eof, .bytes = 0};
+        return LexResult{.value = PPTokenKind::Eof, .iter = iter};
     }
     /* 注意顺序，
      * char string 前缀可区分，顺序无关
@@ -712,74 +743,63 @@ std::expected<Lexer::TokenKindResult, LexerError> Lexer::sacn_token_kind(
      * 数字开头 . 0-9，可能与符号冲突，
      */
     // 是否是 注释
-    if (const auto [kind, bytes] = check_comment(iter); kind != CommentKind::Invalid) {
-        return this->scan_comment(iter + bytes, end, kind).transform([=](const uint32_t b) {
-            return TokenKindResult{.kind = PPTokenKind::Invalid, .bytes = b + bytes};
-        });
+    if (const auto result = check_comment(iter); result.value != CommentKind::Invalid) {
+        return this->scan_comment(result.iter, end, result.value);
     }
 
     // 是否是 string
-    if (const auto [kind, bytes] = check_string(iter); kind != CharStrKind::Invalid) {
-        return this->scan_string(iter + bytes, end).transform([=](const uint32_t b) {
-            return TokenKindResult{.kind = PPTokenKind::StringLiteral, .bytes = b + bytes};
-        });
+    if (const auto result = check_string(iter); result.value != CharStrKind::Invalid) {
+        return this->scan_string(result.iter, end);
     }
 
     // 是否是 char
-    if (const auto [kind, bytes] = check_char(iter); kind != CharStrKind::Invalid) {
-        return scan_char(iter + bytes, end).transform([=](const uint32_t b) {
-            return TokenKindResult{.kind = PPTokenKind::StringLiteral, .bytes = b + bytes};
-        });
+    if (const auto result = check_char(iter); result.value != CharStrKind::Invalid) {
+        return this->scan_char(result.iter, end);
     }
 
     // 是否是 header name
     if (check_header_name(iter)) {
-        return scan_header_name(iter + 1).transform([](const uint32_t b) {
-            return TokenKindResult{.kind = PPTokenKind::HeaderName, .bytes = b + 1};
-        });
+        return this->scan_header_name(iter + 1);
     }
 
     // 是否是 标识符，不判断关键字，由于预处理器的原因所有标识符都要后期重确认
-    if (const auto bytes = check_ident(iter); bytes) {
-        const auto b = this->scan_ident(iter + bytes);
-        return TokenKindResult{.kind = PPTokenKind::Ident, .bytes = b + 1};
+    if (const auto result = this->check_ident(iter); result.value) {
+        return this->scan_ident(result.iter);
     }
 
     // 是否是 数字
     if (const auto bytes = check_pp_number(iter); bytes) {
-        return this->scan_pp_number(iter + bytes).transform([=](const TokenKindResult res) {
-            return TokenKindResult{.kind = res.kind, .bytes = res.bytes + bytes};
-        });
+        return this->scan_pp_number(iter + bytes);
     }
 
     // 是否是 特殊符号
     if (check_punctuators(iter)) {
-        return scan_punctuator(iter);
+        return this->scan_punctuator(iter);
     }
 
     // 是否是 ucn
-    if (const auto kind = check_ucn(iter); kind != UCNKind::Invalid) {
-        return this->scan_ucn(iter + 2, kind).transform([](const uint32_t b) {
-            return TokenKindResult{.kind = PPTokenKind::Ucn, .bytes = b + 2};
-        });
+    if (const auto result = check_ucn(iter); result.value != UCNKind::Invalid) {
         TODO("universal-charactor-name");
+        return this->scan_ucn(result.iter, result.value);
     }
 
     // 什么都没匹配，无效
-    return TokenKindResult{.kind = PPTokenKind::Invalid, .bytes = 0};
+    return LexResult{.value = PPTokenKind::Invalid, .iter = iter};
 }
 
-Lexer::SkipSpaceResult Lexer::skip_space(SVIter iter) const {
+Lexer::SkipSpaceResult Lexer::skip_space(SourceIter iter) const {
+    this->log_.trace("skip_space");
+
     bool leading_space{false};
     bool start_of_line{false};
     TODO("skip space");
 
     // 跳过空白符号，判断 leading space 和 start of line
     while (true) {
-        const auto [chr, bytes] = peek_chr(iter);
-        if (utils::is_space(chr)) {
-        }
+        const auto next = next_chr(iter);
+        if (utils::is_space(next.value)) {}
     }
+
     return SkipSpaceResult{.leading_space = leading_space, .start_of_line = start_of_line};
 }
 
