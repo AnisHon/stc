@@ -4,9 +4,10 @@ set(STCC_UTILS_INC
     ${STCC_UTILS_INC_DIR}/strutils.h
     ${STCC_UTILS_INC_DIR}/unicode_utils.h
     ${STCC_UTILS_INC_DIR}/char_utils.h
+    ${STCC_UTILS_INC_DIR}/utf8.h
 )
 
-set(STCC_UTILS_SRC strutils.cpp unicode_utils.cpp)
+set(STCC_UTILS_SRC strutils.cpp unicode_utils.cpp utf8.cpp)
 
 add_library(stcc_utils ${STCC_UTILS_SRC})
 
