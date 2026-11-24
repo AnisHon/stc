@@ -6,7 +6,7 @@
 
 #include "stcc/sys/mmap.h"
 #include "stcc/sys/platform.h"
-#include "stcc/utils/macros.h"
+#include "stcc/commons/macros.h"
 
 #include <stdint.h>
 #include <expected>

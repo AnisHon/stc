@@ -11,7 +11,7 @@
 #include "stcc/lexer/string_interner.h"
 #include "stcc/lexer/token_kinds.h"
 #include "stcc/utils/char_utils.h"
-#include "stcc/utils/macros.h"
+#include "stcc/commons/macros.h"
 #include "stcc/utils/unicode_utils.h"
 
 namespace stcc {

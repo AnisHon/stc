@@ -3,7 +3,7 @@
  * Generated, DO NOT EDIT!!!
  */
 #include "stcc/lexer/token_kinds.h"
-#include "stcc/utils/macros.h"
+#include "stcc/commons/macros.h"
 
 namespace stcc {
 

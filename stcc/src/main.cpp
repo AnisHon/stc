@@ -1,6 +1,6 @@
 #include "fmt/base.h"
 #include "stcc/version.h"
-#include "stcc/utils/macros.h"
+#include "stcc/commons/macros.h"
 #include <fmt/format.h>
 
 int main() {

@@ -12,10 +12,10 @@
 #include <fmt/std.h>
 #include <cpptrace/cpptrace.hpp>
 
-#include "stcc/utils/macros.h"
+#include "stcc/commons/macros.h"
 
 [[noreturn]]
-void stcc::utils::inner_::panic_(
+void stcc::utils::detail::panic(
     std::string_view kind,
     std::string_view condition,
     std::string_view message,

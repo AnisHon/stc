@@ -26,4 +26,6 @@ target_sources(
 )
 
 target_include_directories(stcc_sys PUBLIC ${STCC_INC_DIR})
-target_link_libraries(stcc_sys PUBLIC stcc::cxx23 PRIVATE stcc_diagnostics Microsoft.GSL::GSL)
+target_link_libraries(
+    stcc_sys PUBLIC stcc::cxx23 stcc::commons PRIVATE stcc_diagnostics Microsoft.GSL::GSL
+)
