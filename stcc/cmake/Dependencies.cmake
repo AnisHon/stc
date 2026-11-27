@@ -55,4 +55,7 @@ if(BUILD_TESTING)
         SYSTEM
     )
     fetchcontent_makeavailable(Catch2)
+
+    # Keep Catch2's C++17-and-later features consistent with stcc_test.
+    target_compile_features(Catch2 PUBLIC cxx_std_23)
 endif()
