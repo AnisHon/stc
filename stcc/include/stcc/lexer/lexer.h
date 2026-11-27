@@ -8,6 +8,7 @@
 #define STCC_LEXER_H
 
 #include <expected>
+#include <optional>
 #include <spdlog/logger.h>
 #include <stdint.h>
 #include <string_view>
@@ -24,6 +25,7 @@ enum class LexerError : uint8_t {
     Invalid,
     CommentUnclosed,
     CharUnclosed,
+    StringUnclosed,
     ExpectHex,
     UnknownEscape,
 };
@@ -48,7 +50,7 @@ public:
 
 private:
     struct SkipSpaceResult {
-        uint32_t bytes;
+        SourceIter iter;
         bool leading_space;
         bool start_of_line;
     };
@@ -84,10 +86,11 @@ private:
     static constexpr char map_trigraph(char chr) noexcept;
 
     /**
-     * 从反斜杠之后跳过空白，返回遇到的字符和已跳过的字节数（含反斜杠）。
-     * @param iter 指向反斜杠之后的字节。
+     * 获取到下一个换行之前的字符长度
+     * @param iter escape 字符之后的迭代器
+     * @return 返回0表示没有newline转译，返回非零表示续行
      */
-    static PeekResult<char> peek_after_backslash(SourceIter iter);
+    uint32_t peek_newline_size_after_escape(SourceIter iter) const;
 
     /**
      * 处理可能涉及反斜杠或三字符组的前瞻，返回字符和对应的源字节数。
@@ -95,13 +98,15 @@ private:
      */
     PeekResult<char> peek_chr_slow(SourceIter iter) const;
 
+    PeekResult<char> peek_chr(const SourceIter iter) const;
+
     LexResult<char> next_chr_slow(SourceIter iter) const;
 
     /// 返回当前位置的字符和读取后的迭代器，不移动 Lexer 的游标。
     LexResult<char> next_chr(SourceIter iter) const;
 
     /// 在已知输入为有效 UTF-8 时，解码当前位置的码点并返回其源字节数。
-    LexResult<char32_t> next_codepoint(SourceIter iter) const  noexcept;
+    LexResult<char32_t> next_codepoint(SourceIter iter) const noexcept;
 
     /// 识别行注释或块注释的起始符。
     LexResult<CommentKind> check_comment(SourceIter iter) const;
@@ -118,7 +123,7 @@ private:
      * - first => '[0-9]'  '.'
      * - first-1 => '.[0-9]'  '[0-9](e|E|[0-9])'  '0x'  '0X'
      */
-    bool check_pp_number(SourceIter iter) const;
+    LexResult<bool> check_pp_number(SourceIter iter) const;
     /**
      * 不负责UCN
      */
@@ -134,64 +139,55 @@ private:
     LexResult<PPTokenKind> scan_punctuator(SourceIter iter) const;
 
     /// 扫描预处理数字起始部分之后的内容。
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_pp_number(SourceIter iter) const;
+    std::optional<LexResult<PPTokenKind>> scan_pp_number(SourceIter iter) const;
 
     /**
      * 从起始分隔符之后扫描头文件名。尖括号形式的内容不含换行或 `<`，
      * 双引号形式的内容不含换行或 `"`。
      */
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_header_name(SourceIter iter) const;
+    std::optional<LexResult<PPTokenKind>> scan_header_name(SourceIter iter) const;
 
-    /// 检查 n 组 十六进制 数字。其中 Num 只能为 4 或 8
+    /// 检查恰好 Num 位十六进制数字，其中 Num 只能为 4 或 8。
     template <size_t Num>
         requires(Num == 4 || Num == 8)
-    std::expected<void, LexerError> scan_hex_qual(SourceIter iter) const {
+    bool scan_hex_qual(const SourceIter iter) const {
         this->log_.trace("scan {} hex", Num);
 
-        for (int i = 0; i < Num && *iter != '\0'; ++i, ++iter) {
-            if (!utils::is_xdigit(*iter)) {
-                return std::unexpected(LexerError::ExpectHex);
+        SourceIter curr{iter};
+        for (size_t i = 0; i < Num; ++i, ++curr) {
+            const auto character{this->next_chr(curr)};
+
+            if (!utils::is_xdigit(character.value)) {
+                return false;
             }
+            curr = character.iter;
         }
-        return {};
+        return true;
     }
 
     /// 从前缀之后扫描连续的通用字符名，返回扫描结束的位置。
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_ucn(SourceIter iter, UCNKind kind) const;
+    std::optional<LexResult<PPTokenKind>> scan_ucn(SourceIter iter, UCNKind kind) const;
 
     /// 从 `//` 之后扫描到换行符或文件末尾。
-    LexResult<PPTokenKind> scan_line_comment(SourceIter iter, SourceIter end) const;
+    LexResult<PPTokenKind> scan_line_comment(SourceIter iter) const;
 
     /// 从 `/*` 之后扫描块注释，遇到文件末尾仍未闭合时返回错误。
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_block_comment(
-        SourceIter iter,
-        SourceIter end
-    ) const;
+    std::optional<LexResult<PPTokenKind>> scan_block_comment(SourceIter iter) const;
 
     /// 根据已识别的注释类型，从起始符之后继续扫描。
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_comment(
+    std::optional<LexResult<PPTokenKind>> scan_comment(
         SourceIter iter,
-        SourceIter end,
-        CommentKind kind
+        const CommentKind kind
     ) const;
 
     /// 从起始单引号之后扫描字符字面量。
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_char(
-        SourceIter iter,
-        SourceIter end
-    ) const;
+    std::optional<LexResult<PPTokenKind>> scan_char(SourceIter iter) const;
 
     /// 从起始双引号之后扫描字符串字面量。
-    std::expected<LexResult<PPTokenKind>, LexerError> scan_string(
-        SourceIter iter,
-        SourceIter end
-    ) const;
+    std::optional<LexResult<PPTokenKind>> scan_string(SourceIter iter) const;
 
-    /// 识别当前位置的预处理 token，返回类型和扫描结束的位置。
-    std::expected<LexResult<PPTokenKind>, LexerError> sacn_token_kind(
-        SourceIter iter,
-        SourceIter end
-    ) const;
+    /// 识别当前位置的预处理 token。扫描失败时返回 std::nullopt。
+    std::optional<LexResult<PPTokenKind>> sacn_token_kind(SourceIter iter) const;
 
     /// 统计当前位置的空白，记录是否有前导空白以及后续 token 是否位于行首。
     SkipSpaceResult skip_space(SourceIter iter) const;
@@ -215,6 +211,8 @@ private:
     bool leading_space_;
 
     bool start_of_line_;
+
+    bool enable_header_name_;
 };
 
 } // namespace stcc

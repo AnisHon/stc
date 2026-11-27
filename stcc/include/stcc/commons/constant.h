@@ -15,11 +15,6 @@ namespace chr {
  */
 inline constexpr char nul = '\0';
 
-/**
- * escape 字符 (backslash)
- */
-inline constexpr char esp = '\\';
-
 } // namespace chr
 
 namespace chr32 {
@@ -28,11 +23,6 @@ namespace chr32 {
  * NUL 字符
  */
 inline constexpr char32_t nul = '\0';
-
-/**
- * escape 字符 (backslash)
- */
-inline constexpr char32_t esp = L'\\';
 
 /**
  * unicode replacement character 替换字符
