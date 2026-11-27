@@ -13,7 +13,8 @@
 #include <stdint.h>
 #include <string_view>
 
-#include "pp_token.h"
+#include "stcc/lexer/lex_opt.h"
+#include "stcc/lexer/pp_token.h"
 #include "stcc/utils/char_utils.h"
 
 namespace stcc {
@@ -55,11 +56,23 @@ private:
         bool start_of_line;
     };
 
-    struct LexerOptions {
-        bool enable_trigraph;
+
+    struct TokenSpec {
+        SourceIter scan_end;
+
+        /// PPToken 的种类
+        PPTokenKind kind;
+
+        ///
+        bool leading_space;
+
+        /// 是否是行开始
+        bool start_of_line;
     };
 
     /// 注释的起始符类型。
+
+
     enum class CommentKind : uint8_t { Invalid = 0, Line, Block };
 
     enum class CharStrKind : uint8_t { Invalid = 0, ASCII, Wide, UTF16, UTF32 };
@@ -139,7 +152,7 @@ private:
     LexResult<PPTokenKind> scan_punctuator(SourceIter iter) const;
 
     /// 扫描预处理数字起始部分之后的内容。
-    std::optional<LexResult<PPTokenKind>> scan_pp_number(SourceIter iter) const;
+    std::optional<LexResult<PPTokenKind>> scan_pp_number(SourceIter curr) const;
 
     /**
      * 从起始分隔符之后扫描头文件名。尖括号形式的内容不含换行或 `<`，
@@ -178,7 +191,7 @@ private:
     std::optional<LexResult<PPTokenKind>> scan_comment(
         SourceIter iter,
         const CommentKind kind
-    ) const;
+        ) const;
 
     /// 从起始单引号之后扫描字符字面量。
     std::optional<LexResult<PPTokenKind>> scan_char(SourceIter iter) const;
@@ -187,10 +200,12 @@ private:
     std::optional<LexResult<PPTokenKind>> scan_string(SourceIter iter) const;
 
     /// 识别当前位置的预处理 token。扫描失败时返回 std::nullopt。
-    std::optional<LexResult<PPTokenKind>> sacn_token_kind(SourceIter iter) const;
+    std::optional<LexResult<PPTokenKind>> scan_token_kind(SourceIter iter) const;
 
     /// 统计当前位置的空白，记录是否有前导空白以及后续 token 是否位于行首。
     SkipSpaceResult skip_space(SourceIter iter) const;
+
+    PPToken make_token(TokenSpec token_spec) const;
 
     spdlog::logger &log_;
 

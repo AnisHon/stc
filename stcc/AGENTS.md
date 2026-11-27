@@ -9,7 +9,7 @@
 - Lexer 每次扫描一个缓冲区，产出 `PPToken`。保留 `range`、`leading_space` 和 `start_of_line`，后两者供预处理使用。此阶段把关键字拼写识别为标识符，留到预处理后再分类。
 - 预处理层负责指令、文件包含和宏展开。实现宏时同时保留 token 的拼写位置和调用位置；嵌套展开须能逐层回溯。Parser 只消费预处理后的 token，名称查找与类型检查交给 Sema，AST 节点按翻译单元管理。
 - 用户输入错误通过返回值或诊断报告，断言只检查内部不变量。Lexer 遇到非法输入时应报告错误并推进游标，或明确结束扫描。
-- token 表与 Unicode 表由构建生成。改数据时编辑 `resources/`，改输出格式时编辑 `templates/`，改生成算法时编辑 `utils/` 中的 Python 脚本。
+- token 表直接在 `include/stcc/lexer/token_kinds.def` 中维护。Unicode 表由构建生成，改数据时编辑 `resources/`，改输出格式时编辑 `templates/`，改生成算法时编辑 `utils/` 中的 Python 脚本。
 
 ## 规范
 

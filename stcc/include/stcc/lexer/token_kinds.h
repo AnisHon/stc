@@ -1,39 +1,17 @@
-/**
- * @date 2026-06-22 15:26:54
- * Generated, DO NOT EDIT!!!
- */
 #pragma once
-
-#include "stcc/lexer/token_kinds.inc"
 
 #include <string_view>
 #include <stdint.h>
 
-#define STCC_TOKEN_KIND_PUNCTUATOR_LIST \
-    STCC_TOKEN_KIND_DELIMITER_LIST      \
-    STCC_TOKEN_KIND_OPERATOR_LIST       \
-    STCC_TOKEN_KIND_PREPROCESSOR_LIST   \
-    STCC_TOKEN_KIND_DIGRAPH_LIST
-
-#define STCC_PP_TOKEN_KIND_ALL_LIST \
-    STCC_TOKEN_KIND_SPECIAL_LIST    \
-    STCC_TOKEN_KIND_IDENTIFIER_LIST \
-    STCC_TOKEN_KIND_PP_LIST         \
-    STCC_TOKEN_KIND_PUNCTUATOR_LIST
-
 namespace stcc {
 
-/**
- * 没有 Token
- */
 enum class PPTokenKind : uint8_t {
-#define X(kind, symbol, name, since) name,
-    STCC_PP_TOKEN_KIND_ALL_LIST
-#undef X
+#define STCC_TOKEN(name, spelling) name,
+#include "stcc/lexer/token_kinds.def"
 };
 
 /**
- * 是否是预处理
+ * 是否是 # 或 ##
  */
 bool is_preprocessor(PPTokenKind k);
 

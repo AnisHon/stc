@@ -116,10 +116,10 @@ Lexer::PeekResult<char> Lexer::peek_chr_slow(const SourceIter iter) const {
         }
 
         // 下一个字符可能是 trigraph 或者 '\'
-        const auto result{peek_chr(iter + newline_bytes)};
+        const auto [chr, bytes]{peek_chr(iter + newline_bytes)};
         // '\'字符 + newline size + 下一个字符长度
-        const auto bytes = result.bytes + newline_bytes + 1;
-        return {.value = result.value, .bytes = bytes};
+        const auto total_bytes = bytes + newline_bytes + 1;
+        return {.value = chr, .bytes = total_bytes};
     }
 
     // 是否是 ?? 开头，是否 enable_trigraph
@@ -142,10 +142,10 @@ Lexer::PeekResult<char> Lexer::peek_chr_slow(const SourceIter iter) const {
         }
 
         // 同样下一个字符可能是 trigraph 或者 '\'，或者更糟 '??/'
-        const auto result{peek_chr(iter + newline_bytes)};
+        const auto [chr, bytes]{peek_chr(iter + newline_bytes)};
         // '??/' + newline size + 下一个字符长度
-        const auto bytes = result.bytes + newline_bytes + 3;
-        return {.value = result.value, .bytes = result.bytes + newline_bytes};
+        const auto total_bytes{bytes + newline_bytes + 3};
+        return {.value = chr, .bytes = total_bytes};
     }
     return {.value = *curr, .bytes = 1};
 }
@@ -219,18 +219,22 @@ Lexer::LexResult<Lexer::CharStrKind> Lexer::check_char(const SourceIter iter) co
     switch (*iter) {
     case '\'':
         kind = CharStrKind::ASCII;
+        break;
     case 'L':
         kind = CharStrKind::Wide;
+        break;
     case 'u':
         kind = CharStrKind::UTF16;
+        break;
     case 'U':
         kind = CharStrKind::UTF32;
+        break;
     default:
         return {.value = kind, .iter = iter};
     }
 
-    if (const auto next = this->next_chr(iter + 1); next.value == '\'') {
-        return {.value = kind, .iter = next.iter};
+    if (const auto [chr, it] = this->next_chr(iter + 1); chr == '\'') {
+        return {.value = kind, .iter = it};
     }
     return {.value = CharStrKind::Invalid, .iter = iter};
 }
@@ -292,14 +296,15 @@ Lexer::LexResult<bool> Lexer::check_pp_number(const SourceIter iter) const {
  * 不负责UCN
  */
 Lexer::LexResult<bool> Lexer::check_ident(const SourceIter iter) const {
-    const auto next_cp = this->next_codepoint(iter);
-    SourceIter next_iter{iter};
+    const auto [chr, it] = this->next_codepoint(iter);
+    SourceIter curr{iter};
     bool is_ident{false};
 
-    if (utils::is_xid_start(next_cp.value) || next_cp.value == U'_') {
-        next_iter = next_cp.iter;
+    if (utils::is_xid_start(chr) || chr == U'_') {
+        curr = it;
+        is_ident = true;
     }
-    return {.value = is_ident, .iter = next_iter};
+    return {.value = is_ident, .iter = curr};
 }
 
 bool check_punctuators(const SourceIter iter) {
@@ -646,14 +651,14 @@ Lexer::LexResult<PPTokenKind> Lexer::scan_punctuator(SourceIter iter) const {
 Lexer::LexResult<PPTokenKind> Lexer::scan_line_comment(const SourceIter iter) const {
     SourceIter curr{iter};
     while (curr < this->source_end_) {
-        const auto character = this->next_chr(curr);
-        curr = character.iter;
-        if (utils::is_newline(character.value) || character.value == chr::nul) {
+        const auto [chr, it] = this->next_chr(curr);
+        curr = it;
+        if (utils::is_newline(chr) || chr == chr::nul) {
             break;
         }
     }
-    // todo 没给 comment 设置 TokenKind
-    return {.value = PPTokenKind::Invalid, .iter = curr};
+
+    return {.value = PPTokenKind::Comment, .iter = curr};
 }
 
 std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_block_comment(SourceIter iter) const {
@@ -661,9 +666,9 @@ std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_block_comment(SourceIte
     bool closed{false};
 
     while (curr < this->source_end_) {
-        const auto character = this->next_chr(curr);
-        curr = character.iter;
-        if (character.value == '*' && *(curr + 1) == '/') {
+        const auto [chr, it] = this->next_chr(curr);
+        curr = it;
+        if (chr == '*' && *(curr + 1) == '/') {
             curr += 2;
             closed = true;
             break;
@@ -675,13 +680,13 @@ std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_block_comment(SourceIte
         return std::nullopt;
     }
 
-    return LexResult{.value = PPTokenKind::Invalid, .iter = curr + 1};
+    return LexResult{.value = PPTokenKind::Comment, .iter = curr + 1};
 }
 
 std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_comment(
     const SourceIter iter,
     const CommentKind kind
-) const {
+    ) const {
     this->log_.trace("scan comment");
 
     switch (kind) {
@@ -696,29 +701,31 @@ std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_comment(
     UNREACHABLE();
 }
 
-std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_pp_number(SourceIter iter) const {
+std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_pp_number(const SourceIter iter) const {
     this->log_.trace("scan pp number");
 
-    while (true) {
-        const auto result = this->next_chr(iter);
+    SourceIter curr{iter};
 
-        const bool is_exponent_sign = algo::is_one_of(result.value, 'e', 'E', 'p', 'P');
-        const bool is_pp_num_piece = utils::is_digit(result.value) || result.value == '.'
-            || utils::is_xid_start(result.value);
+    while (true) {
+        const auto [chr, it] = this->next_chr(curr);
+
+        const bool is_exponent_sign = algo::is_one_of(chr, 'e', 'E', 'p', 'P');
+        const bool is_pp_num_piece = utils::is_digit(chr) || chr == '.'
+            || utils::is_xid_start(chr);
 
         if (is_exponent_sign) {
-            iter = result.iter;
-            const auto next_result = next_chr(iter);
-            if (algo::is_one_of(next_result.value, '+', '-')) {
-                iter = next_result.iter;
+            curr = it;
+            const auto [n_chr, next_it] = next_chr(curr);
+            if (algo::is_one_of(n_chr, '+', '-')) {
+                curr = next_it;
             }
         } else if (is_pp_num_piece) {
-            iter = result.iter;
+            curr = it;
         } else {
             break;
         }
     }
-    return LexResult{.value = PPTokenKind::PPNumber, .iter = iter};
+    return LexResult{.value = PPTokenKind::PPNumber, .iter = curr};
 }
 
 std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_char(const SourceIter iter) const {
@@ -832,7 +839,7 @@ std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_ucn(SourceIter iter, UC
     return LexResult{.value = PPTokenKind::Ucn, .iter = iter};
 }
 
-std::optional<Lexer::LexResult<PPTokenKind>> Lexer::sacn_token_kind(const SourceIter iter) const {
+std::optional<Lexer::LexResult<PPTokenKind>> Lexer::scan_token_kind(const SourceIter iter) const {
     if (iter >= this->source_end_) {
         return LexResult{.value = PPTokenKind::Eof, .iter = iter};
     }
@@ -842,34 +849,29 @@ std::optional<Lexer::LexResult<PPTokenKind>> Lexer::sacn_token_kind(const Source
      * 数字开头 . 0-9，可能与符号冲突，
      */
 
-    // 是否是 注释
-    if (const auto result = check_comment(iter); result.value != CommentKind::Invalid) {
-        return this->scan_comment(result.iter, result.value);
-    }
-
     // 是否是 header name（只有在特定上下文才能识别）
     if (this->enable_header_name_ && check_header_name(iter)) {
         return this->scan_header_name(iter);
     }
 
     // 是否是 string
-    if (const auto result = check_string(iter); result.value != CharStrKind::Invalid) {
-        return this->scan_string(result.iter);
+    if (const auto [value, next_iter] = check_string(iter); value != CharStrKind::Invalid) {
+        return this->scan_string(next_iter);
     }
 
     // 是否是 char
-    if (const auto result = check_char(iter); result.value != CharStrKind::Invalid) {
-        return this->scan_char(result.iter);
+    if (const auto [value, next_iter] = check_char(iter); value != CharStrKind::Invalid) {
+        return this->scan_char(next_iter);
     }
 
     // 是否是 标识符，不判断关键字，由于预处理器的原因所有标识符都要后期重确认
-    if (const auto result = this->check_ident(iter); result.value) {
-        return this->scan_ident(result.iter);
+    if (const auto [value, next_iter] = this->check_ident(iter); value) {
+        return this->scan_ident(next_iter);
     }
 
     // 是否是 数字
-    if (const auto result = check_pp_number(iter); result.value) {
-        return this->scan_pp_number(result.iter);
+    if (const auto [value, next_iter] = check_pp_number(iter); value) {
+        return this->scan_pp_number(next_iter);
     }
 
     // 是否是 特殊符号
@@ -878,8 +880,8 @@ std::optional<Lexer::LexResult<PPTokenKind>> Lexer::sacn_token_kind(const Source
     }
 
     // 是否是 ucn
-    if (const auto result = check_ucn(iter); result.value != UCNKind::Invalid) {
-        return this->scan_ucn(result.iter, result.value);
+    if (const auto [value, next_iter] = check_ucn(iter); value != UCNKind::Invalid) {
+        return this->scan_ucn(next_iter, value);
     }
 
     TODO_DIAGNOSTIC(this->log_, "输出无法识别的预处理 token 错误");
@@ -897,12 +899,12 @@ Lexer::SkipSpaceResult Lexer::skip_space(const SourceIter iter) const {
 
     // 跳过空白符号，判断 leading space 和 start of line
     while (true) {
-        const auto character = next_chr(result.iter);
-        result.iter = character.iter;
-        if (utils::is_newline(character.value)) {
+        const auto [chr, it] = next_chr(result.iter);
+        result.iter = it;
+        if (utils::is_newline(chr)) {
             result.leading_space = true;
             result.start_of_line = false;
-        } else if (utils::is_space(character.value)) {
+        } else if (utils::is_space(chr)) {
             result.leading_space = true;
         } else {
             break;
@@ -912,13 +914,71 @@ Lexer::SkipSpaceResult Lexer::skip_space(const SourceIter iter) const {
     return result;
 }
 
-/**
- * 续航符问题非常棘手
- */
-PPToken Lexer::next_token() {
-    const auto res = skip_space(this->curr_iter_);
+PPToken Lexer::make_token(const TokenSpec token_spec) const {
+    const size_t size = std::distance(this->curr_iter_, token_spec.scan_end);
 
-    this->leading_space_ = res.leading_space;
+    const Lexeme lexeme{
+        .str = this->curr_iter_,
+        .len = size,
+    };
+
+    return PPToken{
+        .kind = token_spec.kind,
+        .lexeme = lexeme,
+        // todo fill .range = ,
+        .leading_space = token_spec.leading_space,
+        .start_of_line = token_spec.start_of_line
+    };
+}
+
+PPToken Lexer::next_token() {
+    const auto [iter, leading_space, start_of_line] = skip_space(this->curr_iter_);
+
+    std::optional<LexResult<PPTokenKind>> result;
+    auto comment_kind{CommentKind::Invalid};
+
+    // 是否是 注释
+    if (const auto [value, next_iter] = check_comment(iter); value != CommentKind::Invalid) {
+        comment_kind = value;
+        result = this->scan_comment(next_iter, value);
+    } else {
+        result = this->scan_token_kind(iter);
+    }
+
+    const auto [token_kind, scan_end] = result.value_or(
+        LexResult{.value = PPTokenKind::Invalid, .iter = iter});
+
+    switch (token_kind) {
+    case PPTokenKind::Invalid:
+        // 出错了。什么都不做
+        break;
+    case PPTokenKind::Comment:
+        this->leading_space_ = false;
+        switch (comment_kind) {
+        case CommentKind::Line:
+            this->start_of_line_ = true;
+            break;
+        case CommentKind::Block:
+            this->start_of_line_ = false;
+            break;
+        case CommentKind::Invalid:
+            UNREACHABLE();
+        }
+    default:
+        this->leading_space_ = false;
+        this->start_of_line_ = false;
+    }
+
+    const auto token = this->make_token(TokenSpec{
+        .scan_end = scan_end,
+        .kind = token_kind,
+        .leading_space = leading_space,
+        .start_of_line = start_of_line
+    });
+
+    this->curr_iter_ = scan_end;
+
+    return token;
 }
 
 } // namespace stcc

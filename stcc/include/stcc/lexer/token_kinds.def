@@ -1,0 +1,154 @@
+// 按需定义下列宏后包含本文件。每次包含都会在末尾清理这些宏。
+#ifndef STCC_TOKEN
+#  define STCC_TOKEN(name, spelling)
+#endif
+#ifndef STCC_PUNCTUATOR
+#  define STCC_PUNCTUATOR(name, spelling) STCC_TOKEN(name, spelling)
+#endif
+#ifndef STCC_PP_PUNCTUATOR
+#  define STCC_PP_PUNCTUATOR(name, spelling) STCC_PUNCTUATOR(name, spelling)
+#endif
+#ifndef STCC_LITERAL
+#  define STCC_LITERAL(name, spelling)
+#endif
+#ifndef STCC_KEYWORD
+#  define STCC_KEYWORD(name, spelling, since)
+#endif
+
+// 特殊 token
+STCC_TOKEN(Invalid, "invalid")
+STCC_TOKEN(Eof, "eof")
+STCC_TOKEN(Comment, "comment")
+
+// 标识符
+STCC_TOKEN(Ident, "ident")
+STCC_TOKEN(Ucn, "ucn")
+
+// 其他预处理 token
+STCC_TOKEN(StringLiteral, "string_literal")
+STCC_TOKEN(PPNumber, "pp_number")
+STCC_TOKEN(CharConstant, "char_constant")
+STCC_TOKEN(HeaderName, "header_name")
+STCC_TOKEN(Other, "other")
+
+// 分隔符
+STCC_PUNCTUATOR(LParen, "(")
+STCC_PUNCTUATOR(RParen, ")")
+STCC_PUNCTUATOR(LBracket, "[")
+STCC_PUNCTUATOR(RBracket, "]")
+STCC_PUNCTUATOR(LBrace, "{")
+STCC_PUNCTUATOR(RBrace, "}")
+STCC_PUNCTUATOR(Comma, ",")
+STCC_PUNCTUATOR(Semicolon, ";")
+STCC_PUNCTUATOR(Colon, ":")
+STCC_PUNCTUATOR(Question, "?")
+STCC_PUNCTUATOR(Dot, ".")
+STCC_PUNCTUATOR(Arrow, "->")
+STCC_PUNCTUATOR(Ellipsis, "...")
+
+// 运算符
+STCC_PUNCTUATOR(Plus, "+")
+STCC_PUNCTUATOR(Minus, "-")
+STCC_PUNCTUATOR(Star, "*")
+STCC_PUNCTUATOR(Slash, "/")
+STCC_PUNCTUATOR(Percent, "%")
+STCC_PUNCTUATOR(PlusPlus, "++")
+STCC_PUNCTUATOR(MinusMinus, "--")
+STCC_PUNCTUATOR(Equal, "=")
+STCC_PUNCTUATOR(PlusEqual, "+=")
+STCC_PUNCTUATOR(MinusEqual, "-=")
+STCC_PUNCTUATOR(StarEqual, "*=")
+STCC_PUNCTUATOR(SlashEqual, "/=")
+STCC_PUNCTUATOR(PercentEqual, "%=")
+STCC_PUNCTUATOR(EqualEqual, "==")
+STCC_PUNCTUATOR(NotEqual, "!=")
+STCC_PUNCTUATOR(Less, "<")
+STCC_PUNCTUATOR(Greater, ">")
+STCC_PUNCTUATOR(LessEqual, "<=")
+STCC_PUNCTUATOR(GreaterEqual, ">=")
+STCC_PUNCTUATOR(AmpAmp, "&&")
+STCC_PUNCTUATOR(PipePipe, "||")
+STCC_PUNCTUATOR(Bang, "!")
+STCC_PUNCTUATOR(Amp, "&")
+STCC_PUNCTUATOR(Pipe, "|")
+STCC_PUNCTUATOR(Caret, "^")
+STCC_PUNCTUATOR(Tilde, "~")
+STCC_PUNCTUATOR(ShiftLeft, "<<")
+STCC_PUNCTUATOR(ShiftRight, ">>")
+STCC_PUNCTUATOR(AmpEqual, "&=")
+STCC_PUNCTUATOR(PipeEqual, "|=")
+STCC_PUNCTUATOR(CaretEqual, "^=")
+STCC_PUNCTUATOR(ShiftLeftEqual, "<<=")
+STCC_PUNCTUATOR(ShiftRightEqual, ">>=")
+
+// 预处理标点
+STCC_PP_PUNCTUATOR(Hash, "#")
+STCC_PP_PUNCTUATOR(HashHash, "##")
+
+// 双字符符号（digraphs）
+STCC_PUNCTUATOR(LBracketAlt, "<:")
+STCC_PUNCTUATOR(RBracketAlt, ":>")
+STCC_PUNCTUATOR(LBraceAlt, "<%")
+STCC_PUNCTUATOR(RBraceAlt, "%>")
+STCC_PUNCTUATOR(HashAlt, "%:")
+STCC_PUNCTUATOR(HashHashAlt, "%:%:")
+
+// 预处理后的字面量和关键字，由相应阶段按需展开。
+STCC_LITERAL(NumberConstant, "number_constant")
+STCC_LITERAL(StringLiteral, "string_literal")
+
+STCC_KEYWORD(KwAuto, "auto", c89)
+STCC_KEYWORD(KwBreak, "break", c89)
+STCC_KEYWORD(KwCase, "case", c89)
+STCC_KEYWORD(KwChar, "char", c89)
+STCC_KEYWORD(KwConst, "const", c89)
+STCC_KEYWORD(KwContinue, "continue", c89)
+STCC_KEYWORD(KwDefault, "default", c89)
+STCC_KEYWORD(KwDo, "do", c89)
+STCC_KEYWORD(KwDouble, "double", c89)
+STCC_KEYWORD(KwElse, "else", c89)
+STCC_KEYWORD(KwEnum, "enum", c89)
+STCC_KEYWORD(KwExtern, "extern", c89)
+STCC_KEYWORD(KwFloat, "float", c89)
+STCC_KEYWORD(KwFor, "for", c89)
+STCC_KEYWORD(KwGoto, "goto", c89)
+STCC_KEYWORD(KwIf, "if", c89)
+STCC_KEYWORD(KwInline, "inline", c89)
+STCC_KEYWORD(KwInt, "int", c89)
+STCC_KEYWORD(KwLong, "long", c89)
+STCC_KEYWORD(KwRegister, "register", c89)
+STCC_KEYWORD(KwRestrict, "restrict", c99)
+STCC_KEYWORD(KwReturn, "return", c89)
+STCC_KEYWORD(KwShort, "short", c89)
+STCC_KEYWORD(KwSigned, "signed", c89)
+STCC_KEYWORD(KwSizeof, "sizeof", c89)
+STCC_KEYWORD(KwStatic, "static", c89)
+STCC_KEYWORD(KwStruct, "struct", c89)
+STCC_KEYWORD(KwSwitch, "switch", c89)
+STCC_KEYWORD(KwTypedef, "typedef", c89)
+STCC_KEYWORD(KwUnion, "union", c89)
+STCC_KEYWORD(KwUnsigned, "unsigned", c89)
+STCC_KEYWORD(KwVoid, "void", c89)
+STCC_KEYWORD(KwVolatile, "volatile", c89)
+STCC_KEYWORD(KwWhile, "while", c89)
+
+STCC_KEYWORD(KwBool, "_Bool", c99)
+STCC_KEYWORD(KwComplex, "_Complex", c99)
+STCC_KEYWORD(KwImaginary, "_Imaginary", c99)
+
+STCC_KEYWORD(KwAlignas, "_Alignas", c11)
+STCC_KEYWORD(KwAlignof, "_Alignof", c11)
+STCC_KEYWORD(KwAtomic, "_Atomic", c11)
+STCC_KEYWORD(KwGeneric, "_Generic", c11)
+STCC_KEYWORD(KwNoreturn, "_Noreturn", c11)
+STCC_KEYWORD(KwStaticAssert, "_Static_assert", c11)
+STCC_KEYWORD(KwThreadLocal, "_Thread_local", c11)
+
+STCC_KEYWORD(KwAsm, "asm", extension)
+STCC_KEYWORD(KwAttribute, "__attribute__", extension)
+
+#undef STCC_KEYWORD
+#undef STCC_LITERAL
+#undef STCC_PP_PUNCTUATOR
+#undef STCC_PUNCTUATOR
+#undef STCC_TOKEN

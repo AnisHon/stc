@@ -14,10 +14,6 @@ uv run utils/unicode_gen.py resources/DerivedCoreProperties.txt \
   --namespace stcc::utils::gen
 ```
 
-### 生成 token 相关定义
+### 修改 token 定义
 
-```shell
-uv run utils/token_gen.py resources/token_def.txt \
-  --template ${TEMPLATE_DIR}/token_kinds.inc.jinja \
-  -o ${GEN_HEADER_DIR}/token_kinds.inc
-```
+直接编辑 [`stcc/include/stcc/lexer/token_kinds.def`](stcc/include/stcc/lexer/token_kinds.def)。枚举和查询函数通过重复包含该文件展开各自需要的定义。

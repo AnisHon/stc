@@ -60,27 +60,3 @@ function(target_generate_unicode_props TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE "${OUT_CPP}")
     target_include_directories(${TARGET_NAME} PRIVATE "${GEN_DIR}")
 endfunction()
-
-# 生成 token 宏定义文件 (.inc)
-function(target_generate_token_inc TARGET_NAME)
-    set(SCRIPT_FILE "${PROJECT_SOURCE_DIR}/utils/token_gen.py")
-    set(RESOURCE_FILE "${PROJECT_SOURCE_DIR}/resources/token_def.txt")
-    set(TPL_FILE "${PROJECT_SOURCE_DIR}/templates/token_kinds.inc.jinja")
-
-    set(GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
-    set(OUT_DIR "${GEN_DIR}/stcc/lexer")
-    set(OUT_INC "${OUT_DIR}/token_kinds.inc")
-
-    add_custom_command(
-        OUTPUT "${OUT_INC}"
-        COMMAND "${UV_EXECUTABLE}" run --no-sync "${SCRIPT_FILE}" "${RESOURCE_FILE}" --template "${TPL_FILE}" -o
-                "${OUT_INC}"
-        DEPENDS "${SCRIPT_FILE}" "${PROJECT_SOURCE_DIR}/utils/utils.py" "${RESOURCE_FILE}" "${TPL_FILE}"
-                ${STCC_PYTHON_PROJECT_INPUTS}
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-        COMMENT "[CodeGen] Generating token_kinds.inc for ${TARGET_NAME} via uv..."
-        VERBATIM)
-
-    target_sources(${TARGET_NAME} PUBLIC "${OUT_INC}")
-    target_include_directories(${TARGET_NAME} PUBLIC "${GEN_DIR}")
-endfunction()

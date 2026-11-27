@@ -7,6 +7,7 @@ set(STCC_LEXER_INC
     ${STCC_LEXER_INC_DIR}/token_stream.h
     ${STCC_LEXER_INC_DIR}/string_interner.h
     ${STCC_LEXER_INC_DIR}/token_kinds.h
+    ${STCC_LEXER_INC_DIR}/token_kinds.def
     ${STCC_LEXER_INC_DIR}/directive.h
     ${STCC_LEXER_INC_DIR}/lex_opt.h
     #${STCC_LEXER_INCLUDE_DIR}/
@@ -34,7 +35,6 @@ target_sources(
             ${STCC_LEXER_INC}
 )
 
-target_generate_token_inc(stcc_lexer)
 target_include_directories(stcc_lexer PUBLIC ${STCC_INC_DIR})
 
 target_link_libraries(
