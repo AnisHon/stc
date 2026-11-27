@@ -4,7 +4,7 @@
 
 #include "stcc/utils/utf8.h"
 
-namespace stcc::utils::utf8 {
+namespace stcc::utf8 {
 
 bool is_valid(const char *first, const char *last) noexcept {
     while (first != last) {
@@ -29,4 +29,4 @@ std::size_t resync(const char *first, const char *last) noexcept {
     return skipped;
 }
 
-} // namespace stcc::utils::utf8
+} // namespace stcc::utf8

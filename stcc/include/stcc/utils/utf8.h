@@ -13,7 +13,7 @@
 
 #include "stcc/commons/constant.h"
 
-namespace stcc::utils::utf8 {
+namespace stcc::utf8 {
 
 // 输入使用同一缓冲区内的半开区间 [first, last)。两个空指针也表示空区间。
 
@@ -95,6 +95,12 @@ struct DecodeResult {
     return {.codepoint = codepoint, .bytes = width, .status = DecodeStatus::Ok};
 }
 
+/// 判断区间开头是否包含完整的 UTF-8 BOM（U+FEFF）。
+[[nodiscard]] constexpr bool has_bom(const char *first, const char *last) noexcept {
+    const auto result = decode(first, last);
+    return result.status == DecodeStatus::Ok && result.codepoint == U'\ufeff';
+}
+
 /**
  * 将一个码点编码到 output 的开头，返回写入的字节数。
  * 码点非法或空间不足时返回 0，输出缓冲区不变。
@@ -137,6 +143,6 @@ struct DecodeResult {
  */
 [[nodiscard]] std::size_t resync(const char *first, const char *last) noexcept;
 
-} // namespace stcc::utils::utf8
+} // namespace stcc::utf8
 
 #endif // STCC_UTF8_H

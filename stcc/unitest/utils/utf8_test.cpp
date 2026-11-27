@@ -8,7 +8,7 @@
 
 namespace {
 
-namespace utf8 = stcc::utils::utf8;
+namespace utf8 = stcc::utf8;
 using namespace std::string_view_literals;
 
 constexpr const char *end_of(std::string_view bytes) noexcept {
@@ -189,6 +189,21 @@ TEST_CASE("UTF-8 validates an entire sequence including embedded NULs", "[utf8]"
     }
     for (const auto bytes : {"A\xff\x42"sv, "A\0\xed\xa0\x80"sv, "\xc2\xa2\xf0\x9f\x98"sv}) {
         CHECK_FALSE(utf8::is_valid(bytes.data(), end_of(bytes)));
+    }
+}
+
+TEST_CASE("UTF-8 detects a complete BOM at the start of the range", "[utf8]") {
+    constexpr auto bom = "\xef\xbb\xbf"sv;
+    static_assert(utf8::has_bom(bom.data(), end_of(bom)));
+
+    const auto with_bom = "\xef\xbb\xbfint x;"sv;
+    CHECK(utf8::has_bom(with_bom.data(), end_of(with_bom)));
+    CHECK_FALSE(utf8::has_bom(nullptr, nullptr));
+    for (std::size_t size = 0; size < bom.size(); ++size) {
+        CHECK_FALSE(utf8::has_bom(bom.data(), bom.data() + size));
+    }
+    for (const auto bytes : {"x\xef\xbb\xbf"sv, "\xef\xbb\xbe"sv, "\xff\xfe"sv}) {
+        CHECK_FALSE(utf8::has_bom(bytes.data(), end_of(bytes)));
     }
 }
 

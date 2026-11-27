@@ -122,20 +122,20 @@ Lexer::LexResult<char32_t> Lexer::next_codepoint(const SourceIter it) const noex
     SourceIter next_it{it};
     char32_t next_cp{};
 
-    const auto [cp, bytes, status] = utils::utf8::decode(it, this->source_end_);
+    const auto [cp, bytes, status] = utf8::decode(it, this->source_end_);
 
     switch (status) {
-    case utils::utf8::DecodeStatus::Ok:
+    case utf8::DecodeStatus::Ok:
         next_it = it + bytes;
         next_cp = cp;
         break;
-    case utils::utf8::DecodeStatus::Eof:
+    case utf8::DecodeStatus::Eof:
         next_it = it;
         next_cp = chr32::nul;
         break;
-    case utils::utf8::DecodeStatus::Invalid: {
+    case utf8::DecodeStatus::Invalid: {
         TODO("无效码，报错");
-        const size_t resync_bytes{utils::utf8::resync(it, this->source_end_)};
+        const size_t resync_bytes{utf8::resync(it, this->source_end_)};
         next_it = resync_bytes + it;
         next_cp = chr32::replacement;
         break;
