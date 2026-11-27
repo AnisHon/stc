@@ -5,6 +5,7 @@ set(STCC_UTILS_INC
     ${STCC_UTILS_INC_DIR}/unicode_utils.h
     ${STCC_UTILS_INC_DIR}/char_utils.h
     ${STCC_UTILS_INC_DIR}/utf8.h
+    ${STCC_UTILS_INC_DIR}/algo.h
 )
 
 set(STCC_UTILS_SRC strutils.cpp unicode_utils.cpp utf8.cpp)
